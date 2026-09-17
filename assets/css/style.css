@@ -101,6 +101,8 @@ ul {
   stroke: var(--accent);
   stroke-width: 1.2;
   opacity: 0.08;
+  transform-box: view-box;
+  transform-origin: 50% 50%;
   animation: contour-drift 24s ease-in-out infinite alternate;
 }
 
