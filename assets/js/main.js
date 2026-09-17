@@ -7,15 +7,32 @@
   var navLinks = nav ? Array.prototype.slice.call(nav.querySelectorAll("a")) : [];
   var sections = Array.prototype.slice.call(document.querySelectorAll("main section[id]"));
   var yearEl = document.getElementById("rok");
+  var contourSvg = document.querySelector(".page-contours svg");
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   if (yearEl) {
     yearEl.textContent = String(new Date().getFullYear());
   }
 
-  // Header shadow/border once the page is scrolled
+  // Header shadow/border once the page is scrolled, plus a slow parallax
+  // drift of the background contour lines tied to scroll position.
+  var parallaxTicking = false;
+
+  function updateParallax() {
+    if (contourSvg) {
+      var offset = window.scrollY * 0.08;
+      contourSvg.style.transform = "translateY(" + offset.toFixed(2) + "px)";
+    }
+    parallaxTicking = false;
+  }
+
   function onScroll() {
     if (header) {
       header.classList.toggle("is-scrolled", window.scrollY > 4);
+    }
+    if (!reduceMotion && !parallaxTicking) {
+      parallaxTicking = true;
+      window.requestAnimationFrame(updateParallax);
     }
   }
   onScroll();
