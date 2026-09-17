@@ -9,6 +9,7 @@
   var yearEl = document.getElementById("rok");
   var contoursEl = document.getElementById("pageContours");
   var contoursSvg = document.getElementById("contoursSvg");
+  var travelGlow = document.getElementById("travelGlow");
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   if (yearEl) {
@@ -43,7 +44,7 @@
     contoursEl.style.height = pageHeight + "px";
     contoursSvg.setAttribute("viewBox", "0 0 1440 " + pageHeight);
 
-    var spacing = 210;
+    var spacing = 260;
     var count = Math.ceil(pageHeight / spacing) + 1;
     var frag = document.createDocumentFragment();
 
@@ -51,12 +52,25 @@
       var y = i * spacing + spacing / 2;
       var amplitude = 40 + (i % 3) * 20;
       var phase = i * 1.7;
+      var d = buildWavePath(y, amplitude, phase);
+      var duration = 20 + (i % 5) * 3 + "s";
+      var delay = "-" + (i % 7) * 4 + "s";
+      var lineOpacity = (0.08 + (i % 4) * 0.015).toFixed(3);
+
+      // Glow duplicate first, so the crisp line renders on top of it.
+      var glow = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      glow.setAttribute("class", "contour-glow");
+      glow.setAttribute("d", d);
+      glow.style.animationDuration = duration;
+      glow.style.animationDelay = delay;
+      frag.appendChild(glow);
+
       var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
       path.setAttribute("class", "contour-line");
-      path.setAttribute("d", buildWavePath(y, amplitude, phase));
-      path.style.opacity = (0.06 + (i % 4) * 0.012).toFixed(3);
-      path.style.animationDuration = 20 + (i % 5) * 3 + "s";
-      path.style.animationDelay = "-" + ((i % 7) * 4) + "s";
+      path.setAttribute("d", d);
+      path.style.opacity = lineOpacity;
+      path.style.animationDuration = duration;
+      path.style.animationDelay = delay;
       frag.appendChild(path);
     }
 
@@ -79,12 +93,35 @@
 
   // Header shadow/border once the page is scrolled, plus a glow intensity
   // on the contour lines that gently rises and falls as you scroll down
-  // (the lines themselves keep wiggling independently via CSS).
+  // (the lines themselves keep wiggling independently via CSS), and a
+  // large ambient glow that wanders around the page as you scroll,
+  // staying mostly out near the left/right edges so it doesn't sit
+  // behind the text column.
   var glowTicking = false;
 
   function updateGlow() {
     var wave = (Math.sin(window.scrollY / 400) + 1) / 2;
     document.documentElement.style.setProperty("--glow-strength", wave.toFixed(3));
+
+    if (travelGlow) {
+      var doc = document.documentElement;
+      var maxScroll = Math.max(doc.scrollHeight - window.innerHeight, 1);
+      var t = Math.min(Math.max(window.scrollY / maxScroll, 0), 1);
+
+      // Raising the sine to an odd power makes it dwell near ±1 (the
+      // screen edges) and sweep quickly through the middle, so the glow
+      // spends most of its time clear of the centered text column. The
+      // +PI/2 phase offset starts it at an edge (t=0, top of page)
+      // instead of at the middle.
+      var raw = Math.sin(t * Math.PI * 3 + Math.PI / 2);
+      var shaped = (raw < 0 ? -1 : 1) * Math.pow(Math.abs(raw), 3);
+      var xPercent = 50 + shaped * 40;
+      var yPercent = 8 + t * 84 + Math.sin(t * Math.PI * 3.1) * 6;
+
+      travelGlow.style.left = xPercent.toFixed(1) + "%";
+      travelGlow.style.top = yPercent.toFixed(1) + "%";
+    }
+
     glowTicking = false;
   }
 

@@ -100,17 +100,30 @@ ul {
   display: block;
 }
 
-.contour-line {
+.contour-line,
+.contour-glow {
   fill: none;
   stroke: var(--accent);
-  stroke-width: 1.2;
   transform-box: view-box;
   transform-origin: 50% 50%;
-  filter: drop-shadow(0 0 calc(2px + var(--glow-strength) * 7px) var(--accent));
   animation-name: contour-drift;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
   animation-direction: alternate;
+}
+
+.contour-line {
+  stroke-width: 1.2;
+}
+
+/* A blurred, higher-opacity duplicate of each line, rendered behind it.
+   Kept separate from .contour-line because a drop-shadow on the thin,
+   low-opacity line itself inherits that same low opacity and is too
+   faint to read as a glow. */
+.contour-glow {
+  stroke-width: 4;
+  filter: blur(9px);
+  opacity: calc(0.08 + var(--glow-strength) * 0.12);
 }
 
 @keyframes contour-drift {
@@ -119,6 +132,33 @@ ul {
   }
   100% {
     transform: translate(-16px, 8px);
+  }
+}
+
+/* -------------------------------------------------- */
+/* Traveling ambient glow ("sluníčko") — follows scroll */
+/* -------------------------------------------------- */
+.travel-glow {
+  position: fixed;
+  top: 8%;
+  left: 90%;
+  width: 560px;
+  height: 560px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  opacity: 0.14;
+  filter: blur(10px);
+  pointer-events: none;
+  z-index: 0;
+  transition: left 1.4s ease-out, top 1.4s ease-out;
+}
+
+@media (max-width: 720px) {
+  .travel-glow {
+    width: 340px;
+    height: 340px;
+    opacity: 0.1;
   }
 }
 
@@ -319,19 +359,6 @@ ul {
   padding-top: 72px;
   position: relative;
   overflow: hidden;
-}
-
-.hero::before {
-  content: "";
-  position: absolute;
-  top: -20%;
-  right: -10%;
-  width: 60vw;
-  height: 60vw;
-  max-width: 640px;
-  max-height: 640px;
-  background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
-  pointer-events: none;
 }
 
 .hero-name {
