@@ -74,4 +74,28 @@
       revealObserver.observe(el);
     });
   }
+
+  // Pointer-following tilt on cards/tiles, only for mouse-like pointers
+  // that don't already get a touch/scroll experience from the browser.
+  var canTilt =
+    window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (canTilt) {
+    var tiltTargets = Array.prototype.slice.call(document.querySelectorAll(".card, .principle"));
+    tiltTargets.forEach(function (el) {
+      el.addEventListener("pointermove", function (e) {
+        var rect = el.getBoundingClientRect();
+        var px = (e.clientX - rect.left) / rect.width - 0.5;
+        var py = (e.clientY - rect.top) / rect.height - 0.5;
+        var maxTilt = 6;
+        el.style.setProperty("--tilt-x", (-py * maxTilt).toFixed(2) + "deg");
+        el.style.setProperty("--tilt-y", (px * maxTilt).toFixed(2) + "deg");
+      });
+      el.addEventListener("pointerleave", function () {
+        el.style.setProperty("--tilt-x", "0deg");
+        el.style.setProperty("--tilt-y", "0deg");
+      });
+    });
+  }
 })();

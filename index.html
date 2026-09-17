@@ -45,6 +45,9 @@
   <main id="obsah">
 
     <section class="hero" id="uvod">
+      <div class="hero-blob hero-blob--a" aria-hidden="true"></div>
+      <div class="hero-blob hero-blob--b" aria-hidden="true"></div>
+
       <svg class="hero-graphic" viewBox="0 0 440 440" aria-hidden="true" focusable="false">
         <g fill="none" stroke="var(--accent)" stroke-width="1" opacity="0.35">
           <line x1="60" y1="120" x2="180" y2="60"></line>
@@ -68,12 +71,10 @@
       </svg>
 
       <div class="wrap">
-        <p class="eyebrow" data-reveal>Adam Sypták</p>
-        <h1 data-reveal>
-          Buduji věci od nuly<br>
-          a dotahuju je do stavu,<br>
-          kdy <span class="accent">fungují</span>.
-        </h1>
+        <h1 class="hero-name" data-reveal>Adam Sypták</h1>
+        <p class="hero-tagline" data-reveal>
+          Buduji věci od nuly a dotahuju je do stavu, kdy <span class="accent">fungují</span>.
+        </p>
         <p class="hero-lede" data-reveal>
           Bez ohledu na to, jestli mi zrovna někdo věří.
         </p>
@@ -122,7 +123,7 @@
         <p class="section-number">02</p>
         <h2 id="postaveno-heading">Co jsem zatím postavil</h2>
 
-        <div class="cards">
+        <div class="cards cards--split">
           <article class="card" data-reveal>
             <p class="card-role">Spoluzakladatel &amp; Business Lead</p>
             <h3>Sportera Team s.r.o.</h3>
@@ -142,22 +143,59 @@
               má málokdo.
             </p>
           </article>
+        </div>
 
-          <article class="card" data-reveal>
-            <p class="card-role">Externí uznání</p>
-            <h3>Ověřeno instituce, ne mnou</h3>
-            <p>
-              Tohle nejsou věci, které jsem si sám o sobě řekl – potvrdily je instituce, které si to
-              ověřily:
-            </p>
-            <ul class="recognition-list">
-              <li>1. místo, Změň svět pohybem (Univerzita Karlova, FTVS)</li>
-              <li>Řečník a případová studie, TAFISA World Congress</li>
-              <li>Zařazení mezi aplikace datového portálu data.Brno</li>
-              <li>Dobrá praxe podle NSZM ČR</li>
-              <li>Nominace na Cenu Gratias Tibi</li>
-            </ul>
-          </article>
+        <div class="recognition-panel" data-reveal>
+          <p class="card-role">Externí uznání</p>
+          <h3>Ověřeno institucemi, ne mnou</h3>
+          <p class="recognition-intro">
+            Tohle nejsou věci, které jsem si sám o sobě řekl – potvrdily je instituce, které si to
+            ověřily, a média, která o tom napsala.
+          </p>
+
+          <div class="tile-group">
+            <p class="tile-group-label">Ocenění a uznání</p>
+            <div class="tile-row">
+              <a class="tile-link" href="https://www.vecerni-praha.cz/ftvs-uk-vyhlasila-nejlepsi-studentske-inovace-mladi-lide-mohou-zmenit-svet-pohybem/" target="_blank" rel="noopener noreferrer">
+                1. místo, Změň svět pohybem
+                <span class="tile-meta">Univerzita Karlova, FTVS</span>
+              </a>
+              <a class="tile-link" href="https://www.tafisacongress-prague2026.com/speakers/" target="_blank" rel="noopener noreferrer">
+                Řečník a případová studie
+                <span class="tile-meta">TAFISA World Congress</span>
+              </a>
+              <a class="tile-link" href="https://data.brno.cz/apps/mestobrno::sportera-sportovi%C5%A1t%C4%9B-v-brn%C4%9B/explore" target="_blank" rel="noopener noreferrer">
+                Zařazení mezi aplikace
+                <span class="tile-meta">datový portál data.Brno</span>
+              </a>
+              <a class="tile-link" href="https://dobrapraxe.cz/cz/priklady-dobre-praxe/brno-sportera-platforma-sportu-dostupneho-pro-vsechny" target="_blank" rel="noopener noreferrer">
+                Dobrá praxe
+                <span class="tile-meta">NSZM ČR</span>
+              </a>
+              <a class="tile-link" href="https://www.gratiastibi.cz/cs/nominovane-projekty/sportera-2026" target="_blank" rel="noopener noreferrer">
+                Nominace na Cenu
+                <span class="tile-meta">Gratias Tibi</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="tile-group">
+            <p class="tile-group-label">V médiích</p>
+            <div class="tile-row">
+              <a class="tile-link" href="https://junior.rozhlas.cz/autori-projektu-sportera-adam-syptak-a-stanislav-macak-v-klubu-radia-junior-9591191" target="_blank" rel="noopener noreferrer">
+                Rozhovor autorů projektu
+                <span class="tile-meta">Klub Radia Junior</span>
+              </a>
+              <a class="tile-link" href="https://brnenska.drbna.cz/sport/36015-nepojmenovano-13-17-24-532026.html" target="_blank" rel="noopener noreferrer">
+                Studenti VUT vytvořili projekt, který propojuje sportovce s hřišti
+                <span class="tile-meta">Brněnská Drbna</span>
+              </a>
+              <a class="tile-link" href="https://www.ceskatelevize.cz/porady/1178166846-zpravy/225411016001204/" target="_blank" rel="noopener noreferrer">
+                Zpravodajství
+                <span class="tile-meta">Česká televize</span>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -168,7 +206,8 @@
         <h2 id="mysleni-heading">Jak přemýšlím</h2>
 
         <div class="principles">
-          <div class="principle" data-reveal>
+          <div class="principle principle--featured" data-reveal>
+            <span class="principle-index">01</span>
             <h3>Nečekám na povolení</h3>
             <p>
               Rozhodnutí, procesy a partnerství jsem stavěl dřív, než mi je někdo formálně svěřil,
@@ -177,6 +216,7 @@
           </div>
 
           <div class="principle" data-reveal>
+            <span class="principle-index">02</span>
             <h3>Odmítnutí beru jako data, ne jako verdikt</h3>
             <p>
               Když nabídka nesedí, hledám podmínky, za kterých by sedět mohla – místo abych to
@@ -185,6 +225,7 @@
           </div>
 
           <div class="principle" data-reveal>
+            <span class="principle-index">03</span>
             <h3>Vinu beru na sebe, kredit posouvám dál</h3>
             <p>
               Když se něco pokazí, hledám chybu u sebe. Když se povede, patří to týmu.
@@ -192,6 +233,7 @@
           </div>
 
           <div class="principle" data-reveal>
+            <span class="principle-index">04</span>
             <h3>Zajímá mě výsledek, ne pochvala</h3>
             <p>
               Úspěch mi přináší úlevu, ne euforii – ptám se, jestli to funguje, ne jak to vypadá
@@ -230,10 +272,8 @@
           Máš projekt, nabídku nebo si chceš jen popovídat o tom, jak stavět věci, které fungují?
         </p>
         <div class="contact-links">
-          <!-- TODO: doplnit skutečné kontaktní odkazy (e-mail, LinkedIn, GitHub) -->
-          <a class="contact-link" href="mailto:" data-contact="email">E-mail</a>
-          <a class="contact-link" href="#" data-contact="linkedin">LinkedIn</a>
-          <a class="contact-link" href="#" data-contact="github">GitHub</a>
+          <a class="contact-link" href="mailto:adamsypt@seznam.cz" data-contact="email">E-mail</a>
+          <a class="contact-link" href="https://www.linkedin.com/in/adam-sypt%C3%A1k" target="_blank" rel="noopener noreferrer" data-contact="linkedin">LinkedIn</a>
         </div>
       </div>
     </section>
