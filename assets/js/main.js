@@ -1,0 +1,77 @@
+(function () {
+  "use strict";
+
+  var header = document.getElementById("hlavicka");
+  var nav = document.getElementById("hlavni-nav");
+  var navToggle = document.getElementById("navToggle");
+  var navLinks = nav ? Array.prototype.slice.call(nav.querySelectorAll("a")) : [];
+  var sections = Array.prototype.slice.call(document.querySelectorAll("main section[id]"));
+  var yearEl = document.getElementById("rok");
+
+  if (yearEl) {
+    yearEl.textContent = String(new Date().getFullYear());
+  }
+
+  // Header shadow/border once the page is scrolled
+  function onScroll() {
+    if (header) {
+      header.classList.toggle("is-scrolled", window.scrollY > 4);
+    }
+  }
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+
+  // Mobile nav toggle
+  if (navToggle && nav) {
+    navToggle.addEventListener("click", function () {
+      var isOpen = nav.classList.toggle("is-open");
+      navToggle.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    navLinks.forEach(function (link) {
+      link.addEventListener("click", function () {
+        nav.classList.remove("is-open");
+        navToggle.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
+
+  // Active nav link on scroll
+  if (sections.length && navLinks.length) {
+    var sectionObserver = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          var id = entry.target.getAttribute("id");
+          navLinks.forEach(function (link) {
+            var matches = link.getAttribute("href") === "#" + id;
+            link.classList.toggle("is-active", matches);
+          });
+        });
+      },
+      { rootMargin: "-45% 0px -50% 0px", threshold: 0 }
+    );
+    sections.forEach(function (section) {
+      sectionObserver.observe(section);
+    });
+  }
+
+  // Reveal-on-scroll for elements marked with data-reveal
+  var revealTargets = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  if (revealTargets.length) {
+    var revealObserver = new IntersectionObserver(
+      function (entries, observer) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    revealTargets.forEach(function (el) {
+      revealObserver.observe(el);
+    });
+  }
+})();
