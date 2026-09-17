@@ -7,32 +7,94 @@
   var navLinks = nav ? Array.prototype.slice.call(nav.querySelectorAll("a")) : [];
   var sections = Array.prototype.slice.call(document.querySelectorAll("main section[id]"));
   var yearEl = document.getElementById("rok");
-  var contourSvg = document.querySelector(".page-contours svg");
+  var contoursEl = document.getElementById("pageContours");
+  var contoursSvg = document.getElementById("contoursSvg");
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   if (yearEl) {
     yearEl.textContent = String(new Date().getFullYear());
   }
 
-  // Header shadow/border once the page is scrolled, plus a slow parallax
-  // drift of the background contour lines tied to scroll position.
-  var parallaxTicking = false;
-
-  function updateParallax() {
-    if (contourSvg) {
-      var offset = window.scrollY * 0.08;
-      contourSvg.style.transform = "translateY(" + offset.toFixed(2) + "px)";
+  // Build a wavy contour line at a given baseline y, spanning the full
+  // svg width with a bit of overflow on each side.
+  function buildWavePath(y, amplitude, phase) {
+    var width = 1440;
+    var segments = 4;
+    var segmentWidth = (width + 100) / segments;
+    var d = "M-50," + (y + Math.sin(phase) * amplitude).toFixed(1);
+    for (var s = 0; s < segments; s++) {
+      var x1 = -50 + segmentWidth * (s + 0.33);
+      var x2 = -50 + segmentWidth * (s + 0.66);
+      var xEnd = -50 + segmentWidth * (s + 1);
+      var y1 = y + Math.sin(phase + s * 1.3) * amplitude;
+      var y2 = y + Math.sin(phase + s * 1.3 + 1.5) * amplitude;
+      var yEnd = y + Math.sin(phase + (s + 1) * 1.3) * amplitude;
+      d += " C" + x1.toFixed(1) + "," + y1.toFixed(1) + " " + x2.toFixed(1) + "," + y2.toFixed(1) + " " + xEnd.toFixed(1) + "," + yEnd.toFixed(1);
     }
-    parallaxTicking = false;
+    return d;
+  }
+
+  // Contour lines span the whole document, not just one viewport, so
+  // scrolling reveals genuinely different lines instead of a fixed image
+  // being shifted around. Rebuilt on load and on resize.
+  function buildContours() {
+    if (!contoursEl || !contoursSvg) return;
+    var pageHeight = Math.max(document.documentElement.scrollHeight, window.innerHeight);
+    contoursEl.style.height = pageHeight + "px";
+    contoursSvg.setAttribute("viewBox", "0 0 1440 " + pageHeight);
+
+    var spacing = 210;
+    var count = Math.ceil(pageHeight / spacing) + 1;
+    var frag = document.createDocumentFragment();
+
+    for (var i = 0; i < count; i++) {
+      var y = i * spacing + spacing / 2;
+      var amplitude = 40 + (i % 3) * 20;
+      var phase = i * 1.7;
+      var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("class", "contour-line");
+      path.setAttribute("d", buildWavePath(y, amplitude, phase));
+      path.style.opacity = (0.06 + (i % 4) * 0.012).toFixed(3);
+      path.style.animationDuration = 20 + (i % 5) * 3 + "s";
+      path.style.animationDelay = "-" + ((i % 7) * 4) + "s";
+      frag.appendChild(path);
+    }
+
+    contoursSvg.textContent = "";
+    contoursSvg.appendChild(frag);
+  }
+
+  buildContours();
+  window.addEventListener("load", buildContours);
+
+  var resizeTimer = null;
+  window.addEventListener(
+    "resize",
+    function () {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(buildContours, 250);
+    },
+    { passive: true }
+  );
+
+  // Header shadow/border once the page is scrolled, plus a glow intensity
+  // on the contour lines that gently rises and falls as you scroll down
+  // (the lines themselves keep wiggling independently via CSS).
+  var glowTicking = false;
+
+  function updateGlow() {
+    var wave = (Math.sin(window.scrollY / 400) + 1) / 2;
+    document.documentElement.style.setProperty("--glow-strength", wave.toFixed(3));
+    glowTicking = false;
   }
 
   function onScroll() {
     if (header) {
       header.classList.toggle("is-scrolled", window.scrollY > 4);
     }
-    if (!reduceMotion && !parallaxTicking) {
-      parallaxTicking = true;
-      window.requestAnimationFrame(updateParallax);
+    if (!reduceMotion && !glowTicking) {
+      glowTicking = true;
+      window.requestAnimationFrame(updateGlow);
     }
   }
   onScroll();

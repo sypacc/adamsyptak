@@ -17,19 +17,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=3">
+  <link rel="stylesheet" href="assets/css/style.css?v=4">
 </head>
 <body>
-  <div class="page-contours" aria-hidden="true">
-    <svg viewBox="0 0 1440 900" preserveAspectRatio="none" focusable="false">
-      <path class="contour-line" d="M-50,90 C150,40 300,140 480,90 C660,40 840,140 1020,90 C1200,40 1380,120 1490,90"></path>
-      <path class="contour-line" d="M-50,210 C180,150 340,260 520,200 C700,140 880,250 1060,190 C1240,150 1400,220 1490,200"></path>
-      <path class="contour-line" d="M-50,300 C160,360 330,260 500,320 C690,380 860,270 1040,330 C1220,380 1380,300 1490,320"></path>
-      <path class="contour-line" d="M-50,450 C200,390 380,500 560,440 C740,380 900,500 1080,440 C1260,390 1400,460 1490,440"></path>
-      <path class="contour-line" d="M-50,540 C170,600 350,500 530,560 C710,620 880,510 1060,570 C1240,620 1400,540 1490,560"></path>
-      <path class="contour-line" d="M-50,700 C190,640 360,740 540,690 C720,630 890,740 1070,690 C1250,630 1400,700 1490,690"></path>
-      <path class="contour-line" d="M-50,780 C180,830 340,750 520,800 C700,850 870,760 1050,810 C1230,850 1400,790 1490,800"></path>
-    </svg>
+  <div class="page-contours" id="pageContours" aria-hidden="true">
+    <svg id="contoursSvg" viewBox="0 0 1440 900" preserveAspectRatio="none" focusable="false"></svg>
   </div>
 
   <a class="skip-link" href="#obsah">Přeskočit na obsah</a>
@@ -65,21 +57,6 @@
         <p class="hero-lede" data-reveal>
           Partnerství, produkt a provoz civic-tech platformy, která mapuje veřejná sportoviště po celé ČR.
         </p>
-
-        <div class="hero-stats" data-reveal>
-          <div class="stat">
-            <span class="stat-number">1 100+</span>
-            <span class="stat-label">sportovišť na mapě</span>
-          </div>
-          <div class="stat">
-            <span class="stat-number">380+</span>
-            <span class="stat-label">obcí po celé ČR</span>
-          </div>
-          <div class="stat">
-            <span class="stat-number">5</span>
-            <span class="stat-label">institucionálních ocenění</span>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -270,6 +247,6 @@
     </div>
   </footer>
 
-  <script src="assets/js/main.js?v=3"></script>
+  <script src="assets/js/main.js?v=4"></script>
 </body>
 </html>
