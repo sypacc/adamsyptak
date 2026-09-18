@@ -625,13 +625,27 @@ body.is-scrolled .scroll-cue {
   }
 }
 
+.section-watermark--left {
+  right: auto;
+  left: calc(var(--gutter) - 0.06em);
+  top: -0.55em;
+}
+
 .about-photo {
   border-radius: var(--radius);
   overflow: hidden;
   border: var(--border);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 30px 60px -30px rgba(0, 0, 0, 0.8);
   aspect-ratio: 4 / 5;
-  max-width: 340px;
+  width: 100%;
+  max-width: 360px;
+}
+
+@media (min-width: 860px) {
+  .about-photo {
+    justify-self: end;
+    margin-top: 0.5rem;
+  }
 }
 
 .about-photo img {
