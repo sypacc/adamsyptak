@@ -9,9 +9,9 @@
   --text: #f2f2f0;
   --text-muted: #9a9aa2;
   --text-faint: #5f5f68;
-  --accent: #d9a441;
-  --accent-soft: rgba(217, 164, 65, 0.12);
-  --accent-rgb: 217, 164, 65;
+  --accent: #8ecae6;
+  --accent-soft: rgba(142, 202, 230, 0.12);
+  --accent-rgb: 142, 202, 230;
 
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
@@ -1175,8 +1175,8 @@ body.is-scrolled .scroll-cue {
 }
 
 .contact-link--primary:hover {
-  background: #e6b556;
-  border-color: #e6b556;
+  background: #a9dbee;
+  border-color: #a9dbee;
   color: #0b0b0d;
   box-shadow: 0 16px 36px -16px rgba(var(--accent-rgb), 0.7);
 }
