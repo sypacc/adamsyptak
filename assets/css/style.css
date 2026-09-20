@@ -1220,6 +1220,21 @@ body.is-scrolled .scroll-cue {
   font-size: 0.85rem;
 }
 
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.footer-link {
+  color: var(--text-muted);
+  transition: color 0.25s var(--ease);
+}
+
+.footer-link:hover {
+  color: var(--accent);
+}
+
 .to-top {
   color: var(--text-muted);
   transition: color 0.25s var(--ease), transform 0.3s var(--ease);
