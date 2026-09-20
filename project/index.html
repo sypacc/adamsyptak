@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Školní projekt — Adam Sypták</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0b0b0d">
+
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css?v=16">
+  <style>
+    .placeholder {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 1.25rem;
+      padding: clamp(1.25rem, 5vw, 3rem);
+      max-width: 640px;
+    }
+
+    .placeholder-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+
+    .placeholder h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .placeholder p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 52ch;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      color: var(--text);
+      font-weight: 500;
+      border: 1px solid var(--surface-border);
+      border-radius: 999px;
+      padding: 0.7rem 1.4rem;
+      transition: border-color 0.25s var(--ease), color 0.25s var(--ease);
+    }
+
+    .back-link:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <main class="placeholder">
+    <p class="placeholder-eyebrow">Práce v procesu</p>
+    <h1>Školní projekt</h1>
+    <p>
+      Tahle stránka je zatím prázdný pracovní prostor pro školní projekt — obsah sem přibude
+      postupně. Až bude hotovo, tahle stránka i odkaz na ni z hlavního webu zmizí.
+    </p>
+    <a class="back-link" href="../">← Zpět na portfolio</a>
+  </main>
+</body>
+</html>

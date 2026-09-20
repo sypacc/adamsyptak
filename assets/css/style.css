@@ -1204,58 +1204,6 @@ body.is-scrolled .scroll-cue {
 }
 
 /* -------------------------------------------------- */
-/* Project view (toggled in-page, shares the same       */
-/* header/footer/background as the portfolio)            */
-/* -------------------------------------------------- */
-.project-view {
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  align-items: center;
-  padding-top: 72px;
-  position: relative;
-}
-
-.project-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  color: var(--accent);
-  letter-spacing: 0.05em;
-  margin-bottom: 1rem;
-}
-
-.project-view h1 {
-  font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-
-.project-lede {
-  margin-top: 1.25rem;
-  color: var(--text-muted);
-  font-size: 1.05rem;
-  max-width: 52ch;
-}
-
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1.75rem;
-  color: var(--text);
-  font-weight: 500;
-  border: 1px solid var(--surface-border);
-  border-radius: 999px;
-  padding: 0.7rem 1.4rem;
-  transition: border-color 0.25s var(--ease), color 0.25s var(--ease);
-}
-
-.back-link:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-/* -------------------------------------------------- */
 /* Footer                                              */
 /* -------------------------------------------------- */
 .site-footer {

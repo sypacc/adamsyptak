@@ -8,9 +8,6 @@
   var navLinks = nav ? Array.prototype.slice.call(nav.querySelectorAll("a")) : [];
   var sections = Array.prototype.slice.call(document.querySelectorAll("main section[id]"));
   var yearEl = document.getElementById("rok");
-  var portfolioMain = document.getElementById("obsah");
-  var projectView = document.getElementById("skolniProjekt");
-  var footerProjectToggle = document.getElementById("footerProjectToggle");
   var contoursEl = document.getElementById("pageContours");
   var contoursSvg = document.getElementById("contoursSvg");
   var glowEl = document.getElementById("pageGlow");
@@ -21,53 +18,6 @@
   if (yearEl) {
     yearEl.textContent = String(new Date().getFullYear());
   }
-
-  /* ------------------------------------------------ */
-  /* Project view: an in-page interface switch driven  */
-  /* by the URL hash, sharing the header/footer/        */
-  /* background with the portfolio rather than being a  */
-  /* separate page.                                     */
-  /* ------------------------------------------------ */
-  var wasProject = false;
-
-  function applyView() {
-    var isProject = window.location.hash === "#skolni-projekt";
-    document.body.classList.toggle("view-project", isProject);
-    if (portfolioMain) portfolioMain.hidden = isProject;
-    if (projectView) projectView.hidden = !isProject;
-
-    if (footerProjectToggle) {
-      footerProjectToggle.textContent = isProject ? "← Zpět na portfolio" : "Školní projekt ↗";
-      footerProjectToggle.setAttribute("href", isProject ? "#uvod" : "#skolni-projekt");
-    }
-
-    if (isProject) {
-      // Plain scrollTo(x, y) defers to the CSS scroll-behavior (smooth),
-      // which animates through the page while it's mid-toggle and looks
-      // broken. Force an instant jump instead.
-      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-    } else if (wasProject) {
-      // Coming back from the project view: the browser's native
-      // fragment scroll (if any) ran while the portfolio was still
-      // hidden, so redo it now that it's visible again — instantly,
-      // not smoothly, for the same reason as above. Ordinary
-      // section-to-section nav clicks never hit this branch (wasProject
-      // is only true right after leaving the project view), so the
-      // normal smooth in-page scrolling elsewhere is untouched.
-      var hash = window.location.hash;
-      var target = hash ? document.getElementById(hash.slice(1)) : null;
-      if (target) {
-        target.scrollIntoView({ behavior: "instant", block: "start" });
-      } else {
-        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-      }
-    }
-
-    wasProject = isProject;
-  }
-
-  window.addEventListener("hashchange", applyView);
-  applyView();
 
   /* ------------------------------------------------ */
   /* Background contour lines                          */
