@@ -10,7 +10,7 @@
   var yearEl = document.getElementById("rok");
   var contoursEl = document.getElementById("pageContours");
   var contoursSvg = document.getElementById("contoursSvg");
-  var travelGlow = document.getElementById("travelGlow");
+  var glowEl = document.getElementById("pageGlow");
   var root = document.documentElement;
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
@@ -85,8 +85,44 @@
     contoursSvg.appendChild(frag);
   }
 
-  buildContours();
-  window.addEventListener("load", buildContours);
+  // A handful of large, softly blurred glow blobs spread down the full
+  // page (not just the hero), alternating sides so they sit between the
+  // contour lines rather than behind the text column. Each idles with
+  // its own slow drift via CSS; their brightness is driven purely by the
+  // --glow-strength custom property set in updateScrollEffects below, so
+  // no per-frame JS work is needed here after they're placed.
+  function buildGlows() {
+    if (!glowEl) return;
+    var pageHeight = Math.max(root.scrollHeight, window.innerHeight);
+    glowEl.style.height = pageHeight + "px";
+
+    var spacing = 1000;
+    var count = Math.max(Math.ceil(pageHeight / spacing), 3);
+    var frag = document.createDocumentFragment();
+
+    for (var i = 0; i < count; i++) {
+      var y = ((i + 0.5) * pageHeight) / count;
+      var side = i % 2 === 0 ? 14 + (i % 3) * 5 : 80 - (i % 3) * 5;
+      var blob = document.createElement("div");
+      blob.className = "glow-blob";
+      blob.style.top = y.toFixed(0) + "px";
+      blob.style.left = side + "%";
+      blob.style.animationDuration = 26 + (i % 4) * 6 + "s";
+      blob.style.animationDelay = "-" + (i % 5) * 5 + "s";
+      frag.appendChild(blob);
+    }
+
+    glowEl.textContent = "";
+    glowEl.appendChild(frag);
+  }
+
+  function buildBackground() {
+    buildContours();
+    buildGlows();
+  }
+
+  buildBackground();
+  window.addEventListener("load", buildBackground);
 
   var resizeTimer = null;
   window.addEventListener(
@@ -94,7 +130,7 @@
     function () {
       window.clearTimeout(resizeTimer);
       resizeTimer = window.setTimeout(function () {
-        buildContours();
+        buildBackground();
         moveNavIndicator();
       }, 250);
     },
@@ -102,7 +138,7 @@
   );
 
   /* ------------------------------------------------ */
-  /* Scroll: header state, progress, glow, sun         */
+  /* Scroll: header state, progress, ambient glow      */
   /* ------------------------------------------------ */
   var scrollTicking = false;
 
@@ -115,20 +151,6 @@
     if (!reduceMotion) {
       var wave = (Math.sin(window.scrollY / 400) + 1) / 2;
       root.style.setProperty("--glow-strength", wave.toFixed(3));
-
-      if (travelGlow) {
-        // Raising the sine to an odd power makes it dwell near ±1 (the
-        // screen edges) and sweep quickly through the middle, so the glow
-        // spends most of its time clear of the centered text column. The
-        // +PI/2 phase offset starts it at an edge (t=0, top of page)
-        // instead of at the middle.
-        var raw = Math.sin(t * Math.PI * 3 + Math.PI / 2);
-        var shaped = (raw < 0 ? -1 : 1) * Math.pow(Math.abs(raw), 3);
-        var xPercent = 50 + shaped * 40;
-        var yPercent = 8 + t * 84 + Math.sin(t * Math.PI * 3.1) * 6;
-        travelGlow.style.left = xPercent.toFixed(1) + "%";
-        travelGlow.style.top = yPercent.toFixed(1) + "%";
-      }
     }
 
     scrollTicking = false;
