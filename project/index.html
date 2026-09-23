@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Školní projekt — Adam Sypták</title>
-  <meta name="description" content="Rezervuj si trénink na okruhu.">
+  <title>TrackWise — Lekce závodního řízení</title>
+  <meta name="description" content="TrackWise — lekce závodního řízení na okruhu. Rezervuj si trénink.">
   <meta name="robots" content="noindex, nofollow">
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#0b0b0d">
@@ -15,8 +15,30 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/hero.css">
   <link rel="stylesheet" href="assets/css/booking.css">
+  <script>
+    // Nastaví uložený režim ještě před vykreslením, ať nebliká špatná barva.
+    (function () {
+      try {
+        var t = localStorage.getItem('tw-theme');
+        if (t === 'light' || t === 'dark') {
+          document.documentElement.setAttribute('data-theme', t);
+          document.documentElement.style.colorScheme = t;
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
+
+  <button type="button" class="theme-toggle" id="themeToggle" aria-label="Přepnout světlý a tmavý režim" aria-pressed="false">
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+    </svg>
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
 
   <section class="hero" id="uvod">
     <div class="hero-media" aria-hidden="true">
@@ -32,6 +54,17 @@
         <source src="assets/video/hero-loop.mp4" type="video/mp4">
       </video>
       <div class="hero-overlay"></div>
+    </div>
+
+    <div class="hero-brand">
+      <svg class="hero-brand-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <path d="M4 30C10 30 10 18 16 18C22 18 22 10 30 10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="30" cy="10" r="3.5" fill="currentColor"/>
+      </svg>
+      <div class="hero-brand-text">
+        <span class="hero-brand-name">TrackWise</span>
+        <span class="hero-brand-tagline">Lekce závodního řízení</span>
+      </div>
     </div>
 
     <div class="hero-content">
@@ -176,7 +209,7 @@
     <div class="footer-wrap">
       <div class="footer-grid">
         <div class="footer-col">
-          <p class="footer-brand">Okruh Trénink</p>
+          <p class="footer-brand">TrackWise</p>
           <p class="footer-tagline">Individuální tréninky na okruhu s instruktorem — pro začátečníky i pokročilé.</p>
         </div>
         <div class="footer-col">
@@ -207,13 +240,14 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>© <span id="footerRok"></span> Okruh Trénink — školní projekt</p>
+        <p>© <span id="footerRok"></span> TrackWise — školní projekt</p>
         <a href="../">← Zpět na portfolio</a>
       </div>
     </div>
   </footer>
 
   <script>document.getElementById('footerRok').textContent = new Date().getFullYear();</script>
+  <script src="assets/js/theme.js"></script>
   <script src="assets/js/booking.js"></script>
 </body>
 </html>

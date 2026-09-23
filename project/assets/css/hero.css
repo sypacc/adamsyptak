@@ -1,18 +1,37 @@
 /* -------------------------------------------------- */
-/* Tokens (sdíleno s hlavním webem)                    */
+/* Tokens                                              */
 /* -------------------------------------------------- */
 :root {
   --bg: #0b0b0d;
   --text: #f2f2f0;
   --text-muted: #c7c7cc;
+  --text-faint: #85858d;
   --accent: #d9a441;
   --accent-hover: #e6b45c;
+  --accent-rgb: 217, 164, 65;
+  --line-rgb: 255, 255, 255;
+
+  /* Text sitting over photography (hero video, section-break image)
+     stays fixed regardless of site theme — the backdrop is always dark. */
+  --on-media: #f5f4f1;
+  --on-media-muted: #d7d5d1;
 
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --gutter: clamp(1.25rem, 6vw, 5rem);
   --wrap: 1440px;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root[data-theme="light"] {
+  --bg: #f3f1ec;
+  --text: #17160f;
+  --text-muted: #57544a;
+  --text-faint: #8c887c;
+  --accent: #b3790f;
+  --accent-hover: #9c6a0d;
+  --accent-rgb: 179, 121, 15;
+  --line-rgb: 17, 17, 17;
 }
 
 * {
@@ -22,7 +41,8 @@
 }
 
 html {
-  color-scheme: dark;
+  scroll-behavior: smooth;
+  scroll-padding-top: 1.5rem;
 }
 
 body {
@@ -31,13 +51,82 @@ body {
   font-family: var(--font-sans);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s var(--ease), color 0.25s var(--ease);
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
   * {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* -------------------------------------------------- */
+/* Theme toggle — fixed, own fixed dark chrome so it    */
+/* stays legible over video, photo and page alike       */
+/* -------------------------------------------------- */
+.theme-toggle {
+  position: fixed;
+  top: clamp(1rem, 3vh, 1.5rem);
+  right: clamp(1rem, 4vw, 1.75rem);
+  z-index: 80;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(11, 11, 13, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #f5f4f1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform 0.15s var(--ease), border-color 0.2s var(--ease);
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent);
+}
+
+.theme-toggle:active {
+  transform: scale(0.85);
+}
+
+.theme-toggle.is-pressed {
+  animation: toggle-pop 0.4s var(--ease);
+}
+
+@keyframes toggle-pop {
+  0% {
+    transform: scale(0.8) rotate(-15deg);
+  }
+  55% {
+    transform: scale(1.15) rotate(8deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.theme-toggle svg {
+  width: 19px;
+  height: 19px;
+  display: none;
+}
+
+.theme-toggle .icon-moon {
+  display: block;
+}
+
+:root[data-theme="light"] .theme-toggle .icon-moon {
+  display: none;
+}
+
+:root[data-theme="light"] .theme-toggle .icon-sun {
+  display: block;
 }
 
 /* -------------------------------------------------- */
@@ -85,6 +174,48 @@ body {
 }
 
 /* -------------------------------------------------- */
+/* Hero — brand (logo/jméno), levý horní roh             */
+/* -------------------------------------------------- */
+.hero-brand {
+  position: absolute;
+  top: clamp(1.25rem, 4vh, 2.5rem);
+  left: var(--gutter);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: var(--on-media);
+}
+
+.hero-brand-mark {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.hero-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.hero-brand-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.hero-brand-tagline {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--on-media-muted);
+}
+
+/* -------------------------------------------------- */
 /* Hero — text (levá polovina)                         */
 /* -------------------------------------------------- */
 .hero-content {
@@ -104,6 +235,7 @@ body {
 }
 
 .hero-claim {
+  color: var(--on-media);
   font-size: clamp(2.2rem, 4.8vw, 4.2rem);
   font-weight: 800;
   line-height: 1.08;
@@ -113,7 +245,7 @@ body {
 .hero-benefit {
   margin-top: 1.25rem;
   font-size: clamp(1.05rem, 1.6vw, 1.25rem);
-  color: var(--text-muted);
+  color: var(--on-media-muted);
   max-width: 30rem;
 }
 
@@ -146,7 +278,7 @@ body {
 }
 
 .btn-secondary {
-  color: var(--text-muted);
+  color: var(--on-media-muted);
   font-size: 0.95rem;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -156,14 +288,14 @@ body {
 
 .btn-secondary:hover,
 .btn-secondary:focus-visible {
-  color: var(--text);
+  color: var(--on-media);
 }
 
 .hero-back {
   display: inline-block;
   margin-top: 2.5rem;
   font-size: 0.85rem;
-  color: var(--text-muted);
+  color: var(--on-media-muted);
   opacity: 0.7;
   transition: opacity 0.2s var(--ease);
 }

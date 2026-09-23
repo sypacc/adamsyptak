@@ -218,28 +218,28 @@
 
       var isPast = d.getTime() < today.getTime();
       var eventName = EVENTS[key];
+      var starts = (!eventName && !isPast && isOpenDay(d))
+        ? validStartHours(key, state.duration ? state.duration.hours : 1)
+        : [];
 
       if (eventName) {
         btn.classList.add('is-event');
         btn.disabled = true;
         btn.title = 'Obsazeno akcí: ' + eventName;
-      } else if (isPast || !isOpenDay(d)) {
-        btn.disabled = true;
-        if (isPast) btn.title = 'Termín už proběhl';
-        else btn.title = 'Mimo provozní dny okruhu';
+      } else if (isPast || !isOpenDay(d) || starts.length === 0) {
+        // Zavřené, proběhlé nebo zcela plné dny (kromě akcí) se skryjí,
+        // ať je kalendář kompaktnější a vynikají jen reálně vybíratelné dny.
+        var hidden = document.createElement('div');
+        hidden.className = 'cal-day is-hidden';
+        hidden.setAttribute('aria-hidden', 'true');
+        els.calGrid.appendChild(hidden);
+        continue;
       } else {
-        var starts = state.duration ? validStartHours(key, state.duration.hours) : validStartHours(key, 1);
-        if (starts.length === 0) {
-          btn.disabled = true;
-          btn.classList.add('is-full-day');
-          btn.title = 'Na zvolenou délku už není volný termín';
-        } else {
-          var dot = document.createElement('span');
-          dot.className = 'cal-dot';
-          var booked = bookedHoursForDate(key);
-          if (booked.length > 0) btn.classList.add('is-busy');
-          btn.appendChild(dot);
-        }
+        var dot = document.createElement('span');
+        dot.className = 'cal-dot';
+        var booked = bookedHoursForDate(key);
+        if (booked.length > 0) btn.classList.add('is-busy');
+        btn.appendChild(dot);
         if (state.selectedDate === key) btn.classList.add('is-selected');
         btn.addEventListener('click', function (clickedKey, clickedDate) {
           return function () {
@@ -248,6 +248,7 @@
             renderCalendar();
             renderSlots(clickedDate);
             updateNextEnabled(3);
+            renderSideSummary();
           };
         }(key, d));
       }
@@ -409,6 +410,24 @@
   document.querySelectorAll('[data-back]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       goToStep(state.step - 1);
+    });
+  });
+
+  // Kliknutí na číslo dokončeného/aktuálního kroku se vrátí na danou sekci.
+  els.steps.forEach(function (el) {
+    el.setAttribute('tabindex', '0');
+    var jump = function () {
+      var n = parseInt(el.getAttribute('data-step'), 10);
+      if (el.classList.contains('is-done') || el.classList.contains('is-active')) {
+        goToStep(n);
+      }
+    };
+    el.addEventListener('click', jump);
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        jump();
+      }
     });
   });
 
