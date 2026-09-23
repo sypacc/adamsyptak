@@ -30,44 +30,97 @@
 </head>
 <body>
 
-  <div class="top-chrome">
-    <button type="button" class="chrome-btn" id="authTrigger" data-auth-open="login" aria-haspopup="dialog" aria-controls="authModal" aria-label="Přihlásit se nebo založit profil">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-        <circle cx="12" cy="7" r="4"></circle>
-      </svg>
-    </button>
-    <button type="button" class="chrome-btn theme-toggle" id="themeToggle" aria-label="Přepnout světlý a tmavý režim" aria-pressed="false">
-      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="4"></circle>
-        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
-      </svg>
-      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-      </svg>
-    </button>
-  </div>
+  <header class="site-header" id="siteHeader">
+    <div class="site-header-inner">
+      <a class="site-logo" href="#uvod">
+        <img src="assets/img/logo-tw.png" alt="TrackWise — lekce závodního řízení">
+      </a>
+      <nav class="site-nav" aria-label="Hlavní navigace">
+        <ul>
+          <li><a href="#uvod" data-nav-link="uvod">Úvod</a></li>
+          <li><a href="#rezervace" data-nav-link="rezervace">Rezervace</a></li>
+          <li><a href="#merch" data-nav-link="merch">Merch</a></li>
+        </ul>
+      </nav>
+      <div class="site-header-actions">
+        <button type="button" class="chrome-btn" id="cartTrigger" aria-haspopup="dialog" aria-controls="cartModal" aria-label="Košík">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 6h15l-1.5 9h-12z"></path>
+            <path d="M6 6L4.5 3H2"></path>
+            <circle cx="9.5" cy="20" r="1.4" fill="currentColor" stroke="none"></circle>
+            <circle cx="17.5" cy="20" r="1.4" fill="currentColor" stroke="none"></circle>
+          </svg>
+          <span class="chrome-badge" id="cartBadge" hidden>0</span>
+        </button>
+        <button type="button" class="chrome-btn" id="authTrigger" data-auth-open="login" aria-haspopup="dialog" aria-controls="authModal" aria-label="Přihlásit se nebo založit profil">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </button>
+        <button type="button" class="chrome-btn theme-toggle" id="themeToggle" aria-label="Přepnout světlý a tmavý režim" aria-pressed="false">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
 
   <div class="modal-backdrop" id="authBackdrop" hidden></div>
   <div class="auth-modal" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle" hidden>
     <button type="button" class="modal-close" id="authClose" aria-label="Zavřít">×</button>
     <p class="auth-modal-title" id="authModalTitle">Tvůj účet</p>
-    <div class="auth-tabs">
-      <button type="button" class="auth-tab is-active" data-tab="login">Přihlásit se</button>
-      <button type="button" class="auth-tab" data-tab="register">Založit profil</button>
+
+    <div class="auth-guest" id="authGuestView">
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab is-active" data-tab="login">Přihlásit se</button>
+        <button type="button" class="auth-tab" data-tab="register">Založit profil</button>
+      </div>
+      <form class="auth-form is-active" data-form="login">
+        <label>E-mail<input type="email" required autocomplete="email"></label>
+        <label>Heslo<input type="password" required autocomplete="current-password"></label>
+        <button class="btn-primary" type="submit">Přihlásit se →</button>
+      </form>
+      <form class="auth-form" data-form="register">
+        <label>Jméno<input type="text" required autocomplete="name"></label>
+        <label>E-mail<input type="email" required autocomplete="email"></label>
+        <label>Heslo<input type="password" required autocomplete="new-password"></label>
+        <button class="btn-primary" type="submit">Založit profil →</button>
+      </form>
+      <p class="auth-note">Zatím jen náhled UI bez skutečného přihlašování — napojíme, až bude backend.</p>
     </div>
-    <form class="auth-form is-active" data-form="login">
-      <label>E-mail<input type="email" required autocomplete="email"></label>
-      <label>Heslo<input type="password" required autocomplete="current-password"></label>
-      <button class="btn-primary" type="submit">Přihlásit se →</button>
-    </form>
-    <form class="auth-form" data-form="register">
-      <label>Jméno<input type="text" required autocomplete="name"></label>
-      <label>E-mail<input type="email" required autocomplete="email"></label>
-      <label>Heslo<input type="password" required autocomplete="new-password"></label>
-      <button class="btn-primary" type="submit">Založit profil →</button>
-    </form>
-    <p class="auth-note">Zatím jen náhled UI bez skutečného přihlašování — napojíme, až bude backend.</p>
+
+    <div class="auth-logged-in" id="authLoggedInView" hidden>
+      <p class="auth-welcome">Přihlášen(a) jako <strong id="authUserName"></strong></p>
+      <p class="auth-note">Tvoje údaje se teď při rezervaci vyplní automaticky.</p>
+      <button class="btn-ghost" type="button" id="authLogout">Odhlásit se</button>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="cartBackdrop" hidden></div>
+  <div class="auth-modal cart-modal" id="cartModal" role="dialog" aria-modal="true" aria-labelledby="cartModalTitle" hidden>
+    <button type="button" class="modal-close" id="cartClose" aria-label="Zavřít">×</button>
+    <p class="auth-modal-title" id="cartModalTitle">Košík</p>
+
+    <div class="cart-section" id="cartReservationSection" hidden>
+      <p class="cart-section-title">Nezaplacená rezervace</p>
+      <div class="cart-lines" id="cartReservationLines"></div>
+    </div>
+
+    <div class="cart-section" id="cartMerchSection" hidden>
+      <p class="cart-section-title">Merch</p>
+      <div class="cart-lines" id="cartMerchLines"></div>
+    </div>
+
+    <p class="cart-empty" id="cartEmptyNote">Košík je zatím prázdný.</p>
+
+    <div class="cart-total" id="cartTotal" hidden></div>
+    <button class="btn-primary" type="button" id="cartCheckout" hidden>Přejít k platbě →</button>
   </div>
 
   <section class="hero" id="uvod">
@@ -86,10 +139,6 @@
       <div class="hero-overlay"></div>
     </div>
 
-    <div class="hero-brand">
-      <img class="hero-brand-logo" src="assets/img/logo-tw.png" alt="TrackWise — lekce závodního řízení">
-    </div>
-
     <div class="hero-content">
       <div class="hero-text">
         <!-- TODO: doplnit finální claim -->
@@ -102,8 +151,8 @@
         <div class="hero-actions">
           <!-- TODO: odkaz na rezervační wizard -->
           <a class="btn-primary" href="#rezervace">Rezervovat trénink</a>
-          <!-- TODO: odkaz na ceník -->
-          <a class="btn-secondary" href="#cenik">Zobrazit ceník</a>
+          <!-- TODO: napojit reálný e-shop, zatím jen odkaz do sekce -->
+          <a class="btn-secondary" href="#merch">Merch</a>
         </div>
 
         <a class="hero-back" href="../">← Zpět na portfolio</a>
@@ -227,6 +276,59 @@
     </div>
   </section>
 
+  <section class="merch" id="merch" aria-labelledby="merch-heading">
+    <div class="booking-wrap">
+      <div class="merch-intro">
+        <p class="booking-eyebrow">Merch</p>
+        <h2 id="merch-heading">Vybav se na trať</h2>
+      </div>
+
+      <div class="merch-grid">
+        <article class="merch-card">
+          <div class="merch-visual">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <path d="M40 14 L20 26 L10 44 L26 54 L30 48 L30 108 L90 108 L90 48 L94 54 L110 44 L100 26 L80 14 C80 22 70 28 60 28 C50 28 40 22 40 14Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+            </svg>
+            <img src="assets/img/logo-tw.png" alt="" class="merch-logo">
+          </div>
+          <h3>Tričko TrackWise</h3>
+          <p class="merch-price">690 Kč</p>
+          <button type="button" class="btn-primary merch-add" data-merch-id="tricko" data-merch-name="Tričko TrackWise" data-merch-price="690">Přidat do košíku</button>
+        </article>
+
+        <article class="merch-card">
+          <div class="merch-visual">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <path d="M38 12 L18 24 L8 42 L24 52 L28 46 L28 108 L92 108 L92 46 L96 52 L112 42 L102 24 L82 12 C82 12 78 24 60 24 C42 24 38 12 38 12Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+              <path d="M50 24 C50 34 70 34 70 24" fill="none" stroke="currentColor" stroke-width="2.5"/>
+              <path d="M60 24 L60 46" fill="none" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <img src="assets/img/logo-tw.png" alt="" class="merch-logo">
+          </div>
+          <h3>Mikina TrackWise</h3>
+          <p class="merch-price">1 290 Kč</p>
+          <button type="button" class="btn-primary merch-add" data-merch-id="mikina" data-merch-name="Mikina TrackWise" data-merch-price="1290">Přidat do košíku</button>
+        </article>
+
+        <article class="merch-card">
+          <div class="merch-visual">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <path d="M14 66 C14 40 35 24 60 24 C85 24 106 40 106 66 L94 66 C94 48 79 36 60 36 C41 36 26 48 26 66Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+              <path d="M14 66 C14 76 24 80 36 80 L94 80 C102 80 106 74 106 66" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+              <path d="M94 66 L112 70 L108 78 L94 76Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+            </svg>
+            <img src="assets/img/logo-tw.png" alt="" class="merch-logo merch-logo--cap">
+          </div>
+          <h3>Kšiltovka TrackWise</h3>
+          <p class="merch-price">490 Kč</p>
+          <button type="button" class="btn-primary merch-add" data-merch-id="ksiltovka" data-merch-name="Kšiltovka TrackWise" data-merch-price="490">Přidat do košíku</button>
+        </article>
+      </div>
+
+      <p class="merch-note">Ukázkové kousky — reálné fotky a e-shop napojíme v další fázi projektu.</p>
+    </div>
+  </section>
+
   <footer class="site-footer">
     <div class="footer-wrap">
       <div class="footer-grid">
@@ -247,8 +349,8 @@
           <p class="footer-col-title">Rychlé odkazy</p>
           <ul>
             <li><a href="#uvod">Úvod</a></li>
-            <li><a href="#cenik">Ceník</a></li>
             <li><a href="#rezervace">Rezervace</a></li>
+            <li><a href="#merch">Merch</a></li>
             <li><a href="../">Portfolio</a></li>
           </ul>
         </div>
@@ -270,7 +372,10 @@
 
   <script>document.getElementById('footerRok').textContent = new Date().getFullYear();</script>
   <script src="assets/js/theme.js"></script>
+  <script src="assets/js/cart.js"></script>
   <script src="assets/js/auth.js"></script>
+  <script src="assets/js/nav.js"></script>
   <script src="assets/js/booking.js"></script>
+  <script src="assets/js/merch.js"></script>
 </body>
 </html>

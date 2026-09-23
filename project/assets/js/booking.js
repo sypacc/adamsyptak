@@ -121,6 +121,7 @@
     steps: document.querySelectorAll('.booking-step'),
     panes: document.querySelectorAll('.booking-pane'),
     durationGrid: document.getElementById('cenik'),
+    accountPrompt: document.querySelector('.account-prompt'),
     form: document.getElementById('bookingForm'),
     levelSelect: document.getElementById('levelSelect'),
     sideRows: document.getElementById('sideRows'),
@@ -154,9 +155,14 @@
         '<span class="duration-price">' + d.price.toLocaleString('cs-CZ') + ' Kč</span>';
       btn.addEventListener('click', function () {
         state.duration = d;
+        // Dostupné dny/hodiny se liší podle délky — dřívější výběr
+        // termínu i rozpracovaná rezervace v košíku už neplatí.
         state.selectedDate = null;
         state.startHour = null;
+        els.slotPanel.hidden = true;
+        if (window.TWCart) window.TWCart.clearReservation();
         renderDurations();
+        renderCalendar();
         updateNextEnabled(1);
         renderSideSummary();
       });
@@ -181,6 +187,27 @@
     if (!els.form) return false;
     return els.form.checkValidity();
   }
+
+  // Když je uživatel přihlášený (demo účet), prompt v kroku 2 to
+  // ukáže místo nabídky přihlášení a předvyplní jméno/e-mail.
+  function renderAccountPrompt() {
+    if (!els.accountPrompt) return;
+    var user = window.TWAuth && window.TWAuth.getUser();
+    if (user) {
+      els.accountPrompt.textContent = 'Přihlášen(a) jako ' + user.name + ' — údaje se vyplní automaticky.';
+      var firstNameInput = els.form.querySelector('[name="firstName"]');
+      var emailInput = els.form.querySelector('[name="email"]');
+      if (firstNameInput && !firstNameInput.value) firstNameInput.value = user.name;
+      if (emailInput && !emailInput.value) emailInput.value = user.email;
+      updateNextEnabled(2);
+    } else {
+      els.accountPrompt.innerHTML =
+        'Máš u nás účet? <button type="button" class="link-btn" data-auth-open="login">Přihlásit se</button>' +
+        ' — příště se ti údaje vyplní automaticky. Nemáš? <button type="button" class="link-btn" data-auth-open="register">Založit profil</button>.';
+    }
+  }
+
+  window.addEventListener('tw-auth-changed', renderAccountPrompt);
 
   // -------------------------------------------------- //
   // Step 3 — calendar                                    //
@@ -334,6 +361,15 @@
       row('Řidičský level', p.level || '—') +
       '<dl class="summary-row summary-total"><dt>Celkem</dt><dd>' + (d ? d.price.toLocaleString('cs-CZ') + ' Kč' : '—') + '</dd></dl>';
 
+    if (window.TWCart && d && state.selectedDate && state.startHour !== null) {
+      window.TWCart.setReservation({
+        durationLabel: 'Trénink — ' + d.label,
+        price: d.price,
+        dateLabel: dateLabel,
+        timeLabel: timeLabel
+      });
+    }
+
     function row(label, value) {
       return '<dl class="summary-row"><dt>' + label + '</dt><dd>' + value + '</dd></dl>';
     }
@@ -366,6 +402,7 @@
     els.payButton.disabled = true;
     els.payButton.textContent = 'Odesíláno…';
     setTimeout(function () {
+      if (window.TWCart) window.TWCart.clearReservation();
       els.bookingSuccess.hidden = false;
       els.payButton.closest('.booking-actions').hidden = true;
       els.bookingSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -459,6 +496,7 @@
   renderDurations();
   renderLevels();
   renderCalendar();
+  renderAccountPrompt();
   updateNextEnabled(1);
   renderSideSummary();
 })();
