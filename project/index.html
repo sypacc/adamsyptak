@@ -14,6 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/hero.css">
+  <link rel="stylesheet" href="assets/css/booking.css">
 </head>
 <body>
 
@@ -54,5 +55,153 @@
     </div>
   </section>
 
+  <section class="booking" id="rezervace" aria-labelledby="booking-heading">
+    <div class="booking-wrap">
+      <div class="booking-intro">
+        <p class="booking-eyebrow">Rezervace</p>
+        <h2 id="booking-heading">Naplánuj si trénink</h2>
+      </div>
+
+      <ol class="booking-steps" aria-label="Průběh rezervace">
+        <li class="booking-step is-active" data-step="1"><span class="step-num">01</span><span class="step-label">Délka</span></li>
+        <li class="booking-step" data-step="2"><span class="step-num">02</span><span class="step-label">Údaje</span></li>
+        <li class="booking-step" data-step="3"><span class="step-num">03</span><span class="step-label">Termín</span></li>
+        <li class="booking-step" data-step="4"><span class="step-num">04</span><span class="step-label">Shrnutí</span></li>
+      </ol>
+
+      <div class="booking-panel">
+
+        <!-- Krok 1 — délka -->
+        <div class="booking-pane is-active" data-pane="1">
+          <p class="pane-label">Kolik chceš jezdit?</p>
+          <div class="duration-grid" id="cenik"></div>
+          <div class="booking-actions">
+            <span></span>
+            <button class="btn-primary" type="button" data-next disabled>Pokračovat →</button>
+          </div>
+        </div>
+
+        <!-- Krok 2 — osobní údaje -->
+        <div class="booking-pane" data-pane="2">
+          <p class="pane-label">Tvoje údaje</p>
+          <form class="booking-form" id="bookingForm" novalidate>
+            <div class="form-row">
+              <label>Jméno
+                <input type="text" name="firstName" required autocomplete="given-name">
+              </label>
+              <label>Příjmení
+                <input type="text" name="lastName" required autocomplete="family-name">
+              </label>
+            </div>
+            <div class="form-row">
+              <label>Telefon
+                <input type="tel" name="phone" required autocomplete="tel">
+              </label>
+              <label>E-mail
+                <input type="email" name="email" required autocomplete="email">
+              </label>
+            </div>
+            <label class="form-full">Zkušenosti a řidičský level
+              <select name="level" id="levelSelect" required>
+                <option value="" disabled selected>Vyber úroveň</option>
+              </select>
+            </label>
+          </form>
+          <div class="booking-actions">
+            <button class="btn-ghost" type="button" data-back>← Zpět</button>
+            <button class="btn-primary" type="button" data-next disabled>Pokračovat →</button>
+          </div>
+        </div>
+
+        <!-- Krok 3 — termín -->
+        <div class="booking-pane" data-pane="3">
+          <p class="pane-label">Vyber termín</p>
+          <div class="calendar">
+            <div class="calendar-head">
+              <button type="button" class="calendar-nav" id="calPrev" aria-label="Předchozí měsíc">←</button>
+              <p class="calendar-month" id="calMonthLabel"></p>
+              <button type="button" class="calendar-nav" id="calNext" aria-label="Následující měsíc">→</button>
+            </div>
+            <div class="calendar-weekdays">
+              <span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span>
+            </div>
+            <div class="calendar-grid" id="calGrid"></div>
+            <div class="calendar-legend">
+              <span><i class="dot dot-free"></i>Volno</span>
+              <span><i class="dot dot-busy"></i>Částečně obsazeno</span>
+              <span><i class="dot dot-event"></i>Obsazeno akcí</span>
+            </div>
+          </div>
+          <div class="slot-panel" id="slotPanel" hidden>
+            <p class="pane-label" id="slotDateLabel"></p>
+            <div class="slot-grid" id="slotGrid"></div>
+          </div>
+          <div class="booking-actions">
+            <button class="btn-ghost" type="button" data-back>← Zpět</button>
+            <button class="btn-primary" type="button" data-next disabled>Pokračovat →</button>
+          </div>
+        </div>
+
+        <!-- Krok 4 — shrnutí a platba -->
+        <div class="booking-pane" data-pane="4">
+          <p class="pane-label">Shrnutí rezervace</p>
+          <div class="summary-card" id="summaryCard"></div>
+          <div class="booking-actions">
+            <button class="btn-ghost" type="button" data-back>← Zpět</button>
+            <button class="btn-primary btn-pay" type="button" id="payButton">Zaplatit online →</button>
+          </div>
+          <div class="booking-success" id="bookingSuccess" hidden>
+            <p>✓ Rezervace přijata</p>
+            <p class="success-note">Platební brána je zatím jen náhled — napojíme ji v další fázi projektu.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-wrap">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <p class="footer-brand">Okruh Trénink</p>
+          <p class="footer-tagline">Individuální tréninky na okruhu s instruktorem — pro začátečníky i pokročilé.</p>
+        </div>
+        <div class="footer-col">
+          <p class="footer-col-title">Kontakt</p>
+          <ul>
+            <!-- TODO: doplnit skutečné kontaktní údaje -->
+            <li><a href="tel:+420000000000">+420 000 000 000</a></li>
+            <li><a href="mailto:info@example.cz">info@example.cz</a></li>
+            <li>Autodrom, Most</li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <p class="footer-col-title">Rychlé odkazy</p>
+          <ul>
+            <li><a href="#uvod">Úvod</a></li>
+            <li><a href="#cenik">Ceník</a></li>
+            <li><a href="#rezervace">Rezervace</a></li>
+            <li><a href="../">Portfolio</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <p class="footer-col-title">Sociální sítě</p>
+          <ul>
+            <!-- TODO: doplnit skutečné odkazy -->
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">Facebook</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© <span id="footerRok"></span> Okruh Trénink — školní projekt</p>
+        <a href="../">← Zpět na portfolio</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>document.getElementById('footerRok').textContent = new Date().getFullYear();</script>
+  <script src="assets/js/booking.js"></script>
 </body>
 </html>
