@@ -198,23 +198,12 @@
 
     els.calGrid.innerHTML = '';
 
-    var firstOfMonth = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
-    var firstWeekday = (firstOfMonth.getDay() + 6) % 7; // pondělí = 0
     var daysInMonth = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate();
-
-    for (var i = 0; i < firstWeekday; i++) {
-      var empty = document.createElement('div');
-      empty.className = 'cal-day is-empty';
-      els.calGrid.appendChild(empty);
-    }
+    var shown = 0;
 
     for (var day = 1; day <= daysInMonth; day++) {
       var d = new Date(cursor.getFullYear(), cursor.getMonth(), day);
       var key = dateKey(d);
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'cal-day';
-      btn.textContent = day;
 
       var isPast = d.getTime() < today.getTime();
       var eventName = EVENTS[key];
@@ -222,18 +211,22 @@
         ? validStartHours(key, state.duration ? state.duration.hours : 1)
         : [];
 
+      // Zavřené, proběhlé nebo zcela plné dny (kromě akcí) se v kalendáři
+      // vůbec nezobrazují — jen volné dny a dny s akcí okruhu.
+      if (!eventName && (isPast || !isOpenDay(d) || starts.length === 0)) continue;
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cal-day';
+      btn.innerHTML =
+        '<span class="cal-day-weekday">' + WEEKDAY_LABELS[(d.getDay() + 6) % 7] + '</span>' +
+        '<span class="cal-day-num">' + day + '</span>';
+      shown++;
+
       if (eventName) {
         btn.classList.add('is-event');
         btn.disabled = true;
         btn.title = 'Obsazeno akcí: ' + eventName;
-      } else if (isPast || !isOpenDay(d) || starts.length === 0) {
-        // Zavřené, proběhlé nebo zcela plné dny (kromě akcí) se skryjí,
-        // ať je kalendář kompaktnější a vynikají jen reálně vybíratelné dny.
-        var hidden = document.createElement('div');
-        hidden.className = 'cal-day is-hidden';
-        hidden.setAttribute('aria-hidden', 'true');
-        els.calGrid.appendChild(hidden);
-        continue;
       } else {
         var dot = document.createElement('span');
         dot.className = 'cal-dot';
@@ -254,6 +247,13 @@
       }
 
       els.calGrid.appendChild(btn);
+    }
+
+    if (shown === 0) {
+      var none = document.createElement('p');
+      none.className = 'calendar-empty-note';
+      none.textContent = 'V tomto měsíci už nejsou žádné volné termíny.';
+      els.calGrid.appendChild(none);
     }
   }
 
