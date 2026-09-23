@@ -11,6 +11,7 @@
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --gutter: clamp(1.25rem, 6vw, 5rem);
+  --wrap: 1440px;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -103,7 +104,7 @@ body {
 }
 
 .hero-claim {
-  font-size: clamp(2.1rem, 4.4vw, 3.6rem);
+  font-size: clamp(2.2rem, 4.8vw, 4.2rem);
   font-weight: 800;
   line-height: 1.08;
   letter-spacing: -0.01em;

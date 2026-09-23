@@ -55,13 +55,18 @@
     </div>
   </section>
 
+  <section class="section-break">
+    <img class="section-break-img" src="assets/img/section-break.jpg" alt="Vůz v zatáčce na okruhu" loading="lazy">
+    <div class="section-break-overlay"></div>
+    <div class="section-break-content">
+      <p class="booking-eyebrow">Rezervace</p>
+      <h2 id="booking-heading">Naplánuj si trénink</h2>
+      <p class="section-break-lede">Vyber si délku, doplň údaje, vyber termín — o zbytek se postaráme my.</p>
+    </div>
+  </section>
+
   <section class="booking" id="rezervace" aria-labelledby="booking-heading">
     <div class="booking-wrap">
-      <div class="booking-intro">
-        <p class="booking-eyebrow">Rezervace</p>
-        <h2 id="booking-heading">Naplánuj si trénink</h2>
-      </div>
-
       <ol class="booking-steps" aria-label="Průběh rezervace">
         <li class="booking-step is-active" data-step="1"><span class="step-num">01</span><span class="step-label">Délka</span></li>
         <li class="booking-step" data-step="2"><span class="step-num">02</span><span class="step-label">Údaje</span></li>
@@ -69,6 +74,7 @@
         <li class="booking-step" data-step="4"><span class="step-num">04</span><span class="step-label">Shrnutí</span></li>
       </ol>
 
+      <div class="booking-layout">
       <div class="booking-panel">
 
         <!-- Krok 1 — délka -->
@@ -156,6 +162,12 @@
           </div>
         </div>
 
+      </div>
+
+      <aside class="booking-summary-side" id="summarySide" aria-label="Souhrn rezervace">
+        <p class="pane-label">Tvoje rezervace</p>
+        <dl class="side-rows" id="sideRows"></dl>
+      </aside>
       </div>
     </div>
   </section>

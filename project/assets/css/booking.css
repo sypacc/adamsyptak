@@ -3,20 +3,33 @@
 /* uppercase tracked type, thin rules, minimal chrome  */
 /* -------------------------------------------------- */
 .booking {
+  position: relative;
   background: var(--bg);
   padding-block: clamp(4rem, 10vh, 7rem);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.booking::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 55vw;
+  height: 55vw;
+  max-width: 900px;
+  max-height: 900px;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  opacity: 0.07;
+  filter: blur(10px);
+  pointer-events: none;
 }
 
 .booking-wrap {
+  position: relative;
   width: 100%;
-  max-width: 920px;
+  max-width: var(--wrap);
   margin: 0 auto;
   padding-inline: var(--gutter);
-}
-
-.booking-intro {
-  margin-bottom: clamp(2.5rem, 6vh, 4rem);
 }
 
 .booking-eyebrow {
@@ -27,12 +40,120 @@
   color: var(--accent);
 }
 
-.booking-intro h2 {
+.booking-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: clamp(2rem, 4vw, 3.5rem);
+  align-items: start;
+}
+
+.booking-summary-side {
+  position: sticky;
+  top: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 1.5rem;
+}
+
+.side-rows {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+.side-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.side-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.side-row dt {
+  color: var(--text-muted);
+}
+
+.side-row dd {
+  font-weight: 600;
+  text-align: right;
+}
+
+.side-row.side-total dd {
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 900px) {
+  .booking-layout {
+    grid-template-columns: 1fr;
+  }
+  .booking-summary-side {
+    display: none;
+  }
+}
+
+/* -------------------------------------------------- */
+/* Full-bleed image band — section break between hero  */
+/* and the booking wizard                              */
+/* -------------------------------------------------- */
+.section-break {
+  position: relative;
+  min-height: clamp(22rem, 56vh, 40rem);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.section-break-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 65%;
+}
+
+.section-break-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(11, 11, 13, 0.92) 0%,
+    rgba(11, 11, 13, 0.55) 45%,
+    rgba(11, 11, 13, 0.05) 80%
+  );
+}
+
+.section-break-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: clamp(2rem, 6vw, 4rem) var(--gutter) clamp(2.5rem, 6vh, 4rem);
+}
+
+.section-break-content h2 {
   margin-top: 0.6rem;
-  font-size: clamp(1.9rem, 4vw, 2.75rem);
+  font-size: clamp(2.4rem, 6vw, 4.25rem);
   font-weight: 800;
   letter-spacing: -0.01em;
   text-transform: uppercase;
+  line-height: 1.03;
+}
+
+.section-break-lede {
+  margin-top: 1rem;
+  max-width: 34rem;
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  color: var(--text-muted);
 }
 
 /* -------------------------------------------------- */
@@ -588,7 +709,7 @@
 
 .footer-wrap {
   width: 100%;
-  max-width: 1080px;
+  max-width: var(--wrap);
   margin: 0 auto;
   padding-inline: var(--gutter);
 }
