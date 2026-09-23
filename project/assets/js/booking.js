@@ -303,7 +303,10 @@
     els.slotGrid.innerHTML = '';
 
     var booked = bookedHoursForDate(key);
-    var validStarts = validStartHours(key, state.duration.hours);
+    var hours = state.duration.hours;
+    var validStarts = validStartHours(key, hours);
+    var rangeStart = state.startHour;
+    var rangeEnd = rangeStart !== null ? rangeStart + hours - 1 : null; // poslední hodina rezervace
 
     for (var h = DAY_START; h < DAY_END; h++) {
       var btn = document.createElement('button');
@@ -311,14 +314,32 @@
       btn.className = 'slot-btn';
       var isTaken = booked.indexOf(h) !== -1;
       var canStart = validStarts.indexOf(h) !== -1;
+      // Hodina patří do právě vybrané N-hodinové rezervace, i když by
+      // sama o sobě jako počáteční čas nemusela vyhovovat (málo místa
+      // do konce dne) — vizuálně musí být vidět celý rozsah, ne jen
+      // startovní hodina.
+      var inRange = rangeStart !== null && h >= rangeStart && h <= rangeEnd;
 
       btn.innerHTML = pad(h) + ':00–' + pad(h + 1) + ':00' +
-        (isTaken ? '<span class="slot-taken-note">Obsazeno (' + nameForSlot(key, h) + ')</span>' : '');
+        (isTaken && !inRange ? '<span class="slot-taken-note">Obsazeno (' + nameForSlot(key, h) + ')</span>' : '');
 
-      if (!canStart) {
+      if (inRange) {
+        btn.classList.add('is-in-range');
+        if (h === rangeStart) btn.classList.add('is-range-start');
+        if (h === rangeEnd) btn.classList.add('is-range-end');
+      }
+
+      if (inRange && h === rangeStart) {
+        // Druhý klik na startovní hodinu vybraný termín zruší.
+        btn.addEventListener('click', function () {
+          state.startHour = null;
+          renderSlots(date);
+          updateNextEnabled(3);
+          renderSideSummary();
+        });
+      } else if (!canStart) {
         btn.disabled = true;
       } else {
-        if (state.startHour === h) btn.classList.add('is-selected');
         btn.addEventListener('click', function (hour) {
           return function () {
             state.startHour = hour;
