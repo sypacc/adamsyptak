@@ -597,16 +597,26 @@
   border-color: var(--accent);
 }
 
-.slot-btn.is-selected {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #17130a;
-}
-
 .slot-btn:disabled {
   opacity: 0.3;
   text-decoration: line-through;
   cursor: not-allowed;
+}
+
+/* Celý rozsah vybrané N-hodinové rezervace, ne jen počáteční hodina —
+   overridne i :disabled vzhled (viz booking.js: hodina v rozsahu
+   nemusí sama o sobě vyhovovat jako start, ale je součástí rezervace). */
+.slot-btn.is-in-range {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #17130a;
+  opacity: 1;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.slot-btn.is-range-start {
+  box-shadow: inset 0 0 0 2px rgba(23, 19, 10, 0.35);
 }
 
 .slot-taken-note {
