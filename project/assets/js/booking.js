@@ -41,6 +41,7 @@
 
   var state = {
     step: 1,
+    maxStep: 1,
     duration: null,
     personal: null,
     calendarCursor: startOfMonth(new Date()),
@@ -236,10 +237,17 @@
         if (state.selectedDate === key) btn.classList.add('is-selected');
         btn.addEventListener('click', function (clickedKey, clickedDate) {
           return function () {
-            state.selectedDate = clickedKey;
-            state.startHour = null;
+            // Druhý klik na už vybraný den ho odznačí.
+            if (state.selectedDate === clickedKey) {
+              state.selectedDate = null;
+              state.startHour = null;
+              els.slotPanel.hidden = true;
+            } else {
+              state.selectedDate = clickedKey;
+              state.startHour = null;
+              renderSlots(clickedDate);
+            }
             renderCalendar();
-            renderSlots(clickedDate);
             updateNextEnabled(3);
             renderSideSummary();
           };
@@ -369,10 +377,13 @@
   // -------------------------------------------------- //
   function goToStep(step) {
     state.step = step;
+    state.maxStep = Math.max(state.maxStep, step);
     els.steps.forEach(function (el) {
       var n = parseInt(el.getAttribute('data-step'), 10);
       el.classList.toggle('is-active', n === step);
-      el.classList.toggle('is-done', n < step);
+      // "Hotovo/dostupné" i při návratu zpět — ne jen dokud jsme
+      // aktuálně za daným krokem, ale dokud jsme ho už jednou dosáhli.
+      el.classList.toggle('is-done', n !== step && n <= state.maxStep);
     });
     els.panes.forEach(function (el) {
       var n = parseInt(el.getAttribute('data-pane'), 10);
