@@ -123,6 +123,34 @@
     <button class="btn-primary" type="button" id="cartCheckout" hidden>Přejít k platbě →</button>
   </div>
 
+  <div class="modal-backdrop" id="paymentBackdrop" hidden></div>
+  <div class="auth-modal payment-modal" id="paymentModal" role="dialog" aria-modal="true" aria-labelledby="paymentModalTitle" hidden>
+    <button type="button" class="modal-close" id="paymentClose" aria-label="Zavřít">×</button>
+    <p class="auth-modal-title" id="paymentModalTitle">Způsob platby</p>
+    <p class="payment-amount" id="paymentAmount"></p>
+
+    <div class="payment-methods">
+      <label class="payment-method">
+        <input type="radio" name="paymentMethod" value="card" checked>
+        <span class="payment-method-label">Kreditní/debetní karta</span>
+        <span class="payment-badges"><span class="pay-badge">VISA</span><span class="pay-badge">Mastercard</span></span>
+      </label>
+      <label class="payment-method">
+        <input type="radio" name="paymentMethod" value="googlepay">
+        <span class="payment-method-label">Google Pay</span>
+        <span class="payment-badges"><span class="pay-badge">G Pay</span></span>
+      </label>
+      <label class="payment-method">
+        <input type="radio" name="paymentMethod" value="applepay">
+        <span class="payment-method-label">Apple Pay</span>
+        <span class="payment-badges"><span class="pay-badge"> Pay</span></span>
+      </label>
+    </div>
+
+    <button class="btn-primary" type="button" id="paymentConfirm">Zaplatit →</button>
+    <p class="auth-note">Demo — napojení na skutečnou platební bránu doplníme později.</p>
+  </div>
+
   <section class="hero" id="uvod">
     <div class="hero-media" aria-hidden="true">
       <video

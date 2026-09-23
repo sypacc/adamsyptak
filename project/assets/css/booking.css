@@ -227,7 +227,7 @@
 .booking-step.is-active .step-num {
   background: var(--accent);
   border-color: var(--accent);
-  color: #17130a;
+  color: #fff;
 }
 
 .booking-step.is-done .step-num {
@@ -513,13 +513,13 @@
 }
 
 .cal-day.is-event {
-  border-color: rgba(217, 80, 65, 0.5);
+  border-color: rgba(150, 60, 58, 0.5);
   opacity: 0.85;
 }
 
 .cal-day.is-event .cal-day-num,
 .cal-day.is-event .cal-day-weekday {
-  color: rgba(217, 80, 65, 0.9);
+  color: rgba(150, 60, 58, 0.9);
 }
 
 .cal-dot {
@@ -567,7 +567,7 @@
 }
 
 .dot-event {
-  background: rgba(217, 80, 65, 0.85);
+  background: rgba(150, 60, 58, 0.85);
 }
 
 .slot-panel {
@@ -609,7 +609,7 @@
 .slot-btn.is-in-range {
   background: var(--accent);
   border-color: var(--accent);
-  color: #17130a;
+  color: #fff;
   opacity: 1;
   text-decoration: none;
   cursor: pointer;
@@ -704,7 +704,7 @@
 .btn-primary {
   background: var(--accent);
   border: 1px solid var(--accent);
-  color: #17130a;
+  color: #fff;
 }
 
 .btn-primary:hover:not(:disabled) {

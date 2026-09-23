@@ -305,6 +305,15 @@
     var booked = bookedHoursForDate(key);
     var hours = state.duration.hours;
     var validStarts = validStartHours(key, hours);
+
+    // Pojistka: pokud dřív vybraná startovní hodina už není pro
+    // aktuální den/délku platná (např. změna délky bez nového kliku
+    // na termín), výběr se potichu zruší, ať se nikdy nezvýrazní
+    // rozsah zasahující do obsazené hodiny.
+    if (state.startHour !== null && validStarts.indexOf(state.startHour) === -1) {
+      state.startHour = null;
+    }
+
     var rangeStart = state.startHour;
     var rangeEnd = rangeStart !== null ? rangeStart + hours - 1 : null; // poslední hodina rezervace
 
@@ -318,7 +327,7 @@
       // sama o sobě jako počáteční čas nemusela vyhovovat (málo místa
       // do konce dne) — vizuálně musí být vidět celý rozsah, ne jen
       // startovní hodina.
-      var inRange = rangeStart !== null && h >= rangeStart && h <= rangeEnd;
+      var inRange = rangeStart !== null && h >= rangeStart && h <= rangeEnd && !isTaken;
 
       btn.innerHTML = pad(h) + ':00–' + pad(h + 1) + ':00' +
         (isTaken && !inRange ? '<span class="slot-taken-note">Obsazeno (' + nameForSlot(key, h) + ')</span>' : '');
@@ -418,16 +427,48 @@
     }
   }
 
-  els.payButton.addEventListener('click', function () {
-    // TODO: napojit skutečnou platební bránu; zatím jen demo potvrzení.
-    els.payButton.disabled = true;
-    els.payButton.textContent = 'Odesíláno…';
+  // -------------------------------------------------- //
+  // Platba — výběr způsobu platby před dokončením        //
+  // -------------------------------------------------- //
+  var paymentBackdrop = document.getElementById('paymentBackdrop');
+  var paymentModal = document.getElementById('paymentModal');
+  var paymentClose = document.getElementById('paymentClose');
+  var paymentAmount = document.getElementById('paymentAmount');
+  var paymentConfirm = document.getElementById('paymentConfirm');
+
+  function openPaymentModal() {
+    paymentAmount.textContent = state.duration ? state.duration.price.toLocaleString('cs-CZ') + ' Kč' : '';
+    paymentBackdrop.hidden = false;
+    paymentModal.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePaymentModal() {
+    paymentBackdrop.hidden = true;
+    paymentModal.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  els.payButton.addEventListener('click', openPaymentModal);
+  paymentClose.addEventListener('click', closePaymentModal);
+  paymentBackdrop.addEventListener('click', closePaymentModal);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !paymentModal.hidden) closePaymentModal();
+  });
+
+  paymentConfirm.addEventListener('click', function () {
+    // TODO: napojit skutečnou platební bránu (karta / Google Pay / Apple Pay).
+    paymentConfirm.disabled = true;
+    paymentConfirm.textContent = 'Zpracováváme platbu…';
     setTimeout(function () {
+      closePaymentModal();
+      paymentConfirm.disabled = false;
+      paymentConfirm.textContent = 'Zaplatit →';
       if (window.TWCart) window.TWCart.clearReservation();
       els.bookingSuccess.hidden = false;
       els.payButton.closest('.booking-actions').hidden = true;
       els.bookingSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 600);
+    }, 900);
   });
 
   // -------------------------------------------------- //
