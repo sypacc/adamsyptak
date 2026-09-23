@@ -122,6 +122,7 @@
     durationGrid: document.getElementById('cenik'),
     form: document.getElementById('bookingForm'),
     levelSelect: document.getElementById('levelSelect'),
+    sideRows: document.getElementById('sideRows'),
     calMonthLabel: document.getElementById('calMonthLabel'),
     calGrid: document.getElementById('calGrid'),
     calPrev: document.getElementById('calPrev'),
@@ -156,6 +157,7 @@
         state.startHour = null;
         renderDurations();
         updateNextEnabled(1);
+        renderSideSummary();
       });
       els.durationGrid.appendChild(btn);
     });
@@ -286,6 +288,7 @@
             state.startHour = hour;
             renderSlots(date);
             updateNextEnabled(3);
+            renderSideSummary();
           };
         }(h));
       }
@@ -324,6 +327,28 @@
 
     function row(label, value) {
       return '<dl class="summary-row"><dt>' + label + '</dt><dd>' + value + '</dd></dl>';
+    }
+  }
+
+  function renderSideSummary() {
+    if (!els.sideRows) return;
+    var d = state.duration;
+    var rows = [];
+    rows.push(sideRow('Délka', d ? d.label : '—'));
+    if (state.selectedDate) {
+      var dateObj = new Date(state.selectedDate + 'T00:00:00');
+      var label = pad(dateObj.getDate()) + '. ' + (dateObj.getMonth() + 1) + '. ' + dateObj.getFullYear();
+      if (state.startHour !== null && d) label += ' · ' + pad(state.startHour) + ':00–' + pad(state.startHour + d.hours) + ':00';
+      rows.push(sideRow('Termín', label));
+    }
+    if (state.personal && state.personal.firstName) {
+      rows.push(sideRow('Jméno', (state.personal.firstName + ' ' + state.personal.lastName).trim()));
+    }
+    rows.push('<dl class="side-row side-total"><dt>Celkem</dt><dd>' + (d ? d.price.toLocaleString('cs-CZ') + ' Kč' : '—') + '</dd></dl>');
+    els.sideRows.innerHTML = rows.join('');
+
+    function sideRow(label, value) {
+      return '<dl class="side-row"><dt>' + label + '</dt><dd>' + value + '</dd></dl>';
     }
   }
 
@@ -388,7 +413,14 @@
   });
 
   if (els.form) {
-    els.form.addEventListener('input', function () { updateNextEnabled(2); });
+    els.form.addEventListener('input', function () {
+      updateNextEnabled(2);
+      var fd = new FormData(els.form);
+      state.personal = state.personal || {};
+      state.personal.firstName = fd.get('firstName');
+      state.personal.lastName = fd.get('lastName');
+      renderSideSummary();
+    });
   }
 
   // -------------------------------------------------- //
@@ -398,4 +430,5 @@
   renderLevels();
   renderCalendar();
   updateNextEnabled(1);
+  renderSideSummary();
 })();
