@@ -499,13 +499,13 @@
 }
 
 .cal-day.is-selected {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: #2f9e52;
+  border-color: #2f9e52;
 }
 
 .cal-day.is-selected .cal-day-num,
 .cal-day.is-selected .cal-day-weekday {
-  color: #17130a;
+  color: #fff;
 }
 
 .cal-day:disabled {
