@@ -30,15 +30,45 @@
 </head>
 <body>
 
-  <button type="button" class="theme-toggle" id="themeToggle" aria-label="Přepnout světlý a tmavý režim" aria-pressed="false">
-    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="4"></circle>
-      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
-    </svg>
-    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-    </svg>
-  </button>
+  <div class="top-chrome">
+    <button type="button" class="chrome-btn" id="authTrigger" data-auth-open="login" aria-haspopup="dialog" aria-controls="authModal" aria-label="Přihlásit se nebo založit profil">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+    </button>
+    <button type="button" class="chrome-btn theme-toggle" id="themeToggle" aria-label="Přepnout světlý a tmavý režim" aria-pressed="false">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4"></circle>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    </button>
+  </div>
+
+  <div class="modal-backdrop" id="authBackdrop" hidden></div>
+  <div class="auth-modal" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle" hidden>
+    <button type="button" class="modal-close" id="authClose" aria-label="Zavřít">×</button>
+    <p class="auth-modal-title" id="authModalTitle">Tvůj účet</p>
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab is-active" data-tab="login">Přihlásit se</button>
+      <button type="button" class="auth-tab" data-tab="register">Založit profil</button>
+    </div>
+    <form class="auth-form is-active" data-form="login">
+      <label>E-mail<input type="email" required autocomplete="email"></label>
+      <label>Heslo<input type="password" required autocomplete="current-password"></label>
+      <button class="btn-primary" type="submit">Přihlásit se →</button>
+    </form>
+    <form class="auth-form" data-form="register">
+      <label>Jméno<input type="text" required autocomplete="name"></label>
+      <label>E-mail<input type="email" required autocomplete="email"></label>
+      <label>Heslo<input type="password" required autocomplete="new-password"></label>
+      <button class="btn-primary" type="submit">Založit profil →</button>
+    </form>
+    <p class="auth-note">Zatím jen náhled UI bez skutečného přihlašování — napojíme, až bude backend.</p>
+  </div>
 
   <section class="hero" id="uvod">
     <div class="hero-media" aria-hidden="true">
@@ -57,14 +87,7 @@
     </div>
 
     <div class="hero-brand">
-      <svg class="hero-brand-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-        <path d="M4 30C10 30 10 18 16 18C22 18 22 10 30 10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-        <circle cx="30" cy="10" r="3.5" fill="currentColor"/>
-      </svg>
-      <div class="hero-brand-text">
-        <span class="hero-brand-name">TrackWise</span>
-        <span class="hero-brand-tagline">Lekce závodního řízení</span>
-      </div>
+      <img class="hero-brand-logo" src="assets/img/logo-tw.png" alt="TrackWise — lekce závodního řízení">
     </div>
 
     <div class="hero-content">
@@ -123,6 +146,10 @@
         <!-- Krok 2 — osobní údaje -->
         <div class="booking-pane" data-pane="2">
           <p class="pane-label">Tvoje údaje</p>
+          <div class="account-prompt">
+            Máš u nás účet? <button type="button" class="link-btn" data-auth-open="login">Přihlásit se</button>
+            — příště se ti údaje vyplní automaticky. Nemáš? <button type="button" class="link-btn" data-auth-open="register">Založit profil</button>.
+          </div>
           <form class="booking-form" id="bookingForm" novalidate>
             <div class="form-row">
               <label>Jméno
@@ -248,6 +275,7 @@
 
   <script>document.getElementById('footerRok').textContent = new Date().getFullYear();</script>
   <script src="assets/js/theme.js"></script>
+  <script src="assets/js/auth.js"></script>
   <script src="assets/js/booking.js"></script>
 </body>
 </html>
