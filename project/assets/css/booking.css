@@ -100,35 +100,44 @@
 }
 
 /* -------------------------------------------------- */
-/* Full-bleed image band — section break between hero  */
-/* and the booking wizard                              */
+/* Section break — jen grafický divider mezi hero a     */
+/* wizardem, žádná fotka: pozadí stránky + diagonální   */
+/* pruhy a akcentová záře                                */
 /* -------------------------------------------------- */
 .section-break {
   position: relative;
-  min-height: clamp(22rem, 56vh, 40rem);
-  display: flex;
-  align-items: flex-end;
+  background: var(--bg);
+  border-block: 1px solid rgba(var(--line-rgb), 0.08);
   overflow: hidden;
 }
 
-.section-break-img {
+.section-break::before {
+  content: "";
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 65%;
+  background: repeating-linear-gradient(
+    -35deg,
+    rgba(var(--accent-rgb), 0.06) 0px,
+    rgba(var(--accent-rgb), 0.06) 2px,
+    transparent 2px,
+    transparent 46px
+  );
+  pointer-events: none;
 }
 
-.section-break-overlay {
+.section-break::after {
+  content: "";
   position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(11, 11, 13, 0.92) 0%,
-    rgba(11, 11, 13, 0.55) 45%,
-    rgba(11, 11, 13, 0.05) 80%
-  );
+  top: -35%;
+  left: -8%;
+  width: 46vw;
+  height: 46vw;
+  max-width: 760px;
+  max-height: 760px;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  opacity: 0.1;
+  filter: blur(10px);
+  pointer-events: none;
 }
 
 .section-break-content {
@@ -137,12 +146,12 @@
   width: 100%;
   max-width: var(--wrap);
   margin: 0 auto;
-  padding: clamp(2rem, 6vw, 4rem) var(--gutter) clamp(2.5rem, 6vh, 4rem);
+  padding: clamp(3rem, 9vh, 5.5rem) var(--gutter);
 }
 
 .section-break-content h2 {
   margin-top: 0.6rem;
-  color: var(--on-media);
+  color: var(--text);
   font-size: clamp(2.4rem, 6vw, 4.25rem);
   font-weight: 800;
   letter-spacing: -0.01em;
@@ -154,7 +163,7 @@
   margin-top: 1rem;
   max-width: 34rem;
   font-size: clamp(1rem, 1.6vw, 1.2rem);
-  color: var(--on-media-muted);
+  color: var(--text-muted);
 }
 
 /* -------------------------------------------------- */
