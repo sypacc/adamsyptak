@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080" role="img" aria-label="Náhradní obrázek — okruh za soumraku">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0b0b0d"/>
+      <stop offset="55%" stop-color="#15151a"/>
+      <stop offset="100%" stop-color="#1d1d22"/>
+    </linearGradient>
+    <linearGradient id="track" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#232327"/>
+      <stop offset="100%" stop-color="#2c2c32"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#d9a441" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#d9a441" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+  <path d="M0 780 C 480 700, 900 860, 1300 760 C 1600 690, 1780 740, 1920 700 L1920 1080 L0 1080 Z" fill="url(#track)"/>
+  <path d="M0 780 C 480 700, 900 860, 1300 760 C 1600 690, 1780 740, 1920 700" fill="none" stroke="#3a3a42" stroke-width="6"/>
+  <rect x="960" y="0" width="960" height="1080" fill="url(#glow)"/>
+  <circle cx="1500" cy="300" r="340" fill="#d9a441" opacity="0.06"/>
+</svg>

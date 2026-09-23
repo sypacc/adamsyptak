@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rezervace tréninku</title>
+  <meta name="description" content="Rezervuj si trénink na okruhu.">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0b0b0d">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/hero.css">
+</head>
+<body>
+
+  <section class="hero" id="uvod">
+    <div class="hero-media" aria-hidden="true">
+      <!-- TODO: nahradit reálným smyčkovým videem, viz assets/video/README.md -->
+      <video
+        class="hero-video"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="metadata"
+        poster="assets/img/hero-poster.svg"
+      >
+        <source src="assets/video/hero-loop.mp4" type="video/mp4">
+      </video>
+      <div class="hero-overlay"></div>
+    </div>
+
+    <div class="hero-content">
+      <div class="hero-text">
+        <!-- TODO: doplnit finální claim -->
+        <h1 class="hero-claim">Trénuj na okruhu jako profesionál.</h1>
+        <!-- TODO: doplnit finální benefit větu -->
+        <p class="hero-benefit">
+          Individuální trénink s instruktorem, který tě posune k rychlejším a jistějším časům.
+        </p>
+
+        <div class="hero-actions">
+          <!-- TODO: odkaz na rezervační wizard -->
+          <a class="btn-primary" href="#rezervace">Rezervovat trénink</a>
+          <!-- TODO: odkaz na ceník -->
+          <a class="btn-secondary" href="#cenik">Zobrazit ceník</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

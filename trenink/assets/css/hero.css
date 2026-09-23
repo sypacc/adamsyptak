@@ -1,0 +1,187 @@
+/* -------------------------------------------------- */
+/* Tokens (sdíleno s hlavním webem)                    */
+/* -------------------------------------------------- */
+:root {
+  --bg: #0b0b0d;
+  --text: #f2f2f0;
+  --text-muted: #c7c7cc;
+  --accent: #d9a441;
+  --accent-hover: #e6b45c;
+
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --gutter: clamp(1.25rem, 6vw, 5rem);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* -------------------------------------------------- */
+/* Hero — layout                                       */
+/* -------------------------------------------------- */
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100svh;
+  min-height: 100vh; /* fallback pro prohlížeče bez svh */
+  overflow: hidden;
+}
+
+/* Video zabírá celou sekci na výšku i šířku; vizuální rozdělení na
+   poloviny vzniká přes gradientní překryv, ne přes ostrou hranu. */
+.hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Tmavý gradientní překryv: vlevo plný, doprava plynule do průhledna */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(11, 11, 13, 0.95) 0%,
+    rgba(11, 11, 13, 0.9) 30%,
+    rgba(11, 11, 13, 0.55) 55%,
+    rgba(11, 11, 13, 0.1) 78%,
+    rgba(11, 11, 13, 0) 100%
+  );
+}
+
+/* -------------------------------------------------- */
+/* Hero — text (levá polovina)                         */
+/* -------------------------------------------------- */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  grid-column: 1 / 2;
+  display: flex;
+  align-items: center;
+  min-height: 100%;
+  padding-block: clamp(2rem, 6vh, 4rem);
+  padding-inline-start: var(--gutter);
+  padding-inline-end: clamp(1.25rem, 4vw, 3rem);
+}
+
+.hero-text {
+  max-width: 34rem;
+}
+
+.hero-claim {
+  font-size: clamp(2.1rem, 4.4vw, 3.6rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+}
+
+.hero-benefit {
+  margin-top: 1.25rem;
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  color: var(--text-muted);
+  max-width: 30rem;
+}
+
+.hero-actions {
+  margin-top: 2.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.9rem 1.75rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #17130a;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: background-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(242, 242, 240, 0.35);
+  transition: color 0.2s var(--ease);
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus-visible {
+  color: var(--text);
+}
+
+/* -------------------------------------------------- */
+/* Mobil — video jde na pozadí celé sekce, text přes celou šířku */
+/* -------------------------------------------------- */
+@media (max-width: 760px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-content {
+    grid-column: 1 / -1;
+    width: 100%;
+    padding-inline: var(--gutter);
+  }
+
+  .hero-text {
+    max-width: none;
+  }
+
+  .hero-overlay {
+    background: linear-gradient(
+      to bottom,
+      rgba(11, 11, 13, 0.55) 0%,
+      rgba(11, 11, 13, 0.75) 45%,
+      rgba(11, 11, 13, 0.92) 100%
+    );
+  }
+}
