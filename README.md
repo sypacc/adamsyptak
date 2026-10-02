@@ -1,33 +1,53 @@
 # Adam Sypták — portfolio
 
-Osobní portfolio, statická stránka bez frameworků a bez buildovacího kroku.
+Osobní portfolio, React (Vite).
 
 ## Struktura
 
 ```
-index.html          — obsah stránky
-assets/css/style.css — styly (dark, minimalistický design)
-assets/js/main.js    — mobilní menu, aktivní odkaz v navigaci, animace při scrollu
-assets/img/          — favicon a další obrázky
+index.html              — Vite vstupní bod hlavní stránky
+project/index.html      — Vite vstupní bod stránky školního projektu
+src/
+  main.jsx               — spuštění hlavní stránky
+  project-main.jsx        — spuštění stránky školního projektu
+  App.jsx                 — sestavení hlavní stránky z komponent
+  ProjectPage.jsx          — obsah stránky školního projektu
+  components/              — jednotlivé sekce stránky (Header, Hero, About, ...)
+  hooks/useSiteEffects.js  — scroll efekty, animace při scrollu, tilt/spotlight
+  utils/background.js      — generování vrstevnicového pozadí
+  styles/global.css        — veškeré styly (dark, minimalistický design)
+public/assets/img/         — favicon a fotky (kopírují se beze změny do výstupu)
 ```
 
 ## Lokální vývoj
 
-Stránka nepotřebuje žádný build. Pro lokální náhled stačí spustit statický server, např.:
+```
+npm install
+npm run dev
+```
+
+Otevře se na `http://localhost:5173/adamsyptak/`.
+
+## Produkční build
 
 ```
-python3 -m http.server 8080
+npm run build
+npm run preview
 ```
 
-a otevřít `http://localhost:8080`.
+Výstup se generuje do `dist/`.
 
 ## Nasazení na GitHub Pages
 
-1. V repozitáři přejít do **Settings → Pages**.
-2. V sekci **Build and deployment** vybrat **Source: Deploy from a branch**.
-3. Zvolit branch `main` a složku `/ (root)`.
-4. Uložit — stránka se objeví na `https://<uzivatel>.github.io/<repo>/`.
+Stránka se teď builduje (React/Vite), takže už nejde nasadit přímo z branche —
+nasazení zajišťuje workflow `.github/workflows/deploy.yml`, který při každém
+push na `main` stránku zbuilduje a nahraje na GitHub Pages.
 
-## TODO
+**Jednorázové nastavení v repozitáři:**
 
-- V sekci Kontakt (`index.html`, `#kontakt`) doplnit skutečné odkazy na e-mail, LinkedIn a GitHub.
+1. **Settings → Pages**
+2. V sekci **Build and deployment** přepnout **Source** na **GitHub Actions**
+   (místo původního "Deploy from a branch").
+
+Po tomto přepnutí se stránka při každém pushi na `main` automaticky zbuilduje
+a nasadí na `https://sypacc.github.io/adamsyptak/`.
