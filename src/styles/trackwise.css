@@ -1,4 +1,725 @@
 /* -------------------------------------------------- */
+/* Tokens                                              */
+/* -------------------------------------------------- */
+:root {
+  --bg: #0b0b0d;
+  --text: #f2f2f0;
+  --text-muted: #c7c7cc;
+  --text-faint: #85858d;
+  --accent: #e0342a;
+  --accent-hover: #ee493e;
+  --accent-rgb: 224, 52, 42;
+  --line-rgb: 255, 255, 255;
+
+  /* Text sitting over photography (hero video, section-break image)
+     stays fixed regardless of site theme — the backdrop is always dark. */
+  --on-media: #f5f4f1;
+  --on-media-muted: #d7d5d1;
+
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --gutter: clamp(1.25rem, 6vw, 5rem);
+  --wrap: 1440px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root[data-theme="light"] {
+  --bg: #f4f4f4;
+  --text: #151515;
+  --text-muted: #5c5c5c;
+  --text-faint: #8a8a8a;
+  --accent: #c22a20;
+  --accent-hover: #a82219;
+  --accent-rgb: 194, 42, 32;
+  --line-rgb: 17, 17, 17;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 4.5rem;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s var(--ease), color 0.25s var(--ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* -------------------------------------------------- */
+/* Site header — logo, scrollspy nav, akce (košík,       */
+/* přihlášení, téma). Fixní, vlastní tmavé pozadí,       */
+/* ať je čitelná nad videem i nad stránkou v obou         */
+/* režimech.                                              */
+/* -------------------------------------------------- */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 80;
+  background: rgba(11, 11, 13, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.site-header-inner {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+  min-height: 4.25rem;
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  flex-wrap: wrap;
+}
+
+.site-logo {
+  display: flex;
+  align-items: center;
+  margin-right: auto;
+}
+
+.site-logo img {
+  height: 30px;
+  width: auto;
+  display: block;
+}
+
+.site-nav ul {
+  display: flex;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  list-style: none;
+}
+
+.site-nav a {
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #d7d5d1;
+  padding-block: 0.35rem;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+.site-nav a:hover {
+  color: #fff;
+}
+
+.site-nav a.is-active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.site-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.chrome-btn {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: transparent;
+  color: #f5f4f1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform 0.15s var(--ease), border-color 0.2s var(--ease);
+}
+
+.chrome-btn:hover {
+  border-color: var(--accent);
+}
+
+.chrome-btn:active {
+  transform: scale(0.85);
+}
+
+.chrome-btn svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.chrome-btn.is-logged-in {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.chrome-badge[hidden] {
+  display: none;
+}
+
+.chrome-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding-inline: 4px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+}
+
+@media (max-width: 640px) {
+  .site-nav ul {
+    gap: 1rem;
+  }
+  .site-nav a {
+    font-size: 0.72rem;
+  }
+}
+
+.theme-toggle.is-pressed {
+  animation: toggle-pop 0.4s var(--ease);
+}
+
+@keyframes toggle-pop {
+  0% {
+    transform: scale(0.8) rotate(-15deg);
+  }
+  55% {
+    transform: scale(1.15) rotate(8deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.theme-toggle .icon-sun,
+.theme-toggle .icon-moon {
+  display: none;
+}
+
+.theme-toggle .icon-moon {
+  display: block;
+}
+
+:root[data-theme="light"] .theme-toggle .icon-moon {
+  display: none;
+}
+
+:root[data-theme="light"] .theme-toggle .icon-sun {
+  display: block;
+}
+
+/* -------------------------------------------------- */
+/* Auth modal — přihlášení / založení profilu (demo,    */
+/* zatím bez skutečného backendu)                       */
+/* -------------------------------------------------- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(5, 5, 6, 0.65);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.auth-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 91;
+  width: min(420px, calc(100vw - 2.5rem));
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid rgba(var(--line-rgb), 0.16);
+  padding: clamp(1.5rem, 4vw, 2.25rem);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+  animation: modal-in 0.25s var(--ease);
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -47%) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--line-rgb), 0.18);
+  background: transparent;
+  color: var(--text);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.modal-close:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.auth-modal-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  padding-right: 2rem;
+}
+
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(var(--line-rgb), 0.12);
+  margin: 1.5rem 0;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 0 0 0.85rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+.auth-tab.is-active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+.auth-form {
+  display: none;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.auth-form.is-active {
+  display: flex;
+}
+
+.auth-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.auth-form input {
+  background: var(--bg);
+  border: 1px solid rgba(var(--line-rgb), 0.18);
+  border-radius: 2px;
+  padding: 0.8rem 0.9rem;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  transition: border-color 0.2s var(--ease);
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.auth-form .btn-primary {
+  margin-top: 0.25rem;
+  border-radius: 2px;
+  width: 100%;
+}
+
+.auth-note {
+  margin-top: 1.25rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.auth-welcome {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.auth-logged-in .btn-ghost {
+  margin-top: 1.5rem;
+  width: 100%;
+  border-radius: 2px;
+}
+
+/* -------------------------------------------------- */
+/* Cart modal                                           */
+/* -------------------------------------------------- */
+.cart-section {
+  margin-top: 1.5rem;
+}
+
+.cart-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.cart-lines {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.cart-line {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(var(--line-rgb), 0.1);
+}
+
+.cart-line-info p {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.cart-line-meta {
+  margin-top: 0.15rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 400 !important;
+}
+
+.cart-line-price {
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cart-line-remove {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--line-rgb), 0.18);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  transition: border-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.cart-line-remove:hover {
+  border-color: rgba(150, 60, 58, 0.6);
+  color: rgba(150, 60, 58, 0.9);
+}
+
+.cart-empty {
+  margin-top: 1.5rem;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.cart-total[hidden] {
+  display: none;
+}
+
+.cart-total {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(var(--line-rgb), 0.14);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.cart-total strong {
+  font-size: 1.2rem;
+  color: var(--accent);
+}
+
+#cartCheckout[hidden] {
+  display: none;
+}
+
+#cartCheckout {
+  margin-top: 1.25rem;
+  width: 100%;
+  border-radius: 2px;
+}
+
+/* -------------------------------------------------- */
+/* Payment method modal                                 */
+/* -------------------------------------------------- */
+.payment-amount {
+  margin-top: 0.4rem;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.payment-methods {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.payment-method {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(var(--line-rgb), 0.16);
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease);
+}
+
+.payment-method:has(input:checked) {
+  border-color: var(--accent);
+}
+
+.payment-method input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+
+.payment-method-label {
+  flex: 1;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.payment-badges {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.pay-badge {
+  border: 1px solid rgba(var(--line-rgb), 0.2);
+  border-radius: 3px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+}
+
+#paymentConfirm {
+  margin-top: 1.5rem;
+  width: 100%;
+  border-radius: 2px;
+}
+
+/* -------------------------------------------------- */
+/* Hero — layout                                       */
+/* -------------------------------------------------- */
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100svh;
+  min-height: 100vh; /* fallback pro prohlížeče bez svh */
+  overflow: hidden;
+}
+
+/* Video zabírá celou sekci na výšku i šířku; vizuální rozdělení na
+   poloviny vzniká přes gradientní překryv, ne přes ostrou hranu. */
+.hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Tmavý gradientní překryv: vlevo plný, doprava plynule do průhledna */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(11, 11, 13, 0.95) 0%,
+    rgba(11, 11, 13, 0.9) 30%,
+    rgba(11, 11, 13, 0.55) 55%,
+    rgba(11, 11, 13, 0.1) 78%,
+    rgba(11, 11, 13, 0) 100%
+  );
+}
+
+/* -------------------------------------------------- */
+/* Hero — text (levá polovina)                         */
+/* -------------------------------------------------- */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  grid-column: 1 / 2;
+  display: flex;
+  align-items: center;
+  min-height: 100%;
+  padding-block: clamp(2rem, 6vh, 4rem);
+  padding-inline-start: var(--gutter);
+  padding-inline-end: clamp(1.25rem, 4vw, 3rem);
+}
+
+.hero-text {
+  max-width: 34rem;
+}
+
+.hero-claim {
+  color: var(--on-media);
+  font-size: clamp(2.2rem, 4.8vw, 4.2rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+}
+
+.hero-benefit {
+  margin-top: 1.25rem;
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  color: var(--on-media-muted);
+  max-width: 30rem;
+}
+
+.hero-actions {
+  margin-top: 2.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.9rem 1.75rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: background-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  color: var(--on-media-muted);
+  font-size: 0.95rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(242, 242, 240, 0.35);
+  transition: color 0.2s var(--ease);
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus-visible {
+  color: var(--on-media);
+}
+
+.hero-back {
+  display: inline-block;
+  margin-top: 2.5rem;
+  font-size: 0.85rem;
+  color: var(--on-media-muted);
+  opacity: 0.7;
+  transition: opacity 0.2s var(--ease);
+}
+
+.hero-back:hover,
+.hero-back:focus-visible {
+  opacity: 1;
+}
+
+/* -------------------------------------------------- */
+/* Mobil — video jde na pozadí celé sekce, text přes celou šířku */
+/* -------------------------------------------------- */
+@media (max-width: 760px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-content {
+    grid-column: 1 / -1;
+    width: 100%;
+    padding-inline: var(--gutter);
+  }
+
+  .hero-text {
+    max-width: none;
+  }
+
+  .hero-overlay {
+    background: linear-gradient(
+      to bottom,
+      rgba(11, 11, 13, 0.55) 0%,
+      rgba(11, 11, 13, 0.75) 45%,
+      rgba(11, 11, 13, 0.92) 100%
+    );
+  }
+}
+/* -------------------------------------------------- */
 /* Booking wizard — Lotus-inspired: monochrome,        */
 /* uppercase tracked type, thin rules, minimal chrome  */
 /* -------------------------------------------------- */

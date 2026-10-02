@@ -1,10 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import ProjectPage from "./ProjectPage.jsx";
-import "./styles/global.css";
+import TrackWiseApp from "./trackwise/TrackWiseApp.jsx";
+import "./styles/trackwise.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <ProjectPage />
+    <TrackWiseApp />
   </StrictMode>
 );
