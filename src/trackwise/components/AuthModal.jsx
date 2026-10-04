@@ -1,107 +1,103 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
-import { useModalBehavior } from "../hooks/useModalBehavior.js";
+import Modal from "./Modal.jsx";
+
+const TABS = [
+  { id: "login", label: "Přihlásit se" },
+  { id: "register", label: "Založit profil" },
+];
 
 export default function AuthModal() {
   const { user, login, logout, isAuthModalOpen, authModalTab, closeAuthModal, setAuthTab } = useAuth();
-  useModalBehavior(isAuthModalOpen, closeAuthModal);
+  const closeTimer = useRef(0);
 
-  const loginFormRef = useRef(null);
-  const registerFormRef = useRef(null);
-  const modalRef = useRef(null);
-  const [pendingLabel, setPendingLabel] = useState(null);
-
-  useEffect(() => {
-    if (!isAuthModalOpen) return;
-    const firstInput = modalRef.current && modalRef.current.querySelector(".auth-form.is-active input");
-    if (firstInput) firstInput.focus();
-  }, [isAuthModalOpen, authModalTab]);
+  useEffect(() => () => window.clearTimeout(closeTimer.current), []);
 
   function handleSubmit(e, isRegister) {
     e.preventDefault();
+    // TODO: napojit skutečné přihlašování / registraci na backend.
     const form = e.target;
-    const email = form.querySelector('input[type="email"]').value;
-    const nameInput = form.querySelector('input[type="text"]');
-    const name = isRegister && nameInput ? nameInput.value : email.split("@")[0];
-
+    const email = form.elements.email.value;
+    const name = isRegister ? form.elements.name.value : email.split("@")[0];
     login({ name, email });
+    // The dialog flips to the signed-in view; leave it up briefly as the
+    // confirmation, then close.
+    closeTimer.current = window.setTimeout(closeAuthModal, 900);
+  }
 
-    const btn = form.querySelector('button[type="submit"]');
-    const original = btn.textContent;
-    setPendingLabel(isRegister ? "register" : "login");
-    btn.textContent = "Hotovo ✓";
-    window.setTimeout(() => {
-      closeAuthModal();
-      btn.textContent = original;
-      form.reset();
-      setPendingLabel(null);
-    }, 700);
+  function handleTabKey(e) {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    const next = authModalTab === "login" ? "register" : "login";
+    setAuthTab(next);
+    document.getElementById("authTab-" + next)?.focus();
   }
 
   return (
-    <>
-      <div className="modal-backdrop" id="authBackdrop" hidden={!isAuthModalOpen} onClick={closeAuthModal}></div>
-      <div
-        className="auth-modal"
-        id="authModal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="authModalTitle"
-        hidden={!isAuthModalOpen}
-        ref={modalRef}
-      >
-        <button type="button" className="modal-close" id="authClose" aria-label="Zavřít" onClick={closeAuthModal}>×</button>
-        <p className="auth-modal-title" id="authModalTitle">Tvůj účet</p>
+    <Modal isOpen={isAuthModalOpen} onClose={closeAuthModal} id="authModal" labelledBy="authModalTitle">
+      <p className="auth-modal-title" id="authModalTitle">Tvůj účet</p>
 
-        <div className="auth-guest" id="authGuestView" hidden={!!user}>
-          <div className="auth-tabs">
-            <button
-              type="button"
-              className={"auth-tab" + (authModalTab === "login" ? " is-active" : "")}
-              data-tab="login"
-              onClick={() => setAuthTab("login")}
-            >
-              Přihlásit se
-            </button>
-            <button
-              type="button"
-              className={"auth-tab" + (authModalTab === "register" ? " is-active" : "")}
-              data-tab="register"
-              onClick={() => setAuthTab("register")}
-            >
-              Založit profil
-            </button>
+      {!user ? (
+        <div className="auth-guest" id="authGuestView">
+          <div className="auth-tabs" role="tablist" aria-label="Přihlášení nebo registrace">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                id={"authTab-" + tab.id}
+                aria-selected={authModalTab === tab.id}
+                aria-controls={"authPanel-" + tab.id}
+                tabIndex={authModalTab === tab.id ? 0 : -1}
+                className={"auth-tab" + (authModalTab === tab.id ? " is-active" : "")}
+                data-tab={tab.id}
+                onClick={() => setAuthTab(tab.id)}
+                onKeyDown={handleTabKey}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
-          <form
-            className={"auth-form" + (authModalTab === "login" ? " is-active" : "")}
-            data-form="login"
-            ref={loginFormRef}
-            onSubmit={(e) => handleSubmit(e, false)}
-          >
-            <label>E-mail<input type="email" required autoComplete="email" /></label>
-            <label>Heslo<input type="password" required autoComplete="current-password" /></label>
-            <button className="btn-primary" type="submit" disabled={pendingLabel === "register"}>Přihlásit se →</button>
-          </form>
-          <form
-            className={"auth-form" + (authModalTab === "register" ? " is-active" : "")}
-            data-form="register"
-            ref={registerFormRef}
-            onSubmit={(e) => handleSubmit(e, true)}
-          >
-            <label>Jméno<input type="text" required autoComplete="name" /></label>
-            <label>E-mail<input type="email" required autoComplete="email" /></label>
-            <label>Heslo<input type="password" required autoComplete="new-password" /></label>
-            <button className="btn-primary" type="submit" disabled={pendingLabel === "login"}>Založit profil →</button>
-          </form>
+
+          {authModalTab === "login" ? (
+            <form
+              key="login"
+              className="auth-form is-active"
+              data-form="login"
+              role="tabpanel"
+              id="authPanel-login"
+              aria-labelledby="authTab-login"
+              onSubmit={(e) => handleSubmit(e, false)}
+            >
+              <label>E-mail<input name="email" type="email" required autoComplete="email" data-autofocus /></label>
+              <label>Heslo<input name="password" type="password" required autoComplete="current-password" /></label>
+              <button className="btn-primary" type="submit">Přihlásit se →</button>
+            </form>
+          ) : (
+            <form
+              key="register"
+              className="auth-form is-active"
+              data-form="register"
+              role="tabpanel"
+              id="authPanel-register"
+              aria-labelledby="authTab-register"
+              onSubmit={(e) => handleSubmit(e, true)}
+            >
+              <label>Jméno<input name="name" type="text" required autoComplete="name" data-autofocus /></label>
+              <label>E-mail<input name="email" type="email" required autoComplete="email" /></label>
+              <label>Heslo<input name="password" type="password" required autoComplete="new-password" /></label>
+              <button className="btn-primary" type="submit">Založit profil →</button>
+            </form>
+          )}
           <p className="auth-note">Zatím jen náhled UI bez skutečného přihlašování — napojíme, až bude backend.</p>
         </div>
-
-        <div className="auth-logged-in" id="authLoggedInView" hidden={!user}>
-          <p className="auth-welcome">Přihlášen(a) jako <strong id="authUserName">{user ? user.name : ""}</strong></p>
+      ) : (
+        <div className="auth-logged-in" id="authLoggedInView">
+          <p className="auth-welcome">Přihlášen(a) jako <strong id="authUserName">{user.name}</strong></p>
           <p className="auth-note">Tvoje údaje se teď při rezervaci vyplní automaticky.</p>
-          <button className="btn-ghost" type="button" id="authLogout" onClick={logout}>Odhlásit se</button>
+          <button className="btn-ghost" type="button" id="authLogout" onClick={() => { logout(); closeAuthModal(); }}>Odhlásit se</button>
         </div>
-      </div>
-    </>
+      )}
+    </Modal>
   );
 }

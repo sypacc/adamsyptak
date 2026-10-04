@@ -1,10 +1,12 @@
+import SplitHeading from "./SplitHeading.jsx";
+
 export default function Education() {
   return (
     <section className="section" id="vzdelani" aria-labelledby="vzdelani-heading">
       <div className="wrap">
         <span className="section-watermark" aria-hidden="true">04</span>
         <p className="section-number" data-reveal="true">04</p>
-        <h2 id="vzdelani-heading" data-reveal="true">Vzdělání</h2>
+        <SplitHeading id="vzdelani-heading" text="Vzdělání" />
 
         <div className="timeline" data-reveal="true">
           <div className="timeline-item" data-reveal="true">

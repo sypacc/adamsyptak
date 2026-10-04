@@ -1,10 +1,12 @@
+import SplitHeading from "./SplitHeading.jsx";
+
 export default function Thinking() {
   return (
     <section className="section" id="mysleni" aria-labelledby="mysleni-heading">
       <div className="wrap">
         <span className="section-watermark" aria-hidden="true">03</span>
         <p className="section-number" data-reveal="true">03</p>
-        <h2 id="mysleni-heading" data-reveal="true">Jak přemýšlím</h2>
+        <SplitHeading id="mysleni-heading" text="Jak přemýšlím" />
 
         <div className="principles">
           <div className="principle principle--featured tilt" data-reveal="true">

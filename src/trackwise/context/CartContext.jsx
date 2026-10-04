@@ -26,6 +26,9 @@ function saveCart(cart) {
 export function CartProvider({ children }) {
   const [cart, setCart] = useState(loadCart);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  // Last merch item added, for the confirmation toast. `key` changes on
+  // every add so re-adding the same item re-triggers the toast.
+  const [toast, setToast] = useState(null);
 
   const update = useCallback((updater) => {
     setCart((prev) => {
@@ -44,9 +47,14 @@ export function CartProvider({ children }) {
           : [...prev.items, { id: item.id, name: item.name, price: item.price, qty: 1 }];
         return { ...prev, items };
       });
+      setToast({ key: Date.now(), name: item.name, price: item.price });
     },
     [update]
   );
+
+  const dismissToast = useCallback(() => setToast(null), []);
+  const openCart = useCallback(() => setIsCartOpen(true), []);
+  const closeCart = useCallback(() => setIsCartOpen(false), []);
 
   const removeMerchItem = useCallback(
     (id) => {
@@ -85,8 +93,10 @@ export function CartProvider({ children }) {
         clearReservation,
         clearAll,
         isCartOpen,
-        openCart: () => setIsCartOpen(true),
-        closeCart: () => setIsCartOpen(false),
+        openCart,
+        closeCart,
+        toast,
+        dismissToast,
       }}
     >
       {children}

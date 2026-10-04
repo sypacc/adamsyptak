@@ -1,3 +1,6 @@
+import SplitHeading from "./SplitHeading.jsx";
+import ResponsivePicture from "./ResponsivePicture.jsx";
+
 export default function About() {
   return (
     <section className="section" id="o-mne" aria-labelledby="o-mne-heading">
@@ -6,7 +9,7 @@ export default function About() {
         <div className="about-layout">
           <div className="about-main">
             <p className="section-number" data-reveal="true">01</p>
-            <h2 id="o-mne-heading" data-reveal="true">O mně</h2>
+            <SplitHeading id="o-mne-heading" text="O mně" />
             <div className="section-body" data-reveal="true">
               <p>
                 Od 2024 vedu{" "}
@@ -25,7 +28,15 @@ export default function About() {
             </div>
           </div>
           <figure className="about-photo" data-reveal="true">
-            <img src={import.meta.env.BASE_URL + "assets/img/photos/adam-portrait.jpg"} alt="Portrét Adama Syptáka" width="2000" height="1333" loading="lazy" />
+            {/* 4:5 frame over a 3:2 photo renders it ~1.9x the frame width */}
+            <ResponsivePicture
+              name="adam-portrait"
+              widths={[800, 1400]}
+              sizes="(max-width: 400px) 560px, 675px"
+              alt="Portrét Adama Syptáka"
+              width="2000"
+              height="1333"
+            />
           </figure>
         </div>
       </div>

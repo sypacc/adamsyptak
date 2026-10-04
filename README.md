@@ -1,22 +1,26 @@
 # Adam Sypták — portfolio
 
-Osobní portfolio, React (Vite).
+Osobní portfolio + školní projekt TrackWise, React (Vite), dvě samostatné stránky
+v jednom buildu: `/` (portfolio) a `/project/` (TrackWise).
 
 ## Struktura
 
 ```
-index.html              — Vite vstupní bod hlavní stránky
-project/index.html      — Vite vstupní bod stránky školního projektu
+index.html                 — vstupní bod portfolia (meta, OG náhled, preload fontu)
+project/index.html         — vstupní bod TrackWise
 src/
-  main.jsx               — spuštění hlavní stránky
-  project-main.jsx        — spuštění stránky školního projektu
-  App.jsx                 — sestavení hlavní stránky z komponent
-  ProjectPage.jsx          — obsah stránky školního projektu
-  components/              — jednotlivé sekce stránky (Header, Hero, About, ...)
-  hooks/useSiteEffects.js  — scroll efekty, animace při scrollu, tilt/spotlight
+  main.jsx                 — spuštění portfolia
+  App.jsx                  — portfolio složené z komponent
+  components/              — sekce portfolia (Header, Hero, About, Built, ...)
+  hooks/useSiteEffects.js  — scroll efekty, odhalování při scrollu, tilt/spotlight, pozadí
+  hooks/useSmoothScroll.js — plynulý scroll (Lenis), jen pro myš/trackpad
   utils/background.js      — generování vrstevnicového pozadí
-  styles/global.css        — veškeré styly (dark, minimalistický design)
-public/assets/img/         — favicon a fotky (kopírují se beze změny do výstupu)
+  styles/global.css        — styly portfolia
+  project-main.jsx         — spuštění TrackWise
+  trackwise/               — TrackWise: komponenty, contexty (téma, účet, košík), wizard
+  styles/trackwise.css     — styly TrackWise
+public/                    — statické soubory kopírované beze změny (fotky, video, OG, 404)
+media-src/                 — originální fotky/logo v plné kvalitě (nenasazují se)
 ```
 
 ## Lokální vývoj
@@ -37,9 +41,16 @@ npm run preview
 
 Výstup se generuje do `dist/`.
 
+## Fotky a obrázky
+
+Na webu se používají optimalizované varianty v `public/assets/img/photos/`
+(AVIF + WebP ve dvou šířkách, např. `adam-portrait-800.avif`, `adam-portrait-1400.webp`).
+Originály jsou v `media-src/`. Při přidání nové fotky je potřeba vygenerovat
+stejné varianty (stačí poslat fotku Claudovi).
+
 ## Nasazení na GitHub Pages
 
-Stránka se teď builduje (React/Vite), takže už nejde nasadit přímo z branche —
+Stránka se builduje (React/Vite), takže už nejde nasadit přímo z branche —
 nasazení zajišťuje workflow `.github/workflows/deploy.yml`, který při každém
 push na `main` stránku zbuilduje a nahraje na GitHub Pages.
 

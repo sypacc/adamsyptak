@@ -9,6 +9,7 @@ import Education from "./components/Education.jsx";
 import Contact from "./components/Contact.jsx";
 import Footer from "./components/Footer.jsx";
 import { useSiteEffects } from "./hooks/useSiteEffects.js";
+import { useSmoothScroll } from "./hooks/useSmoothScroll.js";
 
 export default function App() {
   const headerRef = useRef(null);
@@ -19,6 +20,7 @@ export default function App() {
   const glowElRef = useRef(null);
 
   useSiteEffects({ headerRef, navRef, navIndicatorRef, contoursElRef, contoursSvgRef, glowElRef });
+  useSmoothScroll();
 
   return (
     <>

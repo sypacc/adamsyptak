@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, m } from "motion/react";
 import { useCart } from "../context/CartContext.jsx";
-import { useModalBehavior } from "../hooks/useModalBehavior.js";
+import Modal from "./Modal.jsx";
 
 function fmt(n) {
   return n.toLocaleString("cs-CZ") + " Kč";
@@ -8,14 +9,17 @@ function fmt(n) {
 
 export default function CartModal() {
   const { cart, total, removeMerchItem, clearAll, isCartOpen, closeCart } = useCart();
-  useModalBehavior(isCartOpen, closeCart);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const timer = useRef(0);
+
+  useEffect(() => () => window.clearTimeout(timer.current), []);
 
   const isEmpty = cart.items.length === 0 && !cart.reservation;
 
   function handleCheckout() {
+    // TODO: napojit skutečnou platební bránu / e-shop checkout.
     setIsCheckingOut(true);
-    window.setTimeout(() => {
+    timer.current = window.setTimeout(() => {
       clearAll();
       setIsCheckingOut(false);
       closeCart();
@@ -23,67 +27,66 @@ export default function CartModal() {
   }
 
   return (
-    <>
-      <div className="modal-backdrop" id="cartBackdrop" hidden={!isCartOpen} onClick={closeCart}></div>
-      <div
-        className="auth-modal cart-modal"
-        id="cartModal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="cartModalTitle"
-        hidden={!isCartOpen}
-      >
-        <button type="button" className="modal-close" id="cartClose" aria-label="Zavřít" onClick={closeCart}>×</button>
-        <p className="auth-modal-title" id="cartModalTitle">Košík</p>
+    <Modal isOpen={isCartOpen} onClose={closeCart} id="cartModal" labelledBy="cartModalTitle" className="cart-modal" fallbackFocus="#cartTrigger">
+      <p className="auth-modal-title" id="cartModalTitle">Košík</p>
 
-        <div className="cart-section" id="cartReservationSection" hidden={!cart.reservation}>
+      {cart.reservation && (
+        <div className="cart-section" id="cartReservationSection">
           <p className="cart-section-title">Nezaplacená rezervace</p>
           <div className="cart-lines" id="cartReservationLines">
-            {cart.reservation && (
-              <div className="cart-line">
-                <div className="cart-line-info">
-                  <p>{cart.reservation.durationLabel}</p>
-                  <p className="cart-line-meta">
-                    {cart.reservation.dateLabel}
-                    {cart.reservation.timeLabel ? " · " + cart.reservation.timeLabel : ""}
-                  </p>
-                </div>
-                <p className="cart-line-price">{fmt(cart.reservation.price)}</p>
+            <div className="cart-line">
+              <div className="cart-line-info">
+                <p>{cart.reservation.durationLabel}</p>
+                <p className="cart-line-meta">
+                  {cart.reservation.dateLabel}
+                  {cart.reservation.timeLabel ? " · " + cart.reservation.timeLabel : ""}
+                </p>
               </div>
-            )}
+              <p className="cart-line-price">{fmt(cart.reservation.price)}</p>
+            </div>
           </div>
         </div>
+      )}
 
-        <div className="cart-section" id="cartMerchSection" hidden={cart.items.length === 0}>
+      {cart.items.length > 0 && (
+        <div className="cart-section" id="cartMerchSection">
           <p className="cart-section-title">Merch</p>
           <div className="cart-lines" id="cartMerchLines">
-            {cart.items.map((item) => (
-              <div className="cart-line" key={item.id}>
-                <div className="cart-line-info">
-                  <p>{item.name}</p>
-                  <p className="cart-line-meta">{item.qty}× {fmt(item.price)}</p>
-                </div>
-                <p className="cart-line-price">{fmt(item.qty * item.price)}</p>
-                <button type="button" className="cart-line-remove" aria-label="Odebrat" onClick={() => removeMerchItem(item.id)}>×</button>
-              </div>
-            ))}
+            <AnimatePresence initial={false}>
+              {cart.items.map((item) => (
+                <m.div
+                  className="cart-line"
+                  key={item.id}
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 24, transition: { duration: 0.2 } }}
+                >
+                  <div className="cart-line-info">
+                    <p>{item.name}</p>
+                    <p className="cart-line-meta">{item.qty}× {fmt(item.price)}</p>
+                  </div>
+                  <p className="cart-line-price">{fmt(item.qty * item.price)}</p>
+                  <button type="button" className="cart-line-remove" aria-label={"Odebrat " + item.name} onClick={() => removeMerchItem(item.id)}>×</button>
+                </m.div>
+              ))}
+            </AnimatePresence>
           </div>
         </div>
+      )}
 
-        <p className="cart-empty" id="cartEmptyNote" hidden={!isEmpty}>Košík je zatím prázdný.</p>
-
-        <div className="cart-total" id="cartTotal" hidden={isEmpty}>
-          {!isEmpty && (
-            <>
-              <span>Celkem</span>
-              <strong>{fmt(total)}</strong>
-            </>
-          )}
-        </div>
-        <button className="btn-primary" type="button" id="cartCheckout" hidden={isEmpty} disabled={isCheckingOut} onClick={handleCheckout}>
-          {isCheckingOut ? "Odesíláno…" : "Přejít k platbě →"}
-        </button>
-      </div>
-    </>
+      {isEmpty ? (
+        <p className="cart-empty" id="cartEmptyNote">Košík je zatím prázdný.</p>
+      ) : (
+        <>
+          <div className="cart-total" id="cartTotal">
+            <span>Celkem</span>
+            <strong>{fmt(total)}</strong>
+          </div>
+          <button className="btn-primary" type="button" id="cartCheckout" disabled={isCheckingOut} onClick={handleCheckout}>
+            {isCheckingOut ? "Odesíláno…" : "Přejít k platbě →"}
+          </button>
+        </>
+      )}
+    </Modal>
   );
 }

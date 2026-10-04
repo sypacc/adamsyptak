@@ -1,4 +1,5 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, m } from "motion/react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useCart } from "../context/CartContext.jsx";
 import { useTheme } from "../context/ThemeContext.jsx";
@@ -17,11 +18,21 @@ export default function Header() {
   const { theme, toggleTheme } = useTheme();
   const activeId = useScrollSpy(NAV_LINKS.map((l) => l.id));
   const themeBtnRef = useRef(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    function onScroll() {
+      setIsScrolled(window.scrollY > 24);
+    }
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   function handleThemeClick() {
-    toggleTheme();
     const btn = themeBtnRef.current;
-    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    toggleTheme({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
     // Restart the pop animation even on rapid clicks (force a reflow).
     btn.classList.remove("is-pressed");
     void btn.offsetWidth;
@@ -29,16 +40,21 @@ export default function Header() {
   }
 
   return (
-    <header className="site-header" id="siteHeader">
+    <header className={"site-header" + (isScrolled ? " is-scrolled" : "")} id="siteHeader">
       <div className="site-header-inner">
-        <a className="site-logo" href="#uvod">
-          <img src={BASE + "assets/project/logo-tw.png"} alt="TrackWise — lekce závodního řízení" />
+        <a className="site-logo" href="#uvod" aria-label="TrackWise — úvod">
+          <img src={BASE + "assets/project/logo-tw-200.webp"} srcSet={`${BASE}assets/project/logo-tw-200.webp 200w, ${BASE}assets/project/logo-tw-400.webp 400w`} sizes="85px" alt="" width="85" height="30" />
         </a>
         <nav className="site-nav" aria-label="Hlavní navigace">
           <ul>
             {NAV_LINKS.map((link) => (
               <li key={link.id}>
-                <a href={"#" + link.id} data-nav-link={link.id} className={activeId === link.id ? "is-active" : ""}>
+                <a
+                  href={"#" + link.id}
+                  data-nav-link={link.id}
+                  className={activeId === link.id ? "is-active" : ""}
+                  aria-current={activeId === link.id ? "location" : undefined}
+                >
                   {link.label}
                 </a>
               </li>
@@ -51,8 +67,7 @@ export default function Header() {
             className="chrome-btn"
             id="cartTrigger"
             aria-haspopup="dialog"
-            aria-controls="cartModal"
-            aria-label="Košík"
+            aria-label={count > 0 ? `Košík, ${count} položek` : "Košík"}
             onClick={openCart}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -61,16 +76,36 @@ export default function Header() {
               <circle cx="9.5" cy="20" r="1.4" fill="currentColor" stroke="none"></circle>
               <circle cx="17.5" cy="20" r="1.4" fill="currentColor" stroke="none"></circle>
             </svg>
-            <span className="chrome-badge" id="cartBadge" hidden={count === 0}>{count}</span>
+            <AnimatePresence>
+              {count > 0 && (
+                <m.span
+                  key="badge"
+                  className="chrome-badge"
+                  id="cartBadge"
+                  aria-hidden="true"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0, transition: { duration: 0.15 } }}
+                >
+                  {/* Re-keyed per count so every change gives the number a bump. */}
+                  <m.span
+                    key={count}
+                    style={{ display: "inline-block" }}
+                    initial={{ scale: 1.8 }}
+                    animate={{ scale: 1, transition: { type: "spring", stiffness: 520, damping: 14 } }}
+                  >
+                    {count}
+                  </m.span>
+                </m.span>
+              )}
+            </AnimatePresence>
           </button>
           <button
             type="button"
             className={"chrome-btn" + (user ? " is-logged-in" : "")}
             id="authTrigger"
-            data-auth-open="login"
             aria-haspopup="dialog"
-            aria-controls="authModal"
-            aria-label="Přihlásit se nebo založit profil"
+            aria-label={user ? `Účet: ${user.name}` : "Přihlásit se nebo založit profil"}
             onClick={() => openAuthModal("login")}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

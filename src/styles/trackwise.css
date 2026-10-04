@@ -6,8 +6,12 @@
   --text: #f2f2f0;
   --text-muted: #c7c7cc;
   --text-faint: #85858d;
-  --accent: #e0342a;
-  --accent-hover: #ee493e;
+  /* Two reds: --accent is the fill behind white text, --accent-text is the
+     red used *as* text on the dark page. One shade can't pass WCAG AA in
+     both roles, so they're split. */
+  --accent: #d42f25;
+  --accent-hover: #bd281f;
+  --accent-text: #ef4d42;
   --accent-rgb: 224, 52, 42;
   --line-rgb: 255, 255, 255;
 
@@ -16,10 +20,12 @@
   --on-media: #f5f4f1;
   --on-media-muted: #d7d5d1;
 
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Barlow Condensed", "Inter Variable", "Arial Narrow", sans-serif;
 
   --gutter: clamp(1.25rem, 6vw, 5rem);
   --wrap: 1440px;
+  --header-h: 4.25rem;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -27,9 +33,10 @@
   --bg: #f4f4f4;
   --text: #151515;
   --text-muted: #5c5c5c;
-  --text-faint: #8a8a8a;
+  --text-faint: #6b6b6b;
   --accent: #c22a20;
   --accent-hover: #a82219;
+  --accent-text: #c22a20;
   --accent-rgb: 194, 42, 32;
   --line-rgb: 17, 17, 17;
 }
@@ -42,7 +49,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 4.5rem;
+  scroll-padding-top: calc(var(--header-h) + 0.5rem);
 }
 
 body {
@@ -52,6 +59,70 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.25s var(--ease), color 0.25s var(--ease);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-text);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+/* Theme switch: the new theme is revealed as a circle growing out of the
+   toggle button (see ThemeContext). Only during that switch, so page
+   navigations keep the default crossfade. */
+html.theme-wipe::view-transition-old(root),
+html.theme-wipe::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html.theme-wipe::view-transition-new(root) {
+  z-index: 1;
+}
+
+html.theme-wipe body {
+  transition: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -76,21 +147,29 @@ body {
   left: 0;
   right: 0;
   z-index: 80;
+  /* The header stays dark in both themes, so its red is pinned to the
+     dark-theme text red rather than following --accent-text. */
+  --header-red: #ef4d42;
   background: rgba(11, 11, 13, 0.55);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background-color 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
+
+.site-header.is-scrolled {
+  background: rgba(11, 11, 13, 0.86);
+  box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.8);
 }
 
 .site-header-inner {
   max-width: var(--wrap);
   margin: 0 auto;
   padding-inline: var(--gutter);
-  min-height: 4.25rem;
+  min-height: var(--header-h);
   display: flex;
   align-items: center;
   gap: clamp(1rem, 3vw, 2.5rem);
-  flex-wrap: wrap;
 }
 
 .site-logo {
@@ -112,14 +191,28 @@ body {
 }
 
 .site-nav a {
+  position: relative;
+  display: block;
   font-size: 0.82rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #d7d5d1;
   padding-block: 0.35rem;
-  border-bottom: 2px solid transparent;
-  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+  transition: color 0.2s var(--ease);
+}
+
+.site-nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 2px;
+  background: var(--header-red);
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 0.35s var(--ease);
 }
 
 .site-nav a:hover {
@@ -127,8 +220,12 @@ body {
 }
 
 .site-nav a.is-active {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
+  color: var(--header-red);
+}
+
+.site-nav a.is-active::after {
+  transform: scaleX(1);
+  transform-origin: left center;
 }
 
 .site-header-actions {
@@ -153,7 +250,7 @@ body {
 }
 
 .chrome-btn:hover {
-  border-color: var(--accent);
+  border-color: var(--header-red);
 }
 
 .chrome-btn:active {
@@ -167,8 +264,8 @@ body {
 }
 
 .chrome-btn.is-logged-in {
-  border-color: var(--accent);
-  color: var(--accent);
+  border-color: var(--header-red);
+  color: var(--header-red);
 }
 
 .chrome-badge[hidden] {
@@ -192,12 +289,60 @@ body {
   line-height: 1;
 }
 
+/* Phones: logo + actions share the first row, the section nav gets its own
+   full-width row underneath instead of wrapping unpredictably. */
 @media (max-width: 640px) {
-  .site-nav ul {
-    gap: 1rem;
+  html {
+    scroll-padding-top: 7rem;
   }
+
+  .site-header-inner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "logo actions"
+      "nav nav";
+    row-gap: 0;
+    min-height: 0;
+    padding-block: 0.6rem 0;
+  }
+
+  .site-logo {
+    grid-area: logo;
+  }
+
+  .site-logo img {
+    height: 26px;
+  }
+
+  .site-header-actions {
+    grid-area: actions;
+    gap: 0.45rem;
+  }
+
+  .chrome-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .site-nav {
+    grid-area: nav;
+    margin-top: 0.55rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .site-nav ul {
+    justify-content: space-between;
+    gap: 0;
+  }
+
   .site-nav a {
     font-size: 0.72rem;
+    padding-block: 0.7rem;
+  }
+
+  .site-nav a::after {
+    bottom: 0;
   }
 }
 
@@ -238,40 +383,61 @@ body {
 /* Auth modal — přihlášení / založení profilu (demo,    */
 /* zatím bez skutečného backendu)                       */
 /* -------------------------------------------------- */
-.modal-backdrop {
+/* Centred with grid rather than translate(-50%, -50%) so the enter/exit
+   animation (Modal.jsx) owns `transform` without fighting the centring. */
+.modal-root {
   position: fixed;
   inset: 0;
   z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
   background: rgba(5, 5, 6, 0.65);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .auth-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 91;
-  width: min(420px, calc(100vw - 2.5rem));
-  max-height: calc(100vh - 3rem);
+  position: relative;
+  width: min(420px, 100%);
+  max-height: calc(100dvh - 2.5rem);
   overflow-y: auto;
+  overscroll-behavior: contain;
   background: var(--bg);
   color: var(--text);
   border: 1px solid rgba(var(--line-rgb), 0.16);
   padding: clamp(1.5rem, 4vw, 2.25rem);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
-  animation: modal-in 0.25s var(--ease);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
 }
 
-@keyframes modal-in {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -47%) scale(0.97);
+/* Phones: modals become bottom sheets, thumb-reachable. */
+@media (max-width: 640px) {
+  .modal-root {
+    place-items: end stretch;
+    padding: 0;
   }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+
+  .auth-modal {
+    width: 100%;
+    max-height: 88dvh;
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  }
+
+  .auth-modal::before {
+    content: "";
+    display: block;
+    width: 40px;
+    height: 4px;
+    margin: -0.5rem auto 1rem;
+    border-radius: 999px;
+    background: rgba(var(--line-rgb), 0.2);
   }
 }
 
@@ -292,8 +458,8 @@ body {
 }
 
 .modal-close:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+  border-color: var(--accent-text);
+  color: var(--accent-text);
 }
 
 .auth-modal-title {
@@ -481,7 +647,7 @@ body {
 
 .cart-total strong {
   font-size: 1.2rem;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 #cartCheckout[hidden] {
@@ -501,10 +667,12 @@ body {
   margin-top: 0.4rem;
   font-size: 1.4rem;
   font-weight: 800;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .payment-methods {
+  border: 0;
+  min-width: 0;
   margin-top: 1.5rem;
   display: grid;
   gap: 0.75rem;
@@ -618,22 +786,66 @@ body {
 }
 
 .hero-text {
-  max-width: 34rem;
+  max-width: 40rem;
 }
 
 .hero-claim {
+  position: relative;
   color: var(--on-media);
-  font-size: clamp(2.2rem, 4.8vw, 4.2rem);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(3.2rem, 7.6vw, 7.25rem);
   font-weight: 800;
-  line-height: 1.08;
-  letter-spacing: -0.01em;
+  line-height: 0.9;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  padding-top: 1.4rem;
+}
+
+.hero-claim .accent {
+  color: #ef4d42;
+}
+
+/* Short red "kerb" stripe above the claim, drawn in on load. */
+.hero-claim::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0.1em;
+  width: 84px;
+  height: 6px;
+  background: repeating-linear-gradient(90deg, #ef4d42 0 14px, #f5f4f1 14px 28px);
+  transform: skewX(-20deg) scaleX(0);
+  transform-origin: left center;
+  animation: kerb-in 0.9s var(--ease) 0.25s forwards;
+}
+
+@keyframes kerb-in {
+  to {
+    transform: skewX(-20deg) scaleX(1);
+  }
 }
 
 .hero-benefit {
-  margin-top: 1.25rem;
-  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  margin-top: 1.5rem;
+  font-size: clamp(1.05rem, 1.6vw, 1.3rem);
   color: var(--on-media-muted);
   max-width: 30rem;
+}
+
+/* Load-in stagger for the hero copy; --d is set per element in Hero.jsx. */
+.tw-enter {
+  opacity: 0;
+  transform: translateY(26px);
+  animation: tw-enter 0.95s var(--ease) forwards;
+  animation-delay: var(--d, 0s);
+}
+
+@keyframes tw-enter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .hero-actions {
@@ -683,7 +895,10 @@ body {
   margin-top: 2.5rem;
   font-size: 0.85rem;
   color: var(--on-media-muted);
-  opacity: 0.7;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(242, 242, 240, 0.3);
+  opacity: 0.75;
   transition: opacity 0.2s var(--ease);
 }
 
@@ -713,10 +928,15 @@ body {
   .hero-overlay {
     background: linear-gradient(
       to bottom,
-      rgba(11, 11, 13, 0.55) 0%,
-      rgba(11, 11, 13, 0.75) 45%,
-      rgba(11, 11, 13, 0.92) 100%
+      rgba(11, 11, 13, 0.35) 0%,
+      rgba(11, 11, 13, 0.62) 40%,
+      rgba(11, 11, 13, 0.9) 100%
     );
+  }
+
+  .hero-content {
+    align-items: flex-end;
+    padding-block: 9rem 3.5rem;
   }
 }
 /* -------------------------------------------------- */
@@ -758,7 +978,7 @@ body {
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .booking-layout {
@@ -770,7 +990,7 @@ body {
 
 .booking-summary-side {
   position: sticky;
-  top: 2rem;
+  top: calc(var(--header-h) + 1.5rem);
   border: 1px solid rgba(var(--line-rgb), 0.14);
   background: rgba(var(--line-rgb), 0.02);
   padding: 1.5rem;
@@ -806,9 +1026,18 @@ body {
 }
 
 .side-row.side-total dd {
-  color: var(--accent);
+  color: var(--accent-text);
+  font-family: var(--font-display);
+  font-style: italic;
   font-weight: 800;
-  font-size: 1.1rem;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+/* Below 900px the side panel is hidden, so a slim strip keeps the chosen
+   length and running total visible above the wizard. */
+.booking-mobile-summary {
+  display: none;
 }
 
 @media (max-width: 900px) {
@@ -817,6 +1046,26 @@ body {
   }
   .booking-summary-side {
     display: none;
+  }
+  .booking-mobile-summary {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(var(--line-rgb), 0.14);
+    background: rgba(var(--line-rgb), 0.03);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .booking-mobile-summary strong {
+    color: var(--accent-text);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 800;
+    font-size: 1.35rem;
+    line-height: 1;
   }
 }
 
@@ -873,11 +1122,13 @@ body {
 .section-break-content h2 {
   margin-top: 0.6rem;
   color: var(--text);
-  font-size: clamp(2.4rem, 6vw, 4.25rem);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(3rem, 8.4vw, 7rem);
   font-weight: 800;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.005em;
   text-transform: uppercase;
-  line-height: 1.03;
+  line-height: 0.9;
 }
 
 .section-break-lede {
@@ -891,6 +1142,7 @@ body {
 /* Step indicator                                      */
 /* -------------------------------------------------- */
 .booking-steps {
+  position: relative;
   display: flex;
   gap: clamp(1rem, 3vw, 2.5rem);
   list-style: none;
@@ -898,6 +1150,20 @@ body {
   padding: 0;
   border-bottom: 1px solid rgba(var(--line-rgb), 0.12);
   padding-bottom: 1.25rem;
+}
+
+/* Progress along the bottom rule; --progress (0–1) comes from Booking.jsx. */
+.booking-steps::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left center;
+  transition: transform 0.6s var(--ease);
 }
 
 .booking-step {
@@ -914,20 +1180,32 @@ body {
   opacity: 1;
 }
 
-.booking-step.is-done,
-.booking-step.is-active {
-  cursor: pointer;
-}
-
 .booking-step.is-done:hover .step-num,
 .booking-step.is-active:hover .step-num {
   border-color: var(--accent);
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
-.booking-step.is-done:focus-visible,
-.booking-step.is-active:focus-visible {
-  outline: 2px solid var(--accent);
+/* Reset the native button so the step looks exactly like plain content;
+   it's only clickable (enabled) for steps you've already reached. */
+.booking-step-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.booking-step-btn:disabled {
+  cursor: default;
+}
+
+.booking-step-btn:focus-visible {
+  outline: 2px solid var(--accent-text);
   outline-offset: 4px;
   border-radius: 999px;
 }
@@ -953,7 +1231,7 @@ body {
 
 .booking-step.is-done .step-num {
   border-color: var(--accent);
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .step-label {
@@ -971,19 +1249,36 @@ body {
   display: none;
 }
 
+/* Panes stay mounted (step 2's form keeps its values), only the active one
+   is shown; it slides in from the side you're travelling towards. */
 .booking-pane.is-active {
   display: block;
-  animation: pane-in 0.35s var(--ease);
+  animation: pane-in-forward 0.5s var(--ease);
 }
 
-@keyframes pane-in {
+.booking-panel.is-back .booking-pane.is-active {
+  animation-name: pane-in-back;
+}
+
+@keyframes pane-in-forward {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateX(28px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0);
+  }
+}
+
+@keyframes pane-in-back {
+  from {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
@@ -999,38 +1294,73 @@ body {
 /* -------------------------------------------------- */
 /* Step 1 — duration cards                             */
 /* -------------------------------------------------- */
+/* Separate cards rather than a 1px-gap grid on a coloured background: with
+   5 options any wrap left an empty grey cell. */
 .duration-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1px;
-  background: rgba(var(--line-rgb), 0.12);
-  border: 1px solid rgba(var(--line-rgb), 0.12);
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 10px;
 }
 
 .duration-card {
-  background: var(--bg);
-  padding: 1.75rem 1.25rem;
+  position: relative;
+  background: rgba(var(--line-rgb), 0.02);
+  border: 1px solid rgba(var(--line-rgb), 0.14);
+  border-radius: 2px;
+  padding: 1.6rem 1.25rem 1.4rem;
   text-align: left;
   color: var(--text);
   cursor: pointer;
-  transition: background-color 0.2s var(--ease);
+  overflow: hidden;
+  transition: background-color 0.2s var(--ease), border-color 0.2s var(--ease), transform 0.25s var(--ease);
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.5rem;
 }
 
 .duration-card:hover {
-  background: rgba(var(--line-rgb), 0.04);
+  background: rgba(var(--line-rgb), 0.05);
+  border-color: rgba(var(--line-rgb), 0.3);
+  transform: translateY(-2px);
 }
 
 .duration-card.is-selected {
-  background: rgba(var(--accent-rgb, 217, 164, 65), 0.1);
+  background: rgba(var(--accent-rgb), 0.1);
+  border-color: var(--accent);
   box-shadow: inset 0 0 0 1px var(--accent);
 }
 
-.duration-hours {
-  font-size: 1.5rem;
+/* Corner check mark on the chosen length. */
+.duration-card.is-selected::after {
+  content: "✓";
+  position: absolute;
+  top: 0.65rem;
+  right: 0.75rem;
+  width: 1.4rem;
+  height: 1.4rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.75rem;
   font-weight: 800;
+  animation: check-pop 0.35s var(--ease);
+}
+
+@keyframes check-pop {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+}
+
+.duration-hours {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 2.6rem;
+  font-weight: 800;
+  line-height: 0.9;
 }
 
 .duration-label {
@@ -1040,10 +1370,45 @@ body {
 
 .duration-price {
   margin-top: auto;
+  padding-top: 0.6rem;
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.02em;
-  color: var(--accent);
+  color: var(--accent-text);
+}
+
+/* Phones: one compact row per option. */
+@media (max-width: 640px) {
+  .duration-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .duration-card {
+    display: grid;
+    grid-template-columns: 4.2rem 1fr auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem 3rem 0.9rem 1rem;
+  }
+
+  .duration-card:hover {
+    transform: none;
+  }
+
+  .duration-hours {
+    font-size: 2rem;
+  }
+
+  .duration-price {
+    margin: 0;
+    padding: 0;
+  }
+
+  .duration-card.is-selected::after {
+    top: 50%;
+    margin-top: -0.7rem;
+  }
 }
 
 /* -------------------------------------------------- */
@@ -1064,7 +1429,7 @@ body {
   border: none;
   padding: 0;
   font: inherit;
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -1072,7 +1437,7 @@ body {
 }
 
 .link-btn:hover {
-  color: var(--accent-hover);
+  color: var(--text);
 }
 
 .booking-form {
@@ -1122,6 +1487,28 @@ body {
 .booking-form select:focus {
   outline: none;
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.18);
+}
+
+.booking-form [aria-invalid="true"] {
+  border-color: var(--accent-text);
+}
+
+.field-error {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--accent-text);
+}
+
+/* iOS zooms into any focused field under 16px; keep phones at 16px. */
+@media (max-width: 640px) {
+  .booking-form input,
+  .booking-form select,
+  .auth-form input {
+    font-size: 1rem;
+  }
 }
 
 .booking-form select {
@@ -1169,7 +1556,7 @@ body {
 
 .calendar-nav:hover:not(:disabled) {
   border-color: var(--accent);
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .calendar-nav:disabled {
@@ -1185,8 +1572,9 @@ body {
 
 .cal-day {
   aspect-ratio: 1;
-  border: 1px solid rgba(var(--line-rgb), 0.1);
-  background: transparent;
+  border: 1px solid rgba(var(--line-rgb), 0.12);
+  border-radius: 2px;
+  background: rgba(var(--line-rgb), 0.02);
   color: var(--text);
   display: flex;
   flex-direction: column;
@@ -1195,7 +1583,21 @@ body {
   gap: 0.3rem;
   font-size: 0.85rem;
   cursor: pointer;
-  transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease);
+  transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease), transform 0.25s var(--ease);
+}
+
+.cal-day:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.cal-day.is-selected {
+  animation: check-pop 0.35s var(--ease);
+}
+
+@media (max-width: 640px) {
+  .calendar-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .cal-day-weekday {
@@ -1207,8 +1609,10 @@ body {
 }
 
 .cal-day-num {
-  font-size: 1.05rem;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
   font-weight: 700;
+  line-height: 1;
 }
 
 .cal-day:hover:not(:disabled) {
@@ -1216,7 +1620,7 @@ body {
 }
 
 .cal-day.is-busy .cal-day-num {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .cal-day.is-selected {
@@ -1305,6 +1709,7 @@ body {
 
 .slot-btn {
   border: 1px solid rgba(var(--line-rgb), 0.18);
+  border-radius: 2px;
   background: transparent;
   color: var(--text);
   padding: 0.7rem 0.5rem;
@@ -1387,8 +1792,11 @@ body {
 }
 
 .summary-row.summary-total dd {
-  font-size: 1.3rem;
-  color: var(--accent);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 2.2rem;
+  line-height: 1;
+  color: var(--accent-text);
   font-weight: 800;
 }
 
@@ -1419,7 +1827,7 @@ body {
   text-transform: uppercase;
   border-radius: 2px;
   cursor: pointer;
-  transition: background-color 0.2s var(--ease), border-color 0.2s var(--ease), opacity 0.2s var(--ease);
+  transition: background-color 0.2s var(--ease), border-color 0.2s var(--ease), opacity 0.2s var(--ease), transform 0.2s var(--ease), box-shadow 0.25s var(--ease);
 }
 
 .btn-primary {
@@ -1430,6 +1838,13 @@ body {
 
 .btn-primary:hover:not(:disabled) {
   background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px -14px rgba(var(--accent-rgb), 0.75);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
 }
 
 .btn-primary:disabled {
@@ -1449,22 +1864,49 @@ body {
 
 .booking-success {
   margin-top: 1.5rem;
-  border: 1px solid var(--accent);
+  border: 1px solid #2f9e52;
+  background: rgba(47, 158, 82, 0.08);
   padding: 1.5rem;
   max-width: 640px;
+  animation: pane-in-forward 0.5s var(--ease);
 }
 
-.booking-success p:first-child {
+.booking-success-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.9rem;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  line-height: 1;
   text-transform: uppercase;
-  color: var(--accent);
+}
+
+.booking-success-title::before {
+  content: "✓";
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #2f9e52;
+  color: #fff;
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-size: 1rem;
+  animation: check-pop 0.45s var(--ease) 0.15s backwards;
 }
 
 .success-note {
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
   font-size: 0.85rem;
   color: var(--text-muted);
+}
+
+.booking-success .btn-ghost {
+  margin-top: 1.25rem;
 }
 
 @media (max-width: 640px) {
@@ -1490,6 +1932,8 @@ body {
   background: var(--bg);
   border-top: 1px solid rgba(var(--line-rgb), 0.08);
   padding-block: clamp(4rem, 10vh, 7rem);
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
 }
 
 .merch-intro {
@@ -1498,68 +1942,130 @@ body {
 
 .merch-intro h2 {
   margin-top: 0.6rem;
-  font-size: clamp(1.9rem, 4vw, 2.6rem);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(2.6rem, 6vw, 4.5rem);
   font-weight: 800;
-  letter-spacing: -0.01em;
+  line-height: 0.92;
+  letter-spacing: -0.005em;
   text-transform: uppercase;
 }
 
 .merch-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1px;
-  background: rgba(var(--line-rgb), 0.12);
-  border: 1px solid rgba(var(--line-rgb), 0.12);
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
 }
 
 .merch-card {
-  background: var(--bg);
-  padding: 2rem 1.75rem;
+  background: rgba(var(--line-rgb), 0.02);
+  border: 1px solid rgba(var(--line-rgb), 0.12);
+  border-radius: 2px;
+  padding: 1.25rem 1.25rem 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.4rem;
+  gap: 0.35rem;
+  transition: border-color 0.3s var(--ease), transform 0.35s var(--ease);
+}
+
+.merch-card:hover {
+  border-color: rgba(var(--line-rgb), 0.28);
+  transform: translateY(-4px);
 }
 
 .merch-visual {
   position: relative;
   width: 100%;
   aspect-ratio: 1;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.1rem;
   display: grid;
   place-items: center;
-  background: rgba(var(--line-rgb), 0.03);
-  border: 1px solid rgba(var(--line-rgb), 0.08);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(var(--accent-rgb), 0.12), transparent 60%),
+    rgba(var(--line-rgb), 0.03);
 }
 
-.merch-visual svg {
-  width: 55%;
-  height: 55%;
-  color: rgba(var(--line-rgb), 0.35);
+.merch-garment {
+  position: relative;
+  width: 72%;
+  aspect-ratio: 1;
+  transition: transform 0.6s var(--ease);
 }
 
+.merch-card:hover .merch-garment {
+  transform: rotate(-4deg) scale(1.05);
+}
+
+.merch-garment svg {
+  width: 100%;
+  height: 100%;
+  color: rgba(var(--line-rgb), 0.4);
+}
+
+/* Sized to the garment, not the tile: a chest print on the tee/hoodie,
+   a front-panel badge on the cap. */
 .merch-logo {
   position: absolute;
-  height: 22%;
-  width: auto;
-  top: 40%;
+  width: 30%;
+  height: auto;
+  top: 44%;
   left: 50%;
   transform: translate(-50%, -50%);
-  opacity: 0.9;
 }
 
 .merch-logo--cap {
-  top: 46%;
+  width: 34%;
+  top: 43%;
 }
 
 .merch-card h3 {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 700;
 }
 
 .merch-price {
-  color: var(--accent);
-  font-weight: 700;
+  color: var(--accent-text);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+/* Tablets: two-up. Phones: a swipeable row that peeks the next item. */
+@media (max-width: 900px) {
+  .merch-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .merch-grid {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 78%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    margin-inline: calc(var(--gutter) * -1);
+    padding-inline: var(--gutter);
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+
+  .merch-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .merch-card {
+    scroll-snap-align: start;
+  }
+
+  .merch-card:hover {
+    transform: none;
+  }
 }
 
 .merch-add {
@@ -1581,6 +2087,8 @@ body {
   background: var(--bg);
   border-top: 1px solid rgba(var(--line-rgb), 0.1);
   padding-block: clamp(3rem, 8vh, 5rem) 2rem;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 420px;
 }
 
 .footer-wrap {
@@ -1599,9 +2107,12 @@ body {
 }
 
 .footer-brand {
-  font-size: 1.1rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 2rem;
   font-weight: 800;
-  letter-spacing: 0.02em;
+  line-height: 1;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
 }
 
@@ -1628,10 +2139,14 @@ body {
   gap: 0.65rem;
   margin: 0;
   padding: 0;
+  font-size: 0.88rem;
+}
+
+.footer-col li {
+  color: var(--text-muted);
 }
 
 .footer-col a {
-  font-size: 0.88rem;
   color: var(--text);
   opacity: 0.85;
   transition: opacity 0.2s var(--ease), color 0.2s var(--ease);
@@ -1639,7 +2154,9 @@ body {
 
 .footer-col a:hover {
   opacity: 1;
-  color: var(--accent);
+  color: var(--accent-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .footer-bottom {
@@ -1674,4 +2191,65 @@ body {
     grid-template-columns: 1fr;
     gap: 2rem;
   }
+}
+
+/* -------------------------------------------------- */
+/* Toast — potvrzení přidání do košíku                  */
+/* -------------------------------------------------- */
+.toast-region {
+  position: fixed;
+  left: 50%;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom));
+  z-index: 95;
+  transform: translateX(-50%);
+  width: min(420px, calc(100vw - 2rem));
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.8rem 0.8rem 0.8rem 1rem;
+  background: #151517;
+  color: #f2f2f0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 3px solid #ef4d42;
+  box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.8);
+  pointer-events: auto;
+}
+
+.toast-text {
+  flex: 1;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.toast-text strong {
+  display: block;
+  font-weight: 700;
+}
+
+.toast-text span {
+  color: #b9b9be;
+  font-size: 0.8rem;
+}
+
+.toast-action {
+  flex-shrink: 0;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 2px;
+  background: transparent;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease);
+}
+
+.toast-action:hover {
+  border-color: #ef4d42;
+  background: rgba(239, 77, 66, 0.12);
 }

@@ -1,8 +1,52 @@
+import { useEffect, useRef } from "react";
+
 export default function Hero() {
+  const heroRef = useRef(null);
+  const nameRef = useRef(null);
+
+  useEffect(() => {
+    const hero = heroRef.current;
+    const name = nameRef.current;
+    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!hero || !name || !finePointer || reduceMotion) return undefined;
+
+    const words = Array.from(name.querySelectorAll(".word > span"));
+    let frame = 0;
+    let lastEvent = null;
+
+    function paint() {
+      frame = 0;
+      words.forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        el.style.setProperty("--hx", (lastEvent.clientX - rect.left).toFixed(0) + "px");
+        el.style.setProperty("--hy", (lastEvent.clientY - rect.top).toFixed(0) + "px");
+      });
+    }
+
+    function onMove(e) {
+      lastEvent = e;
+      name.classList.add("is-lit");
+      if (!frame) frame = requestAnimationFrame(paint);
+    }
+
+    function onLeave() {
+      name.classList.remove("is-lit");
+    }
+
+    hero.addEventListener("pointermove", onMove);
+    hero.addEventListener("pointerleave", onLeave);
+    return () => {
+      cancelAnimationFrame(frame);
+      hero.removeEventListener("pointermove", onMove);
+      hero.removeEventListener("pointerleave", onLeave);
+    };
+  }, []);
+
   return (
-    <section className="hero" id="uvod">
-      <div className="wrap">
-        <h1 className="hero-name">
+    <section className="hero" id="uvod" ref={heroRef}>
+      <div className="wrap hero-inner">
+        <h1 className="hero-name" ref={nameRef}>
           <span className="word"><span>Adam</span></span>{" "}
           <span className="word"><span>Sypták</span></span>
         </h1>

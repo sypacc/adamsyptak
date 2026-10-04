@@ -83,15 +83,35 @@ function getSlots(date, duration, startHour) {
   return slots;
 }
 
+const FIELD_MESSAGES = {
+  firstName: { missing: "Vyplň jméno." },
+  lastName: { missing: "Vyplň příjmení." },
+  phone: { missing: "Vyplň telefon.", invalid: "Zadej telefon, např. +420 777 123 456." },
+  email: { missing: "Vyplň e-mail.", invalid: "Zadej platný e-mail, např. jan@email.cz." },
+  level: { missing: "Vyber svou úroveň." },
+};
+
+function fieldError(el) {
+  if (!el || el.validity.valid) return null;
+  const messages = FIELD_MESSAGES[el.name] || {};
+  if (el.validity.valueMissing) return messages.missing || "Vyplň toto pole.";
+  return messages.invalid || messages.missing || "Zkontroluj toto pole.";
+}
+
+function formatDate(dateObj) {
+  return pad(dateObj.getDate()) + ". " + (dateObj.getMonth() + 1) + ". " + dateObj.getFullYear();
+}
+
 export default function Booking() {
   const { user, openAuthModal } = useAuth();
   const { setReservation, clearReservation } = useCart();
 
   const [step, setStep] = useState(1);
   const [maxStep, setMaxStep] = useState(1);
+  const [direction, setDirection] = useState("forward");
   const [duration, setDuration] = useState(null);
   const [personal, setPersonal] = useState(null);
-  const [isFormValid, setIsFormValid] = useState(false);
+  const [errors, setErrors] = useState({});
   const [calendarCursor, setCalendarCursor] = useState(() => startOfMonth(new Date()));
   const [selectedDate, setSelectedDate] = useState(null);
   const [startHour, setStartHour] = useState(null);
@@ -101,11 +121,16 @@ export default function Booking() {
   const formRef = useRef(null);
   const successRef = useRef(null);
 
-  function goToStep(n) {
-    setStep(n);
-    setMaxStep((m) => Math.max(m, n));
+  function scrollToBooking() {
     const section = document.getElementById("rezervace");
     if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function goToStep(n) {
+    setDirection(n < step ? "back" : "forward");
+    setStep(n);
+    setMaxStep((m) => Math.max(m, n));
+    scrollToBooking();
   }
 
   // Duration changing (without a fresh date click) can leave a previously
@@ -119,27 +144,25 @@ export default function Booking() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [duration, selectedDate]);
 
-  // Logging in while on step 2 prefills empty name/email fields, same as
-  // the 'tw-auth-changed' listener in the original vanilla version.
+  // Logging in while on step 2 prefills empty name/email fields.
   useEffect(() => {
     const form = formRef.current;
     if (!user || !form) return;
-    const firstNameInput = form.elements.firstName;
-    const emailInput = form.elements.email;
-    if (firstNameInput && !firstNameInput.value) firstNameInput.value = user.name;
-    if (emailInput && !emailInput.value) emailInput.value = user.email;
-    setIsFormValid(form.checkValidity());
+    const { firstName, email } = form.elements;
+    if (firstName && !firstName.value) firstName.value = user.name;
+    if (email && !email.value) email.value = user.email;
+    readForm();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   // Reservation flows into the shared cart as soon as step 4 has
   // everything it needs, so the cart badge/modal reflect it immediately.
   useEffect(() => {
-    if (step !== 4 || !duration || !selectedDate || startHour === null) return;
-    const dateObj = new Date(selectedDate + "T00:00:00");
+    if (step !== 4 || !duration || !selectedDate || startHour === null || isSuccess) return;
     setReservation({
       durationLabel: "Trénink — " + duration.label,
       price: duration.price,
-      dateLabel: pad(dateObj.getDate()) + ". " + (dateObj.getMonth() + 1) + ". " + dateObj.getFullYear(),
+      dateLabel: formatDate(new Date(selectedDate + "T00:00:00")),
       timeLabel: pad(startHour) + ":00–" + pad(startHour + duration.hours) + ":00",
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -148,6 +171,7 @@ export default function Booking() {
   useEffect(() => {
     if (isSuccess && successRef.current) {
       successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      successRef.current.focus({ preventScroll: true });
     }
   }, [isSuccess]);
 
@@ -158,10 +182,9 @@ export default function Booking() {
     clearReservation();
   }
 
-  function handleFormInput() {
+  function readForm() {
     const form = formRef.current;
     if (!form) return;
-    setIsFormValid(form.checkValidity());
     const fd = new FormData(form);
     setPersonal({
       firstName: fd.get("firstName") || "",
@@ -172,19 +195,47 @@ export default function Booking() {
     });
   }
 
+  // Errors only appear once a field has been left (or on a failed submit),
+  // then update live as the user corrects them.
+  function handleFormInput(e) {
+    readForm();
+    const name = e.target.name;
+    if (errors[name] !== undefined) {
+      setErrors((prev) => ({ ...prev, [name]: fieldError(e.target) }));
+    }
+  }
+
+  function handleFieldBlur(e) {
+    const name = e.target.name;
+    if (!name || !FIELD_MESSAGES[name]) return;
+    setErrors((prev) => ({ ...prev, [name]: fieldError(e.target) }));
+  }
+
   function handleNext() {
-    if (step === 2) handleFormInput();
+    if (step === 2) {
+      const form = formRef.current;
+      readForm();
+      if (!form.checkValidity()) {
+        const next = {};
+        Array.from(form.elements).forEach((el) => {
+          if (FIELD_MESSAGES[el.name]) next[el.name] = fieldError(el);
+        });
+        setErrors(next);
+        const firstInvalid = Array.from(form.elements).find((el) => FIELD_MESSAGES[el.name] && !el.validity.valid);
+        if (firstInvalid) firstInvalid.focus();
+        return;
+      }
+    }
     goToStep(step + 1);
   }
 
   function handleDayClick(day) {
     if (selectedDate === day.key) {
       setSelectedDate(null);
-      setStartHour(null);
     } else {
       setSelectedDate(day.key);
-      setStartHour(null);
     }
+    setStartHour(null);
   }
 
   function handleSlotClick(slot) {
@@ -201,71 +252,99 @@ export default function Booking() {
     setIsSuccess(true);
   }
 
+  function handleNewBooking() {
+    setIsSuccess(false);
+    setDuration(null);
+    setSelectedDate(null);
+    setStartHour(null);
+    setErrors({});
+    setDirection("back");
+    setStep(1);
+    setMaxStep(1);
+    scrollToBooking();
+  }
+
   const calendarDays = getCalendarDays(calendarCursor, duration, selectedDate);
   const selectedDateObj = selectedDate ? new Date(selectedDate + "T00:00:00") : null;
   const slots = getSlots(selectedDateObj, duration, startHour);
-  const today = startOfToday();
-  const calPrevDisabled = calendarCursor.getTime() <= startOfMonth(today).getTime();
+  const calPrevDisabled = calendarCursor.getTime() <= startOfMonth(startOfToday()).getTime();
 
-  const dateLabel = selectedDateObj
-    ? pad(selectedDateObj.getDate()) + ". " + (selectedDateObj.getMonth() + 1) + ". " + selectedDateObj.getFullYear()
-    : "—";
+  const dateLabel = selectedDateObj ? formatDate(selectedDateObj) : "—";
   const timeLabel = duration && startHour !== null ? pad(startHour) + ":00–" + pad(startHour + duration.hours) + ":00" : "—";
+  const fullName = personal ? ((personal.firstName || "") + " " + (personal.lastName || "")).trim() : "";
 
-  const nextDisabled =
-    (step === 1 && !duration) ||
-    (step === 2 && !isFormValid) ||
-    (step === 3 && !(selectedDate && startHour !== null));
+  const nextDisabled = (step === 1 && !duration) || (step === 3 && !(selectedDate && startHour !== null));
+
+  function fieldProps(name) {
+    return {
+      name,
+      "aria-invalid": errors[name] ? "true" : undefined,
+      "aria-describedby": errors[name] ? "err-" + name : undefined,
+    };
+  }
+
+  function renderError(name) {
+    return errors[name] ? <span className="field-error" id={"err-" + name}>{errors[name]}</span> : null;
+  }
 
   return (
     <section className="booking" id="rezervace" aria-labelledby="booking-heading">
       <div className="booking-wrap">
-        <ol className="booking-steps" aria-label="Průběh rezervace">
+        <ol className="booking-steps" aria-label="Průběh rezervace" style={{ "--progress": (step - 1) / (STEPS.length - 1) }}>
           {STEPS.map((s) => {
-            const clickable = s.n <= maxStep;
+            const clickable = s.n <= maxStep && s.n !== step && !isSuccess;
             return (
               <li
                 key={s.n}
-                className={
-                  "booking-step" +
-                  (s.n === step ? " is-active" : "") +
-                  (s.n !== step && s.n <= maxStep ? " is-done" : "")
-                }
+                className={"booking-step" + (s.n === step ? " is-active" : "") + (s.n !== step && s.n <= maxStep ? " is-done" : "")}
                 data-step={s.n}
-                tabIndex={0}
-                onClick={() => clickable && goToStep(s.n)}
-                onKeyDown={(e) => {
-                  if ((e.key === "Enter" || e.key === " ") && clickable) {
-                    e.preventDefault();
-                    goToStep(s.n);
-                  }
-                }}
+                aria-current={s.n === step ? "step" : undefined}
               >
-                <span className="step-num">{pad(s.n)}</span>
-                <span className="step-label">{s.label}</span>
+                <button
+                  type="button"
+                  className="booking-step-btn"
+                  disabled={!clickable}
+                  aria-label={clickable ? `Zpět na krok ${s.n}: ${s.label}` : undefined}
+                  onClick={() => goToStep(s.n)}
+                >
+                  <span className="step-num">{pad(s.n)}</span>
+                  <span className="step-label">{s.label}</span>
+                </button>
               </li>
             );
           })}
         </ol>
 
+        {duration && (
+          <p className="booking-mobile-summary">
+            <span>{duration.label}{selectedDate ? " · " + dateLabel : ""}</span>
+            <strong>{fmtPrice(duration.price)}</strong>
+          </p>
+        )}
+
         <div className="booking-layout">
-          <div className="booking-panel">
+          <div className={"booking-panel" + (direction === "back" ? " is-back" : "")}>
             {/* Krok 1 — délka */}
             <div className={"booking-pane" + (step === 1 ? " is-active" : "")} data-pane="1">
-              <p className="pane-label">Kolik chceš jezdit?</p>
-              <div className="duration-grid" id="cenik">
-                {DURATIONS.map((d) => (
-                  <button
-                    type="button"
-                    key={d.hours}
-                    className={"duration-card" + (duration && duration.hours === d.hours ? " is-selected" : "")}
-                    onClick={() => handleDurationSelect(d)}
-                  >
-                    <span className="duration-hours">{d.hours} h</span>
-                    <span className="duration-label">{d.label}</span>
-                    <span className="duration-price">{fmtPrice(d.price)}</span>
-                  </button>
-                ))}
+              <p className="pane-label" id="duration-label">Kolik chceš jezdit?</p>
+              <div className="duration-grid" id="cenik" role="radiogroup" aria-labelledby="duration-label">
+                {DURATIONS.map((d) => {
+                  const selected = Boolean(duration && duration.hours === d.hours);
+                  return (
+                    <button
+                      type="button"
+                      key={d.hours}
+                      role="radio"
+                      aria-checked={selected}
+                      className={"duration-card" + (selected ? " is-selected" : "")}
+                      onClick={() => handleDurationSelect(d)}
+                    >
+                      <span className="duration-hours">{d.hours} h</span>
+                      <span className="duration-label">{d.label}</span>
+                      <span className="duration-price">{fmtPrice(d.price)}</span>
+                    </button>
+                  );
+                })}
               </div>
               <div className="booking-actions">
                 <span></span>
@@ -284,39 +363,58 @@ export default function Booking() {
                     Máš u nás účet?{" "}
                     <button type="button" className="link-btn" onClick={() => openAuthModal("login")}>Přihlásit se</button>
                     {" "}— příště se ti údaje vyplní automaticky. Nemáš?{" "}
-                    <button type="button" className="link-btn" onClick={() => openAuthModal("register")}>Založit profil</button>.
+                    <span style={{ whiteSpace: "nowrap" }}>
+                      <button type="button" className="link-btn" onClick={() => openAuthModal("register")}>Založit profil</button>.
+                    </span>
                   </>
                 )}
               </div>
-              <form className="booking-form" id="bookingForm" noValidate ref={formRef} onInput={handleFormInput}>
+              <form
+                className="booking-form"
+                id="bookingForm"
+                noValidate
+                ref={formRef}
+                onChange={handleFormInput}
+                onBlur={handleFieldBlur}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleNext();
+                }}
+              >
                 <div className="form-row">
                   <label>Jméno
-                    <input type="text" name="firstName" required autoComplete="given-name" />
+                    <input type="text" {...fieldProps("firstName")} required autoComplete="given-name" />
+                    {renderError("firstName")}
                   </label>
                   <label>Příjmení
-                    <input type="text" name="lastName" required autoComplete="family-name" />
+                    <input type="text" {...fieldProps("lastName")} required autoComplete="family-name" />
+                    {renderError("lastName")}
                   </label>
                 </div>
                 <div className="form-row">
                   <label>Telefon
-                    <input type="tel" name="phone" required autoComplete="tel" />
+                    <input type="tel" {...fieldProps("phone")} required autoComplete="tel" inputMode="tel" pattern="\+?[0-9 ]{9,16}" placeholder="+420 777 123 456" />
+                    {renderError("phone")}
                   </label>
                   <label>E-mail
-                    <input type="email" name="email" required autoComplete="email" />
+                    <input type="email" {...fieldProps("email")} required autoComplete="email" placeholder="jan@email.cz" />
+                    {renderError("email")}
                   </label>
                 </div>
                 <label className="form-full">Zkušenosti a řidičský level
-                  <select name="level" id="levelSelect" required defaultValue="">
+                  <select {...fieldProps("level")} id="levelSelect" required defaultValue="">
                     <option value="" disabled>Vyber úroveň</option>
                     {LEVELS.map((l) => (
                       <option value={l} key={l}>{l}</option>
                     ))}
                   </select>
+                  {renderError("level")}
                 </label>
+                <button type="submit" hidden tabIndex={-1} aria-hidden="true"></button>
               </form>
               <div className="booking-actions">
                 <button className="btn-ghost" type="button" onClick={() => goToStep(step - 1)}>← Zpět</button>
-                <button className="btn-primary" type="button" disabled={nextDisabled} onClick={handleNext}>Pokračovat →</button>
+                <button className="btn-primary" type="button" onClick={handleNext}>Pokračovat →</button>
               </div>
             </div>
 
@@ -332,7 +430,7 @@ export default function Booking() {
                     disabled={calPrevDisabled}
                     onClick={() => setCalendarCursor((c) => new Date(c.getFullYear(), c.getMonth() - 1, 1))}
                   >←</button>
-                  <p className="calendar-month">{MONTH_NAMES[calendarCursor.getMonth()] + " " + calendarCursor.getFullYear()}</p>
+                  <p className="calendar-month" aria-live="polite">{MONTH_NAMES[calendarCursor.getMonth()] + " " + calendarCursor.getFullYear()}</p>
                   <button
                     type="button"
                     className="calendar-nav"
@@ -348,19 +446,16 @@ export default function Booking() {
                     <button
                       type="button"
                       key={day.key}
-                      className={
-                        "cal-day" +
-                        (day.isEvent ? " is-event" : "") +
-                        (day.isBusy ? " is-busy" : "") +
-                        (day.isSelected ? " is-selected" : "")
-                      }
+                      className={"cal-day" + (day.isEvent ? " is-event" : "") + (day.isBusy ? " is-busy" : "") + (day.isSelected ? " is-selected" : "")}
                       disabled={day.isEvent}
+                      aria-pressed={day.isEvent ? undefined : day.isSelected}
+                      aria-label={day.weekday + " " + formatDate(day.date) + (day.isEvent ? ", obsazeno akcí: " + day.eventName : day.isBusy ? ", částečně obsazeno" : ", volno")}
                       title={day.isEvent ? "Obsazeno akcí: " + day.eventName : undefined}
                       onClick={() => !day.isEvent && handleDayClick(day)}
                     >
-                      <span className="cal-day-weekday">{day.weekday}</span>
-                      <span className="cal-day-num">{day.day}</span>
-                      {!day.isEvent && <span className="cal-dot"></span>}
+                      <span className="cal-day-weekday" aria-hidden="true">{day.weekday}</span>
+                      <span className="cal-day-num" aria-hidden="true">{day.day}</span>
+                      {!day.isEvent && <span className="cal-dot" aria-hidden="true"></span>}
                     </button>
                   ))}
                 </div>
@@ -370,27 +465,26 @@ export default function Booking() {
                   <span><i className="dot dot-event"></i>Obsazeno akcí</span>
                 </div>
               </div>
-              <div className="slot-panel" hidden={!selectedDate}>
-                <p className="pane-label">Volné časy — {dateLabel}</p>
-                <div className="slot-grid">
-                  {slots.map((slot) => (
-                    <button
-                      type="button"
-                      key={slot.hour}
-                      className={
-                        "slot-btn" +
-                        (slot.inRange ? " is-in-range" : "") +
-                        (slot.isRangeStart ? " is-range-start" : "")
-                      }
-                      disabled={!slot.inRange && !slot.canStart}
-                      onClick={() => handleSlotClick(slot)}
-                    >
-                      {slot.label}
-                      {slot.takenName && <span className="slot-taken-note">Obsazeno ({slot.takenName})</span>}
-                    </button>
-                  ))}
+              {selectedDate && (
+                <div className="slot-panel">
+                  <p className="pane-label">Volné časy — {dateLabel}</p>
+                  <div className="slot-grid">
+                    {slots.map((slot) => (
+                      <button
+                        type="button"
+                        key={slot.hour}
+                        className={"slot-btn" + (slot.inRange ? " is-in-range" : "") + (slot.isRangeStart ? " is-range-start" : "")}
+                        disabled={!slot.inRange && !slot.canStart}
+                        aria-pressed={slot.isRangeStart}
+                        onClick={() => handleSlotClick(slot)}
+                      >
+                        {slot.label}
+                        {slot.takenName && <span className="slot-taken-note">Obsazeno ({slot.takenName})</span>}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
               <div className="booking-actions">
                 <button className="btn-ghost" type="button" onClick={() => goToStep(step - 1)}>← Zpět</button>
                 <button className="btn-primary" type="button" disabled={nextDisabled} onClick={handleNext}>Pokračovat →</button>
@@ -403,34 +497,38 @@ export default function Booking() {
               <div className="summary-card">
                 <dl className="summary-row"><dt>Délka tréninku</dt><dd>{duration ? duration.label : "—"}</dd></dl>
                 <dl className="summary-row"><dt>Termín</dt><dd>{dateLabel}{startHour !== null ? " · " + timeLabel : ""}</dd></dl>
-                <dl className="summary-row"><dt>Jméno</dt><dd>{personal ? ((personal.firstName || "") + " " + (personal.lastName || "")).trim() || "—" : "—"}</dd></dl>
+                <dl className="summary-row"><dt>Jméno</dt><dd>{fullName || "—"}</dd></dl>
                 <dl className="summary-row"><dt>Kontakt</dt><dd>{personal ? (personal.phone || "—") + " · " + (personal.email || "—") : "—"}</dd></dl>
                 <dl className="summary-row"><dt>Řidičský level</dt><dd>{personal && personal.level ? personal.level : "—"}</dd></dl>
                 <dl className="summary-row summary-total"><dt>Celkem</dt><dd>{duration ? fmtPrice(duration.price) : "—"}</dd></dl>
               </div>
-              <div className="booking-actions" hidden={isSuccess}>
-                <button className="btn-ghost" type="button" onClick={() => goToStep(step - 1)}>← Zpět</button>
-                <button className="btn-primary btn-pay" type="button" onClick={() => setIsPaymentOpen(true)}>Zaplatit online →</button>
-              </div>
-              <div className="booking-success" hidden={!isSuccess} ref={successRef}>
-                <p>✓ Rezervace přijata</p>
-                <p className="success-note">Platební brána je zatím jen náhled — napojíme ji v další fázi projektu.</p>
-              </div>
+              {!isSuccess ? (
+                <div className="booking-actions">
+                  <button className="btn-ghost" type="button" onClick={() => goToStep(step - 1)}>← Zpět</button>
+                  <button className="btn-primary btn-pay" type="button" onClick={() => setIsPaymentOpen(true)}>Zaplatit online →</button>
+                </div>
+              ) : (
+                <div className="booking-success" ref={successRef} tabIndex={-1} role="status">
+                  <p className="booking-success-title">Rezervace přijata</p>
+                  <p className="success-note">Platební brána je zatím jen náhled — napojíme ji v další fázi projektu.</p>
+                  <button className="btn-ghost" type="button" onClick={handleNewBooking}>Nová rezervace</button>
+                </div>
+              )}
             </div>
           </div>
 
           <aside className="booking-summary-side" aria-label="Souhrn rezervace">
             <p className="pane-label">Tvoje rezervace</p>
-            <dl className="side-rows">
+            <div className="side-rows">
               <dl className="side-row"><dt>Délka</dt><dd>{duration ? duration.label : "—"}</dd></dl>
               {selectedDate && (
                 <dl className="side-row"><dt>Termín</dt><dd>{dateLabel}{startHour !== null && duration ? " · " + timeLabel : ""}</dd></dl>
               )}
               {personal && personal.firstName && (
-                <dl className="side-row"><dt>Jméno</dt><dd>{(personal.firstName + " " + personal.lastName).trim()}</dd></dl>
+                <dl className="side-row"><dt>Jméno</dt><dd>{fullName}</dd></dl>
               )}
               <dl className="side-row side-total"><dt>Celkem</dt><dd>{duration ? fmtPrice(duration.price) : "—"}</dd></dl>
-            </dl>
+            </div>
           </aside>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 var NAV_LINKS = [
   { href: "#o-mne", label: "O mně" },
@@ -11,6 +11,21 @@ var NAV_LINKS = [
 export default function Header({ headerRef, navRef, navIndicatorRef }) {
   const [isNavOpen, setIsNavOpen] = useState(false);
 
+  // The mobile menu is a full-screen overlay: lock the page behind it and
+  // let Escape close it like any other dialog.
+  useEffect(() => {
+    if (!isNavOpen) return undefined;
+    document.body.style.overflow = "hidden";
+    function onKeyDown(e) {
+      if (e.key === "Escape") setIsNavOpen(false);
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = "";
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isNavOpen]);
+
   function closeNav() {
     setIsNavOpen(false);
   }
@@ -18,13 +33,14 @@ export default function Header({ headerRef, navRef, navIndicatorRef }) {
   return (
     <header className="site-header" id="hlavicka" ref={headerRef}>
       <div className="wrap header-inner">
-        <a className="logo" href="#uvod" aria-label="Adam Sypták — úvod">AS</a>
+        <a className="logo" href="#uvod" aria-label="AS — Adam Sypták, úvod">AS</a>
 
         <nav
           className={"nav" + (isNavOpen ? " is-open" : "")}
           id="hlavni-nav"
           aria-label="Hlavní navigace"
           ref={navRef}
+          data-lenis-prevent={isNavOpen ? "" : undefined}
         >
           <ul id="navList">
             {NAV_LINKS.map((link) => (
@@ -42,7 +58,7 @@ export default function Header({ headerRef, navRef, navIndicatorRef }) {
           id="navToggle"
           aria-expanded={isNavOpen}
           aria-controls="hlavni-nav"
-          aria-label="Otevřít navigaci"
+          aria-label={isNavOpen ? "Zavřít navigaci" : "Otevřít navigaci"}
           onClick={() => setIsNavOpen((open) => !open)}
         >
           <span></span><span></span><span></span>

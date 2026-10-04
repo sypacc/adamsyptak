@@ -66,8 +66,10 @@ export default function Merch() {
           {MERCH_ITEMS.map((item) => (
             <article className="merch-card" key={item.id}>
               <div className="merch-visual">
-                <svg viewBox="0 0 120 120" aria-hidden="true">{item.icon}</svg>
-                <img src={BASE + "assets/project/logo-tw.png"} alt="" className={item.logoClass} />
+                <div className="merch-garment">
+                  <svg viewBox="0 0 120 120" aria-hidden="true">{item.icon}</svg>
+                  <img src={BASE + "assets/project/logo-tw-200.webp"} srcSet={`${BASE}assets/project/logo-tw-200.webp 200w, ${BASE}assets/project/logo-tw-400.webp 400w`} sizes="(max-width: 640px) 70px, 100px" alt="" width="200" height="71" loading="lazy" className={item.logoClass} />
+                </div>
               </div>
               <h3>{item.name}</h3>
               <p className="merch-price">{item.priceLabel}</p>

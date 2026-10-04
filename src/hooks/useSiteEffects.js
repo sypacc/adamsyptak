@@ -24,43 +24,69 @@ export function useSiteEffects({ headerRef, navRef, navIndicatorRef, contoursElR
     /* ---------------------------------------------- */
     /* Background contour lines + glow blobs            */
     /* ---------------------------------------------- */
+    // Purely decorative, so it's built off the critical path (idle time)
+    // and fades in; afterwards it follows the page height via a
+    // ResizeObserver, which also catches sections rendering late
+    // (content-visibility) and fonts/images changing the height.
+    var builtWidth = 0;
+    var builtHeight = 0;
     function rebuildBackground() {
       buildBackground(contoursEl, contoursSvg, glowEl);
+      builtWidth = window.innerWidth;
+      builtHeight = root.scrollHeight;
+      if (contoursEl) contoursEl.classList.add("is-built");
+      if (glowEl) glowEl.classList.add("is-built");
     }
-    rebuildBackground();
-    window.addEventListener("load", rebuildBackground);
-    cleanupFns.push(function () {
-      window.removeEventListener("load", rebuildBackground);
-    });
+
+    var idle = window.requestIdleCallback || function (cb) { return window.setTimeout(cb, 200); };
+    var cancelIdle = window.cancelIdleCallback || window.clearTimeout;
+    var idleHandle = idle(rebuildBackground, { timeout: 1200 });
 
     var resizeTimer = null;
-    function onResize() {
+    function scheduleRebuild() {
       window.clearTimeout(resizeTimer);
       resizeTimer = window.setTimeout(function () {
-        rebuildBackground();
+        if (window.innerWidth !== builtWidth || Math.abs(root.scrollHeight - builtHeight) > 40) {
+          rebuildBackground();
+        }
         moveNavIndicator();
       }, 250);
     }
-    window.addEventListener("resize", onResize, { passive: true });
+    var bodyObserver = new ResizeObserver(scheduleRebuild);
+    bodyObserver.observe(document.body);
     cleanupFns.push(function () {
+      cancelIdle(idleHandle);
       window.clearTimeout(resizeTimer);
-      window.removeEventListener("resize", onResize);
+      bodyObserver.disconnect();
     });
 
     /* ---------------------------------------------- */
     /* Scroll: header state, progress, ambient glow      */
     /* ---------------------------------------------- */
+    // The scroll-driven custom properties are written only on the elements
+    // that read them; setting them on <html> made every scroll frame restyle
+    // the whole document.
+    var progressEl = header ? header.querySelector(".scroll-progress") : null;
+    var lastProgress = "0.0000";
+    var lastGlow = "0.500";
     var scrollTicking = false;
 
     function updateScrollEffects() {
       var maxScroll = Math.max(root.scrollHeight - window.innerHeight, 1);
       var t = Math.min(Math.max(window.scrollY / maxScroll, 0), 1);
-
-      root.style.setProperty("--scroll-progress", t.toFixed(4));
+      var progress = t.toFixed(4);
+      if (progress !== lastProgress && progressEl) {
+        progressEl.style.setProperty("--scroll-progress", progress);
+        lastProgress = progress;
+      }
 
       if (!reduceMotion) {
-        var wave = (Math.sin(window.scrollY / 400) + 1) / 2;
-        root.style.setProperty("--glow-strength", wave.toFixed(3));
+        var glow = ((Math.sin(window.scrollY / 400) + 1) / 2).toFixed(3);
+        if (glow !== lastGlow) {
+          if (glowEl) glowEl.style.setProperty("--glow-strength", glow);
+          if (contoursEl) contoursEl.style.setProperty("--glow-strength", glow);
+          lastGlow = glow;
+        }
       }
 
       scrollTicking = false;
@@ -166,7 +192,10 @@ export function useSiteEffects({ headerRef, navRef, navIndicatorRef, contoursElR
           // stagger, so grids ripple in instead of popping at once.
           var groups = new Map();
           entries.forEach(function (entry) {
-            if (!entry.isIntersecting) return;
+            // Elements jumped past (anchor link, fast fling) are revealed too,
+            // so scrolling back up never finds them still hidden.
+            var passed = !entry.isIntersecting && entry.boundingClientRect.height > 0 && entry.boundingClientRect.bottom < 0;
+            if (!entry.isIntersecting && !passed) return;
             var parent = entry.target.parentElement;
             if (!groups.has(parent)) groups.set(parent, []);
             groups.get(parent).push(entry.target);

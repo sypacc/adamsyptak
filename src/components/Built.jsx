@@ -1,4 +1,22 @@
-var BASE = import.meta.env.BASE_URL;
+import SplitHeading from "./SplitHeading.jsx";
+import ResponsivePicture from "./ResponsivePicture.jsx";
+
+function PhotoTile({ href, wide, picture, caption }) {
+  return (
+    <a
+      className={"photo-tile" + (wide ? " photo-tile--wide" : "")}
+      data-reveal="true"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <div className="photo-media">
+        <ResponsivePicture {...picture} />
+      </div>
+      <span className="photo-caption">{caption}</span>
+    </a>
+  );
+}
 
 export default function Built() {
   return (
@@ -6,7 +24,7 @@ export default function Built() {
       <div className="wrap">
         <span className="section-watermark" aria-hidden="true">02</span>
         <p className="section-number" data-reveal="true">02</p>
-        <h2 id="postaveno-heading" data-reveal="true">Co jsem zatím postavil</h2>
+        <SplitHeading id="postaveno-heading" text="Co jsem zatím postavil" />
 
         <div className="cards cards--split">
           <article className="card tilt" data-reveal="true">
@@ -80,18 +98,43 @@ export default function Built() {
         </div>
 
         <div className="photo-grid">
-          <a className="photo-tile photo-tile--wide" data-reveal="true" href="https://www.vut.cz/vut/aktuality-f19528/sest-novych-start-upu-a-spin-offu-vut-univerzitni-inovace-miri-do-praxe-d313995" target="_blank" rel="noopener noreferrer">
-            <img src={BASE + "assets/img/photos/sportera-podpis.jpg"} alt="Podpis oficiálního startupu na VUT" width="1600" height="1067" loading="lazy" />
-            <span className="photo-caption">Podpis oficiálního startupu na VUT</span>
-          </a>
-          <a className="photo-tile" data-reveal="true" href="https://www.vecerni-praha.cz/ftvs-uk-vyhlasila-nejlepsi-studentske-inovace-mladi-lide-mohou-zmenit-svet-pohybem/" target="_blank" rel="noopener noreferrer">
-            <img src={BASE + "assets/img/photos/sportera-zmen-svet-pohybem.jpg"} alt="Tým Sportera přebírá 1. místo v soutěži Změň svět pohybem 2025" width="1228" height="1536" loading="lazy" />
-            <span className="photo-caption">1. místo, Změň svět pohybem 2025</span>
-          </a>
-          <a className="photo-tile" data-reveal="true" href="https://sportera.cz" target="_blank" rel="noopener noreferrer">
-            <img src={BASE + "assets/img/photos/sportera-mapa-fakta.webp"} alt="Grafika Sportera: 1 135 sportovišť po celém Česku, kam se nemusí platit vstup" width="1080" height="1350" loading="lazy" />
-            <span className="photo-caption">Sportera v číslech</span>
-          </a>
+          <PhotoTile
+            wide
+            href="https://www.vut.cz/vut/aktuality-f19528/sest-novych-start-upu-a-spin-offu-vut-univerzitni-inovace-miri-do-praxe-d313995"
+            caption="Podpis oficiálního startupu na VUT"
+            picture={{
+              name: "sportera-podpis",
+              widths: [800, 1400],
+              sizes: "(min-width: 720px) 900px, 100vw",
+              alt: "Podpis oficiálního startupu na VUT",
+              width: "1600",
+              height: "1067",
+            }}
+          />
+          <PhotoTile
+            href="https://www.vecerni-praha.cz/ftvs-uk-vyhlasila-nejlepsi-studentske-inovace-mladi-lide-mohou-zmenit-svet-pohybem/"
+            caption="1. místo, Změň svět pohybem 2025"
+            picture={{
+              name: "sportera-zmen-svet-pohybem",
+              widths: [500, 900],
+              sizes: "(min-width: 720px) 340px, 100vw",
+              alt: "Tým Sportera přebírá 1. místo v soutěži Změň svět pohybem 2025",
+              width: "1228",
+              height: "1536",
+            }}
+          />
+          <PhotoTile
+            href="https://sportera.cz"
+            caption="Sportera v číslech"
+            picture={{
+              name: "sportera-mapa-fakta",
+              widths: [500, 900],
+              sizes: "(min-width: 720px) 340px, 100vw",
+              alt: "Grafika Sportera: 1 135 sportovišť po celém Česku, kam se nemusí platit vstup",
+              width: "1080",
+              height: "1350",
+            }}
+          />
         </div>
       </div>
     </section>
