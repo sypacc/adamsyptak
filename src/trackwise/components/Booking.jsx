@@ -17,7 +17,10 @@ import {
   isOpenDay,
   validStartHours,
   bookedHoursForDate,
-  nameForSlot,
+  blockedHoursForDate,
+  bookingAt,
+  startBlockReason,
+  saveUserBooking,
 } from "../utils/booking.js";
 
 const STEPS = [
@@ -31,8 +34,11 @@ function fmtPrice(n) {
   return n.toLocaleString("cs-CZ") + " Kč";
 }
 
+// Dny v měsíci, které má smysl ukázat: otevřené dny a dny s akcí. Den, kam se zvolená délka tréninku nevejde, zůstává
+// vidět, ale nejde vybrat — zákazník tak vidí proč, místo aby den zmizel.
 function getCalendarDays(cursor, duration, selectedDate) {
   const today = startOfToday();
+  const hours = duration ? duration.hours : 1;
   const daysInMonth = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate();
   const days = [];
   for (let day = 1; day <= daysInMonth; day++) {
@@ -40,9 +46,8 @@ function getCalendarDays(cursor, duration, selectedDate) {
     const key = dateKey(d);
     const isPast = d.getTime() < today.getTime();
     const eventName = EVENTS[key];
-    const starts = !eventName && !isPast && isOpenDay(d) ? validStartHours(key, duration ? duration.hours : 1) : [];
-    if (!eventName && (isPast || !isOpenDay(d) || starts.length === 0)) continue;
-    const booked = eventName ? [] : bookedHoursForDate(key);
+    if (isPast || (!eventName && !isOpenDay(d))) continue;
+    const starts = eventName ? [] : validStartHours(key, hours);
     days.push({
       day,
       key,
@@ -50,34 +55,49 @@ function getCalendarDays(cursor, duration, selectedDate) {
       weekday: WEEKDAY_LABELS[(d.getDay() + 6) % 7],
       isEvent: !!eventName,
       eventName: eventName || null,
-      isBusy: !eventName && booked.length > 0,
+      isFull: !eventName && starts.length === 0,
+      isBusy: !eventName && bookedHoursForDate(key).length > 0,
+      startCount: starts.length,
       isSelected: selectedDate === key,
     });
   }
   return days;
 }
 
-function getSlots(date, duration, startHour) {
+function getSlots(date, duration, startHour, previewStart) {
   if (!date || !duration) return [];
   const key = dateKey(date);
   const booked = bookedHoursForDate(key);
+  const blocked = blockedHoursForDate(key);
   const hours = duration.hours;
   const validStarts = validStartHours(key, hours);
   const rangeStart = startHour !== null && validStarts.indexOf(startHour) !== -1 ? startHour : null;
-  const rangeEnd = rangeStart !== null ? rangeStart + hours - 1 : null;
+  const previewFrom = previewStart !== null && validStarts.indexOf(previewStart) !== -1 ? previewStart : null;
   const slots = [];
   for (let h = DAY_START; h < DAY_END; h++) {
     const isTaken = booked.indexOf(h) !== -1;
+    const isPast = !isTaken && blocked.indexOf(h) !== -1;
     const canStart = validStarts.indexOf(h) !== -1;
-    const inRange = rangeStart !== null && h >= rangeStart && h <= rangeEnd && !isTaken;
+    const inRange = rangeStart !== null && h >= rangeStart && h < rangeStart + hours;
+    const inPreview = !inRange && previewFrom !== null && h >= previewFrom && h < previewFrom + hours;
+    const booking = isTaken ? bookingAt(key, h) : null;
+    let note = null;
+    if (isTaken) note = booking && booking.isOwn ? "Obsazeno (tvoje rezervace)" : "Obsazeno" + (booking ? " (" + booking.name + ")" : "");
+    else if (isPast) note = "Už proběhlo";
+    else if (!canStart && !inRange) {
+      const reason = startBlockReason(key, h, hours);
+      if (reason) note = "Nevejde se — " + reason;
+    }
     slots.push({
       hour: h,
       label: pad(h) + ":00–" + pad(h + 1) + ":00",
       isTaken,
+      isPast,
       canStart,
       inRange,
+      inPreview,
       isRangeStart: inRange && h === rangeStart,
-      takenName: isTaken && !inRange ? nameForSlot(key, h) : null,
+      note,
     });
   }
   return slots;
@@ -115,6 +135,7 @@ export default function Booking() {
   const [calendarCursor, setCalendarCursor] = useState(() => startOfMonth(new Date()));
   const [selectedDate, setSelectedDate] = useState(null);
   const [startHour, setStartHour] = useState(null);
+  const [previewStart, setPreviewStart] = useState(null);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -236,6 +257,7 @@ export default function Booking() {
       setSelectedDate(day.key);
     }
     setStartHour(null);
+    setPreviewStart(null);
   }
 
   function handleSlotClick(slot) {
@@ -247,6 +269,11 @@ export default function Booking() {
   }
 
   function handlePaymentConfirm() {
+    // Zaplacené hodiny se uloží jako obsazené, takže je už nikdo (ani další
+    // rezervace v tomto prohlížeči) nemůže zabrat znovu.
+    if (selectedDate && duration && startHour !== null) {
+      saveUserBooking(selectedDate, startHour, duration.hours);
+    }
     setIsPaymentOpen(false);
     clearReservation();
     setIsSuccess(true);
@@ -266,7 +293,8 @@ export default function Booking() {
 
   const calendarDays = getCalendarDays(calendarCursor, duration, selectedDate);
   const selectedDateObj = selectedDate ? new Date(selectedDate + "T00:00:00") : null;
-  const slots = getSlots(selectedDateObj, duration, startHour);
+  const slots = getSlots(selectedDateObj, duration, startHour, previewStart);
+  const selectableDays = calendarDays.filter((d) => !d.isEvent && !d.isFull).length;
   const calPrevDisabled = calendarCursor.getTime() <= startOfMonth(startOfToday()).getTime();
 
   const dateLabel = selectedDateObj ? formatDate(selectedDateObj) : "—";
@@ -439,47 +467,82 @@ export default function Booking() {
                   >→</button>
                 </div>
                 <div className="calendar-grid" id="calGrid">
-                  {calendarDays.length === 0 && (
-                    <p className="calendar-empty-note">V tomto měsíci už nejsou žádné volné termíny.</p>
+                  {selectableDays === 0 && (
+                    <p className="calendar-empty-note">
+                      {duration
+                        ? "V tomto měsíci se trénink na " + duration.hours + " h už nikam nevejde — zkus další měsíc nebo kratší délku."
+                        : "V tomto měsíci už nejsou žádné volné termíny."}
+                    </p>
                   )}
                   {calendarDays.map((day) => (
                     <button
                       type="button"
                       key={day.key}
-                      className={"cal-day" + (day.isEvent ? " is-event" : "") + (day.isBusy ? " is-busy" : "") + (day.isSelected ? " is-selected" : "")}
-                      disabled={day.isEvent}
-                      aria-pressed={day.isEvent ? undefined : day.isSelected}
-                      aria-label={day.weekday + " " + formatDate(day.date) + (day.isEvent ? ", obsazeno akcí: " + day.eventName : day.isBusy ? ", částečně obsazeno" : ", volno")}
-                      title={day.isEvent ? "Obsazeno akcí: " + day.eventName : undefined}
-                      onClick={() => !day.isEvent && handleDayClick(day)}
+                      className={"cal-day" + (day.isEvent ? " is-event" : "") + (day.isFull ? " is-full" : "") + (day.isBusy ? " is-busy" : "") + (day.isSelected ? " is-selected" : "")}
+                      disabled={day.isEvent || day.isFull}
+                      aria-pressed={day.isEvent || day.isFull ? undefined : day.isSelected}
+                      aria-label={
+                        day.weekday + " " + formatDate(day.date) +
+                        (day.isEvent
+                          ? ", obsazeno akcí: " + day.eventName
+                          : day.isFull
+                            ? ", trénink na " + (duration ? duration.hours : 1) + " h se nevejde"
+                            : day.isBusy ? ", částečně obsazeno" : ", volno")
+                      }
+                      title={day.isEvent ? "Obsazeno akcí: " + day.eventName : day.isFull ? "Trénink na " + (duration ? duration.hours : 1) + " h se do tohoto dne nevejde" : undefined}
+                      onClick={() => !day.isEvent && !day.isFull && handleDayClick(day)}
                     >
                       <span className="cal-day-weekday" aria-hidden="true">{day.weekday}</span>
                       <span className="cal-day-num" aria-hidden="true">{day.day}</span>
-                      {!day.isEvent && <span className="cal-dot" aria-hidden="true"></span>}
+                      {day.isFull ? (
+                        <span className="cal-day-note" aria-hidden="true">plno</span>
+                      ) : (
+                        !day.isEvent && <span className="cal-dot" aria-hidden="true"></span>
+                      )}
                     </button>
                   ))}
                 </div>
                 <div className="calendar-legend">
                   <span><i className="dot dot-free"></i>Volno</span>
                   <span><i className="dot dot-busy"></i>Částečně obsazeno</span>
+                  <span><i className="dot dot-full"></i>{duration ? "Na " + duration.hours + " h plno" : "Plno"}</span>
                   <span><i className="dot dot-event"></i>Obsazeno akcí</span>
                 </div>
               </div>
               {selectedDate && (
                 <div className="slot-panel">
                   <p className="pane-label">Volné časy — {dateLabel}</p>
-                  <div className="slot-grid">
+                  <p className="slot-hint">
+                    {startHour !== null && duration
+                      ? <>Vybráno <strong>{timeLabel}</strong> ({duration.hours} h). Kliknutím na začátek výběr zrušíš.</>
+                      : <>Trénink trvá <strong>{duration ? duration.hours : 1} h</strong> — vyber, kdy začneš. Ukážeme celý blok, který zabereš.</>}
+                  </p>
+                  <div className="slot-grid" onMouseLeave={() => setPreviewStart(null)}>
                     {slots.map((slot) => (
                       <button
                         type="button"
                         key={slot.hour}
-                        className={"slot-btn" + (slot.inRange ? " is-in-range" : "") + (slot.isRangeStart ? " is-range-start" : "")}
+                        className={
+                          "slot-btn" +
+                          (slot.inRange ? " is-in-range" : "") +
+                          (slot.isRangeStart ? " is-range-start" : "") +
+                          (slot.inPreview ? " is-preview" : "") +
+                          (slot.isTaken ? " is-taken" : "")
+                        }
                         disabled={!slot.inRange && !slot.canStart}
                         aria-pressed={slot.isRangeStart}
+                        aria-label={
+                          slot.canStart && duration
+                            ? "Začít v " + pad(slot.hour) + ":00, do " + pad(slot.hour + duration.hours) + ":00"
+                            : slot.label + (slot.note ? ", " + slot.note : "")
+                        }
+                        onMouseEnter={() => setPreviewStart(slot.canStart ? slot.hour : null)}
+                        onFocus={() => setPreviewStart(slot.canStart ? slot.hour : null)}
+                        onBlur={() => setPreviewStart(null)}
                         onClick={() => handleSlotClick(slot)}
                       >
-                        {slot.label}
-                        {slot.takenName && <span className="slot-taken-note">Obsazeno ({slot.takenName})</span>}
+                        <span className="slot-time">{slot.label}</span>
+                        {slot.note && <span className="slot-taken-note">{slot.note}</span>}
                       </button>
                     ))}
                   </div>

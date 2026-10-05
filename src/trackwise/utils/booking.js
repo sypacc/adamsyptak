@@ -69,26 +69,112 @@ function hashStr(s) {
   return h;
 }
 
-// Deterministický (ne náhodný při každém načtení) seznam fiktivně
-// obsazených hodin pro daný den, aby kalendář působil reálně obsazeně.
-export function bookedHoursForDate(key) {
-  var available = [];
-  for (var h = DAY_START; h < DAY_END; h++) available.push(h);
+// Deterministický (ne náhodný při každém načtení) seznam fiktivních
+// rezervací pro daný den: 0–3 souvislé bloky po 1–4 hodinách, jako by si
+// je zarezervovali jiní zákazníci. Díky blokům se delší trénink opravdu
+// nevejde do každého dne.
+function demoBookingsForDate(key) {
   var seed = hashStr(key);
-  var count = 1 + (seed % 3); // 1–3 obsazené hodiny
-  var booked = [];
-  for (var i = 0; i < count && available.length; i++) {
+  function next() {
     seed = (seed * 1103515245 + 12345) >>> 0;
-    var idx = seed % available.length;
-    booked.push(available.splice(idx, 1)[0]);
+    return seed >>> 16; // spodní bity LCG se opakují v krátkém cyklu
   }
-  booked.sort(function (a, b) { return a - b; });
-  return booked;
+  var bookings = [];
+  var taken = [];
+  var count = next() % 4; // 0–3 cizí rezervace
+  for (var i = 0; i < count; i++) {
+    var hours = 1 + (next() % 4);
+    var start = DAY_START + (next() % (DAY_END - DAY_START - hours + 1));
+    var clash = false;
+    for (var h = start; h < start + hours; h++) {
+      if (taken.indexOf(h) !== -1) { clash = true; break; }
+    }
+    if (clash) continue;
+    for (var k = start; k < start + hours; k++) taken.push(k);
+    bookings.push({ start: start, hours: hours, name: FICTIONAL_NAMES[next() % FICTIONAL_NAMES.length] });
+  }
+  return bookings;
+}
+
+// Rezervace dokončené v tomhle prohlížeči — po zaplacení se uloží, aby
+// stejné hodiny nešlo zarezervovat znovu. Úložiště může být nedostupné
+// (anonymní okno), pak se prostě nic nepamatuje.
+var STORAGE_KEY = "trackwise-bookings";
+
+function readUserBookings() {
+  try {
+    var raw = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || "{}");
+    return raw && typeof raw === "object" ? raw : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+export function saveUserBooking(key, start, hours) {
+  var all = readUserBookings();
+  var list = Array.isArray(all[key]) ? all[key] : [];
+  list.push({ start: start, hours: hours });
+  all[key] = list;
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  } catch (e) {
+    /* úložiště nedostupné — rezervace platí jen do obnovení stránky */
+  }
+}
+
+function userBookingsForDate(key) {
+  var list = readUserBookings()[key];
+  if (!Array.isArray(list)) return [];
+  return list
+    .filter(function (b) { return b && Number.isInteger(b.start) && Number.isInteger(b.hours); })
+    .map(function (b) { return { start: b.start, hours: b.hours, name: "tvoje rezervace", isOwn: true }; });
+}
+
+export function bookingsForDate(key) {
+  return demoBookingsForDate(key).concat(userBookingsForDate(key));
+}
+
+// Dnes už nejde začít v hodině, která proběhla (ani v té, která právě běží).
+function pastHoursForDate(key, now) {
+  now = now || new Date();
+  if (key !== dateKey(now)) return [];
+  var past = [];
+  for (var h = DAY_START; h < DAY_END && h <= now.getHours(); h++) past.push(h);
+  return past;
+}
+
+export function bookedHoursForDate(key) {
+  var hours = [];
+  bookingsForDate(key).forEach(function (b) {
+    for (var h = b.start; h < b.start + b.hours; h++) {
+      if (hours.indexOf(h) === -1) hours.push(h);
+    }
+  });
+  hours.sort(function (a, b) { return a - b; });
+  return hours;
+}
+
+// Hodiny, ve kterých nejde jezdit: cizí i vlastní rezervace + dnešní minulé hodiny.
+export function blockedHoursForDate(key) {
+  var blocked = bookedHoursForDate(key);
+  pastHoursForDate(key).forEach(function (h) {
+    if (blocked.indexOf(h) === -1) blocked.push(h);
+  });
+  blocked.sort(function (a, b) { return a - b; });
+  return blocked;
+}
+
+export function bookingAt(key, hour) {
+  var list = bookingsForDate(key);
+  for (var i = 0; i < list.length; i++) {
+    if (hour >= list[i].start && hour < list[i].start + list[i].hours) return list[i];
+  }
+  return null;
 }
 
 export function nameForSlot(key, hour) {
-  var seed = hashStr(key + ":" + hour);
-  return FICTIONAL_NAMES[seed % FICTIONAL_NAMES.length];
+  var b = bookingAt(key, hour);
+  return b ? b.name : null;
 }
 
 export function isOpenDay(d) {
@@ -97,15 +183,27 @@ export function isOpenDay(d) {
   return OPEN_WEEKDAYS.indexOf(d.getDay()) !== -1;
 }
 
+// Začátky, od kterých se celý trénink dané délky vejde do otevírací doby
+// a nepřekryje žádnou obsazenou ani minulou hodinu.
 export function validStartHours(key, hours) {
-  var booked = bookedHoursForDate(key);
+  var blocked = blockedHoursForDate(key);
   var starts = [];
   for (var h = DAY_START; h + hours <= DAY_END; h++) {
     var ok = true;
     for (var i = 0; i < hours; i++) {
-      if (booked.indexOf(h + i) !== -1) { ok = false; break; }
+      if (blocked.indexOf(h + i) !== -1) { ok = false; break; }
     }
     if (ok) starts.push(h);
   }
   return starts;
+}
+
+// Proč z dané (volné) hodiny nejde začít — pro nápovědu u slotu.
+export function startBlockReason(key, hour, hours) {
+  if (hour + hours > DAY_END) return "končíme v " + pad(DAY_END) + ":00";
+  var blocked = blockedHoursForDate(key);
+  for (var i = 1; i < hours; i++) {
+    if (blocked.indexOf(hour + i) !== -1) return "v " + pad(hour + i) + ":00 je obsazeno";
+  }
+  return null;
 }
