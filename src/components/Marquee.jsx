@@ -1,7 +1,8 @@
 const NAMES = [
-  "Decathlon",
   "Česká spořitelna",
-  "VUT Brno",
+  "Decathlon",
+  "KPMG",
+  "Startup VUT",
   "Česká televize",
   "Radio Junior",
   "data.Brno",

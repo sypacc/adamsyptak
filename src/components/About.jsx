@@ -1,7 +1,7 @@
 import SplitHeading from "./SplitHeading.jsx";
 
 const FACTS = [
-  ["Teď", "Spoluzakladatel & Business Lead, Sportera Team s.r.o."],
+  ["Teď", "Spoluzakladatel & CEO, Sportera Team s.r.o."],
   ["Paralelně", "Předseda a likvidátor, Družstvo Virtigo"],
   ["Studium", "Ing. Strategický rozvoj podniku, VUT Brno"],
   ["Zaměření", "Strategie, vedení týmu, partnerství a smlouvy, chod firmy"],
@@ -20,7 +20,7 @@ export default function About() {
               <p>
                 Od 2024 vedu{" "}
                 <a className="inline-link" href="https://sportera.cz" target="_blank" rel="noopener noreferrer">Sportera ↗</a>
-                {" "}– platformu, která dnes mapuje přes 1&nbsp;100 sportovišť ve více než 380 obcích po celé ČR.
+                {" "}– platformu, která dnes mapuje 2&nbsp;526 venkovních hřišť v 856 obcích po celé ČR, kam se dá přijít bez rezervace.
               </p>
               <p>
                 Ve Sporteře mám na starosti strategii, vedení týmu a celý chod firmy – od partnerů a smluv

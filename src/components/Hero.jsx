@@ -3,10 +3,10 @@ import Magnetic from "./Magnetic.jsx";
 import ResponsivePicture from "./ResponsivePicture.jsx";
 
 const STATS = [
-  { label: "Sportovišť na mapě", value: "1\u00a0100+" },
-  { label: "Zapojených obcí", value: "380+" },
+  { label: "Hřišť na mapě", value: "2\u00a0526" },
+  { label: "Obcí", value: "856" },
+  { label: "Sportů", value: "11" },
   { label: "TAFISA World Congress", value: "Řečník", small: "2026" },
-  { label: "Sportera", value: "od 2024" },
 ];
 
 export default function Hero() {
@@ -59,7 +59,7 @@ export default function Hero() {
           <div className="hero-text">
             <p className="hero-eyebrow hero-enter" style={{ "--enter-delay": "0.1s" }}>
               <span className="hero-dot" aria-hidden="true"></span>
-              Spoluzakladatel &amp; Business Lead · Sportera
+              Spoluzakladatel &amp; CEO · Sportera
             </p>
             <h1 className="hero-name" ref={nameRef}>
               <span className="word"><span>Adam</span></span>{" "}
@@ -95,8 +95,8 @@ export default function Hero() {
               loading="eager"
             />
             <figcaption className="hero-badge">
-              <strong>1. místo</strong>
-              <span>Změň svět pohybem 2025</span>
+              <strong>CEO</strong>
+              <span>Sportera Team s.r.o.</span>
             </figcaption>
           </figure>
         </div>

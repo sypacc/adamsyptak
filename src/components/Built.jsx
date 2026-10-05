@@ -28,13 +28,13 @@ export default function Built() {
 
         <div className="cards cards--split">
           <article className="card tilt" data-reveal="true">
-            <p className="card-role">Spoluzakladatel &amp; Business Lead</p>
+            <p className="card-role">Spoluzakladatel &amp; CEO</p>
             <h3>Sportera Team s.r.o.</h3>
             <p className="card-meta">2024 – dosud</p>
             <p>
               Mám na starosti strategii, vedení týmu a chod firmy — od prvního kontaktu s partnerem
               přes podpis smlouvy a obhajobu jejího znění až po komunikaci s účetní. Platforma dnes
-              pokrývá 1&nbsp;100+ sportovišť ve 380+ obcích.
+              mapuje 2&nbsp;526 hřišť pro 11 sportů v 856 obcích.
             </p>
             <ul className="card-tags" aria-label="Oblasti, které mám na starosti">
               {["Strategie", "Vedení týmu", "Partnerství", "Smlouvy", "Komunikace s účetní", "Produkt"].map((t) => (
