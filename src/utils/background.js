@@ -17,13 +17,21 @@ function buildWavePath(y, amplitude, phase) {
   return d;
 }
 
+// Height of the page's in-flow content. Deliberately not
+// documentElement.scrollHeight: that includes these absolutely positioned
+// layers themselves, so once sized they could never shrink again (e.g. after
+// content-visibility sections settle below their estimated size), leaving
+// an empty band under the last section.
+export function contentHeight() {
+  return Math.max(document.body.offsetHeight, window.innerHeight);
+}
+
 // Contour lines span the whole document, not just one viewport, so
 // scrolling reveals genuinely different lines instead of a fixed image
 // being shifted around. Rebuilt on load and on resize.
 export function buildContours(contoursEl, contoursSvg) {
   if (!contoursEl || !contoursSvg) return;
-  var root = document.documentElement;
-  var pageHeight = Math.max(root.scrollHeight, window.innerHeight);
+  var pageHeight = contentHeight();
   contoursEl.style.height = pageHeight + "px";
   contoursSvg.setAttribute("viewBox", "0 0 1440 " + pageHeight);
 
@@ -69,8 +77,7 @@ export function buildContours(contoursEl, contoursSvg) {
 // per-frame JS work is needed here after they're placed.
 export function buildGlows(glowEl) {
   if (!glowEl) return;
-  var root = document.documentElement;
-  var pageHeight = Math.max(root.scrollHeight, window.innerHeight);
+  var pageHeight = contentHeight();
   glowEl.style.height = pageHeight + "px";
 
   var spacing = 1000;

@@ -5,8 +5,11 @@ export default function Education() {
     <section className="section" id="vzdelani" aria-labelledby="vzdelani-heading">
       <div className="wrap">
         <span className="section-watermark" aria-hidden="true">04</span>
-        <p className="section-number" data-reveal="true">04</p>
-        <SplitHeading id="vzdelani-heading" text="Vzdělání" />
+        <div className="split">
+          <div className="split-head">
+            <p className="section-number" data-reveal="true">04</p>
+            <SplitHeading id="vzdelani-heading" text="Vzdělání" />
+          </div>
 
         <div className="timeline" data-reveal="true">
           <div className="timeline-item" data-reveal="true">
@@ -19,6 +22,7 @@ export default function Education() {
             <h3>Ing. Strategický rozvoj podniku (SRP)</h3>
             <p className="timeline-meta">VUT Brno · 2025 – dosud</p>
           </div>
+        </div>
         </div>
       </div>
     </section>

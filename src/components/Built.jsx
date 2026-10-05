@@ -32,9 +32,15 @@ export default function Built() {
             <h3>Sportera Team s.r.o.</h3>
             <p className="card-meta">2024 – dosud</p>
             <p>
-              Řídím strategii, partnerství a provoz firmy — od prvního kontaktu s partnerem po podpis
-              smlouvy a obhajobu jejího znění. Platforma dnes pokrývá 1&nbsp;100+ sportovišť ve 380+ obcích.
+              Mám na starosti strategii, vedení týmu a chod firmy — od prvního kontaktu s partnerem
+              přes podpis smlouvy a obhajobu jejího znění až po komunikaci s účetní. Platforma dnes
+              pokrývá 1&nbsp;100+ sportovišť ve 380+ obcích.
             </p>
+            <ul className="card-tags" aria-label="Oblasti, které mám na starosti">
+              {["Strategie", "Vedení týmu", "Partnerství", "Smlouvy", "Komunikace s účetní", "Produkt"].map((t) => (
+                <li key={t}>{t}</li>
+              ))}
+            </ul>
             <a className="card-link" href="https://sportera.cz" target="_blank" rel="noopener noreferrer">sportera.cz →</a>
           </article>
 

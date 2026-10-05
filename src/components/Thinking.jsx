@@ -9,7 +9,7 @@ export default function Thinking() {
         <SplitHeading id="mysleni-heading" text="Jak přemýšlím" />
 
         <div className="principles">
-          <div className="principle principle--featured tilt" data-reveal="true">
+          <div className="principle tilt" data-reveal="true">
             <span className="principle-index">01</span>
             <h3>Rozhoduju bez čekání na mandát</h3>
             <p>

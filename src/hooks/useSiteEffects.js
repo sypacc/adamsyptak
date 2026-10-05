@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { buildBackground } from "../utils/background.js";
+import { buildBackground, contentHeight } from "../utils/background.js";
 
 // Ports every scroll/observer/pointer behaviour from the original
 // assets/js/main.js onto the React-rendered DOM. Runs once after the
@@ -33,7 +33,7 @@ export function useSiteEffects({ headerRef, navRef, navIndicatorRef, contoursElR
     function rebuildBackground() {
       buildBackground(contoursEl, contoursSvg, glowEl);
       builtWidth = window.innerWidth;
-      builtHeight = root.scrollHeight;
+      builtHeight = contentHeight();
       if (contoursEl) contoursEl.classList.add("is-built");
       if (glowEl) glowEl.classList.add("is-built");
     }
@@ -46,7 +46,7 @@ export function useSiteEffects({ headerRef, navRef, navIndicatorRef, contoursElR
     function scheduleRebuild() {
       window.clearTimeout(resizeTimer);
       resizeTimer = window.setTimeout(function () {
-        if (window.innerWidth !== builtWidth || Math.abs(root.scrollHeight - builtHeight) > 40) {
+        if (window.innerWidth !== builtWidth || Math.abs(contentHeight() - builtHeight) > 40) {
           rebuildBackground();
         }
         moveNavIndicator();

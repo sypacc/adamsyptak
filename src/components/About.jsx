@@ -1,11 +1,17 @@
 import SplitHeading from "./SplitHeading.jsx";
-import ResponsivePicture from "./ResponsivePicture.jsx";
+
+const FACTS = [
+  ["Teď", "Spoluzakladatel & Business Lead, Sportera Team s.r.o."],
+  ["Paralelně", "Předseda a likvidátor, Družstvo Virtigo"],
+  ["Studium", "Ing. Strategický rozvoj podniku, VUT Brno"],
+  ["Zaměření", "Strategie, vedení týmu, partnerství a smlouvy, chod firmy"],
+];
 
 export default function About() {
   return (
     <section className="section" id="o-mne" aria-labelledby="o-mne-heading">
       <div className="wrap">
-        <span className="section-watermark section-watermark--left" aria-hidden="true">01</span>
+        <span className="section-watermark" aria-hidden="true">01</span>
         <div className="about-layout">
           <div className="about-main">
             <p className="section-number" data-reveal="true">01</p>
@@ -15,6 +21,10 @@ export default function About() {
                 Od 2024 vedu{" "}
                 <a className="inline-link" href="https://sportera.cz" target="_blank" rel="noopener noreferrer">Sportera ↗</a>
                 {" "}– platformu, která dnes mapuje přes 1&nbsp;100 sportovišť ve více než 380 obcích po celé ČR.
+              </p>
+              <p>
+                Ve Sporteře mám na starosti strategii, vedení týmu a celý chod firmy – od partnerů a smluv
+                po komunikaci s účetní.
               </p>
               <p>
                 Byl jsem součástí vyjednávání spoluprací – například s <strong>Decathlonem</strong>,{" "}
@@ -27,17 +37,17 @@ export default function About() {
               </p>
             </div>
           </div>
-          <figure className="about-photo" data-reveal="true">
-            {/* 4:5 frame over a 3:2 photo renders it ~1.9x the frame width */}
-            <ResponsivePicture
-              name="adam-portrait"
-              widths={[800, 1400]}
-              sizes="(max-width: 400px) 560px, 675px"
-              alt="Portrét Adama Syptáka"
-              width="2000"
-              height="1333"
-            />
-          </figure>
+          <aside className="facts" data-reveal="true" aria-label="Ve zkratce">
+            <p className="facts-title">Ve zkratce</p>
+            <dl>
+              {FACTS.map(([k, v]) => (
+                <div key={k}>
+                  <dt>{k}</dt>
+                  <dd>{v}</dd>
+                </div>
+              ))}
+            </dl>
+          </aside>
         </div>
       </div>
     </section>

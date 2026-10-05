@@ -7,7 +7,8 @@ import Built from "./components/Built.jsx";
 import Thinking from "./components/Thinking.jsx";
 import Education from "./components/Education.jsx";
 import Contact from "./components/Contact.jsx";
-import Footer from "./components/Footer.jsx";
+import Marquee from "./components/Marquee.jsx";
+import Motto from "./components/Motto.jsx";
 import { useSiteEffects } from "./hooks/useSiteEffects.js";
 import { useSmoothScroll } from "./hooks/useSmoothScroll.js";
 
@@ -32,14 +33,15 @@ export default function App() {
 
       <main id="obsah">
         <Hero />
+        <Marquee />
         <About />
         <Built />
         <Thinking />
+        <Motto />
         <Education />
         <Contact />
       </main>
 
-      <Footer />
     </>
   );
 }
