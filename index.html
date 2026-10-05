@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=16">
+  <link rel="stylesheet" href="assets/css/style.css?v=17">
 </head>
 <body>
   <div class="page-glow" id="pageGlow" aria-hidden="true"></div>
@@ -262,36 +262,38 @@
     <section class="section contact-section" id="kontakt" aria-labelledby="kontakt-heading">
       <div class="wrap">
         <span class="section-watermark" aria-hidden="true">05</span>
-        <p class="section-number" data-reveal>05</p>
-        <h2 id="kontakt-heading" data-reveal>Kontakt</h2>
-        <p class="contact-lede" data-reveal>
-          Máš projekt, nabídku nebo si chceš jen popovídat o tom, jak stavět věci, které fungují?
-        </p>
-        <div class="contact-links">
-          <a class="contact-link contact-link--primary" data-reveal href="mailto:adamsypt@seznam.cz" data-contact="email">
-            E-mail
-            <svg class="contact-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
-          <a class="contact-link" data-reveal href="https://www.linkedin.com/in/adam-sypt%C3%A1k" target="_blank" rel="noopener noreferrer" data-contact="linkedin">
-            LinkedIn
-            <svg class="contact-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4.5 11.5 11.5 4.5M6 4.5h5.5V10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
+        <div class="contact-layout">
+          <div class="contact-intro">
+            <p class="section-number" data-reveal>05</p>
+            <h2 id="kontakt-heading" data-reveal>Kontakt</h2>
+            <p class="contact-lede" data-reveal>
+              Máš projekt, nabídku nebo si chceš jen popovídat o tom, jak stavět věci, které fungují?
+            </p>
+          </div>
+          <div class="contact-links">
+            <a class="contact-link contact-link--primary" data-reveal href="mailto:adamsypt@seznam.cz" data-contact="email">
+              <span class="contact-label">E-mail</span>
+              <span class="contact-value">adamsypt@seznam.cz</span>
+              <svg class="contact-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="contact-link" data-reveal href="https://www.linkedin.com/in/adam-sypt%C3%A1k" target="_blank" rel="noopener noreferrer" data-contact="linkedin">
+              <span class="contact-label">LinkedIn</span>
+              <span class="contact-value">Adam Sypták</span>
+              <svg class="contact-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4.5 11.5 11.5 4.5M6 4.5h5.5V10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="contact-meta">
+          <p>© <span id="rok"></span> Adam Sypták</p>
+          <a href="project/" class="contact-meta-link">Školní projekt ↗</a>
+          <a href="#uvod" class="contact-meta-link to-top">Nahoru ↑</a>
         </div>
       </div>
     </section>
 
   </main>
 
-  <footer class="site-footer">
-    <div class="wrap footer-inner">
-      <p>© <span id="rok"></span> Adam Sypták</p>
-      <div class="footer-links">
-        <a href="project/" class="footer-link">Školní projekt ↗</a>
-        <a href="#uvod" class="to-top">Nahoru ↑</a>
-      </div>
-    </div>
-  </footer>
-
-  <script src="assets/js/main.js?v=16"></script>
+  <script src="assets/js/main.js?v=17"></script>
 </body>
 </html>
