@@ -2280,3 +2280,272 @@ html.theme-wipe body {
   border-color: #ef4d42;
   background: rgba(239, 77, 66, 0.12);
 }
+
+/* -------------------------------------------------- */
+/* Booking — vytížení dne v kalendáři                  */
+/* -------------------------------------------------- */
+.cal-load {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 2px;
+  width: 70%;
+  height: 5px;
+}
+
+.cal-load i {
+  border-radius: 1px;
+  background: rgba(var(--line-rgb), 0.18);
+}
+
+.cal-load i.is-booked,
+.cal-load i.is-past {
+  background: var(--accent);
+  opacity: 0.85;
+}
+
+.cal-load i.is-own {
+  background: #2f9e52;
+}
+
+.cal-day.is-selected .cal-load i {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.cal-day.is-selected .cal-load i.is-booked,
+.cal-day.is-selected .cal-load i.is-past,
+.cal-day.is-selected .cal-load i.is-own {
+  background: rgba(0, 0, 0, 0.35);
+  opacity: 1;
+}
+
+.cal-day.is-selected .cal-day-note {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.dot-free { background: rgba(var(--line-rgb), 0.3); }
+.dot-busy { background: var(--accent); }
+
+/* -------------------------------------------------- */
+/* Booking — časová osa dne                            */
+/* -------------------------------------------------- */
+.tp-track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  grid-template-rows: 92px;
+  gap: 4px;
+}
+
+.tp-cell,
+.tp-block {
+  grid-row: 1;
+  grid-column: var(--s) / span var(--n);
+}
+
+.tp-cell {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 0.5rem;
+  border: 1px dashed rgba(var(--line-rgb), 0.22);
+  border-radius: 3px;
+  background: rgba(var(--line-rgb), 0.03);
+  color: var(--text-muted);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease);
+}
+
+.tp-cell:hover:not(:disabled),
+.tp-cell:focus-visible {
+  border-color: rgba(var(--line-rgb), 0.5);
+  outline: none;
+}
+
+.tp-cell.is-nofit {
+  cursor: not-allowed;
+}
+
+.tp-cell:disabled {
+  cursor: default;
+}
+
+.tp-hour {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.tp-block {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.15rem;
+  min-width: 0;
+  padding: 0.55rem 0.65rem;
+  border-radius: 3px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.tp-block-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tp-block-meta {
+  font-size: 0.72rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.85;
+}
+
+/* Obsazeno — šrafovaná „zablokovaná trať“ */
+.tp-block.is-booked {
+  color: var(--text);
+  background:
+    repeating-linear-gradient(135deg, rgba(var(--accent-rgb), 0.22) 0 8px, rgba(var(--accent-rgb), 0.1) 8px 16px),
+    var(--bg);
+  border: 1px solid rgba(var(--accent-rgb), 0.55);
+}
+
+.tp-block.is-past {
+  color: var(--text-faint);
+  background: repeating-linear-gradient(135deg, rgba(var(--line-rgb), 0.08) 0 8px, rgba(var(--line-rgb), 0.03) 8px 16px), var(--bg);
+  border: 1px solid rgba(var(--line-rgb), 0.12);
+}
+
+.tp-block.is-own {
+  color: #fff;
+  background: #2f9e52;
+  border: 1px solid #2f9e52;
+}
+
+/* Vybraný trénink — červeno-bílý „obrubník“ nahoře jako v logu */
+.tp-block.is-selected {
+  z-index: 2;
+  color: #fff;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  box-shadow: 0 12px 28px -14px rgba(var(--accent-rgb), 0.9);
+  animation: tp-pop 0.35s var(--ease);
+}
+
+.tp-block.is-selected::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 5px;
+  background: repeating-linear-gradient(90deg, #fff 0 10px, var(--accent) 10px 20px);
+}
+
+.tp-block.is-preview {
+  z-index: 3;
+  color: var(--text);
+  background: rgba(47, 158, 82, 0.16);
+  border: 2px dashed #2f9e52;
+}
+
+.tp-block.is-preview.is-invalid {
+  background: rgba(var(--accent-rgb), 0.12);
+  border-color: var(--accent);
+}
+
+.tp-block.is-preview.is-invalid .tp-block-title {
+  color: var(--accent-text);
+}
+
+@keyframes tp-pop {
+  from { transform: scale(0.96); opacity: 0.6; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.tp-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.4rem;
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.tp-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin-top: 1rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.tp-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.tp-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.tp-swatch.is-free { border: 1px dashed rgba(var(--line-rgb), 0.4); }
+.tp-swatch.is-booked { background: repeating-linear-gradient(135deg, rgba(var(--accent-rgb), 0.6) 0 3px, rgba(var(--accent-rgb), 0.25) 3px 6px); }
+.tp-swatch.is-own { background: #2f9e52; }
+.tp-swatch.is-selected { background: var(--accent); }
+
+.slot-error {
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.9rem;
+  border-left: 3px solid var(--accent);
+  background: rgba(var(--accent-rgb), 0.1);
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+/* Telefon: osa svisle — hodiny pod sebou, bloky přes víc řádků */
+@media (max-width: 640px) {
+  .tp-track {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(var(--cols), 52px);
+  }
+
+  .tp-cell,
+  .tp-block {
+    grid-column: 1;
+    grid-row: var(--s) / span var(--n);
+  }
+
+  .tp-cell {
+    align-items: center;
+  }
+
+  .tp-block {
+    margin-left: 4.25rem;
+    justify-content: center;
+  }
+
+  .tp-axis {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-block.is-selected {
+    animation: none;
+  }
+}
