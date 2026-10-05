@@ -2549,3 +2549,99 @@ html.theme-wipe body {
     animation: none;
   }
 }
+
+/* -------------------------------------------------- */
+/* Hero — tlačítko Merch (sekundární CTA přes video)   */
+/* -------------------------------------------------- */
+.btn-merch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.4rem;
+  border: 1px solid rgba(245, 244, 241, 0.55);
+  border-radius: 2px;
+  background: rgba(11, 11, 13, 0.35);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: var(--on-media);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background-color 0.25s var(--ease), color 0.25s var(--ease), border-color 0.25s var(--ease), transform 0.25s var(--ease);
+}
+
+.btn-merch-icon {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.35s var(--ease);
+}
+
+.btn-merch-arrow {
+  transition: transform 0.25s var(--ease);
+}
+
+.btn-merch:hover,
+.btn-merch:focus-visible {
+  background: var(--on-media);
+  border-color: var(--on-media);
+  color: #111;
+  transform: translateY(-1px);
+}
+
+.btn-merch:hover .btn-merch-icon {
+  transform: rotate(-8deg) scale(1.08);
+}
+
+.btn-merch:hover .btn-merch-arrow {
+  transform: translateX(3px);
+}
+
+.btn-merch:focus-visible {
+  outline: 2px solid var(--on-media);
+  outline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+  .hero-actions .btn-primary,
+  .hero-actions .btn-merch {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}
+
+/* -------------------------------------------------- */
+/* Košík — potvrzení zaplacené objednávky              */
+/* -------------------------------------------------- */
+.cart-success-lead {
+  margin-top: 0.5rem;
+  color: var(--text-muted);
+}
+
+.cart-success-lead strong {
+  color: var(--text);
+}
+
+.cart-success-list {
+  margin: 1.25rem 0 0;
+  border-top: 1px solid rgba(var(--line-rgb), 0.12);
+}
+
+.cart-success-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(var(--line-rgb), 0.12);
+}
+
+.cart-success .btn-primary {
+  width: 100%;
+  margin-top: 1.25rem;
+  border-radius: 2px;
+}
+
+.cart-success .auth-modal-title {
+  color: #2f9e52;
+}

@@ -29,6 +29,9 @@ export function CartProvider({ children }) {
   // Last merch item added, for the confirmation toast. `key` changes on
   // every add so re-adding the same item re-triggers the toast.
   const [toast, setToast] = useState(null);
+  // Poslední zaplacená objednávka z košíku — rezervační formulář podle ní
+  // pozná, že jeho trénink už je zaplacený, a ukáže potvrzení.
+  const [paidOrder, setPaidOrder] = useState(null);
 
   const update = useCallback((updater) => {
     setCart((prev) => {
@@ -78,6 +81,10 @@ export function CartProvider({ children }) {
     update(() => ({ items: [], reservation: null }));
   }, [update]);
 
+  const markPaid = useCallback((order) => {
+    setPaidOrder({ ...order, id: Date.now() });
+  }, []);
+
   const count = cart.items.reduce((sum, i) => sum + i.qty, 0) + (cart.reservation ? 1 : 0);
   const total = cart.items.reduce((sum, i) => sum + i.qty * i.price, 0) + (cart.reservation ? cart.reservation.price : 0);
 
@@ -92,6 +99,8 @@ export function CartProvider({ children }) {
         setReservation,
         clearReservation,
         clearAll,
+        paidOrder,
+        markPaid,
         isCartOpen,
         openCart,
         closeCart,

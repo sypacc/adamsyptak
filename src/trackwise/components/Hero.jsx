@@ -61,8 +61,13 @@ export default function Hero() {
           <div className="hero-actions tw-enter" style={{ "--d": "0.45s" }}>
             {/* TODO: odkaz na rezervační wizard */}
             <a className="btn-primary" href="#rezervace">Rezervovat trénink</a>
-            {/* TODO: napojit reálný e-shop, zatím jen odkaz do sekce */}
-            <a className="btn-secondary" href="#merch">Merch</a>
+            <a className="btn-merch" href="#merch">
+              <svg className="btn-merch-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M8.5 3.5 4 5.8 2.5 10l3 1.2.9-1.4V20.5h11.2V9.8l.9 1.4 3-1.2L20 5.8l-4.5-2.3c-.4 1.4-1.8 2.4-3.5 2.4s-3.1-1-3.5-2.4Z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+              </svg>
+              <span>Merch</span>
+              <span className="btn-merch-arrow" aria-hidden="true">→</span>
+            </a>
           </div>
 
           <a className="hero-back tw-enter" style={{ "--d": "0.6s" }} href="../">← Zpět na portfolio</a>
