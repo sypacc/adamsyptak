@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stránka nenalezena — Adam Sypták</title>
+  <meta name="robots" content="noindex">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0b0b0d">
+  <link rel="icon" type="image/svg+xml" href="/adamsyptak/assets/img/favicon.svg">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      background: #0b0b0d;
+      color: #f2f2f0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      display: grid;
+      place-items: center;
+      padding: 2rem;
+      overflow: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      width: 70vmax;
+      height: 70vmax;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(142, 202, 230, 0.12), transparent 60%);
+      pointer-events: none;
+    }
+    main { position: relative; max-width: 34rem; }
+    .code {
+      font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      font-size: clamp(6rem, 24vw, 11rem);
+      font-weight: 600;
+      line-height: 0.9;
+      letter-spacing: -0.06em;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(142, 202, 230, 0.55);
+    }
+    h1 { margin-top: 1.5rem; font-size: clamp(1.6rem, 4vw, 2.2rem); letter-spacing: -0.02em; }
+    p { margin-top: 0.75rem; color: #9a9aa2; line-height: 1.6; }
+    nav { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    a {
+      display: inline-flex;
+      padding: 0.8rem 1.4rem;
+      border-radius: 999px;
+      border: 1px solid #232327;
+      color: #f2f2f0;
+      text-decoration: none;
+      font-weight: 500;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    a:hover, a:focus-visible { border-color: #8ecae6; color: #8ecae6; outline: none; }
+    a.primary { background: #8ecae6; border-color: #8ecae6; color: #0b0b0d; font-weight: 600; }
+    a.primary:hover, a.primary:focus-visible { background: #a9dbee; color: #0b0b0d; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="code" aria-hidden="true">404</p>
+    <h1>Tahle stránka neexistuje</h1>
+    <p>Odkaz je možná starý nebo v něm je překlep. Zkus začít znovu odsud:</p>
+    <nav aria-label="Kam dál">
+      <a class="primary" href="/adamsyptak/">Portfolio</a>
+      <a href="/adamsyptak/project/">Školní projekt</a>
+    </nav>
+  </main>
+</body>
+</html>

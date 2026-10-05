@@ -1,33 +1,64 @@
 # Adam Sypták — portfolio
 
-Osobní portfolio, statická stránka bez frameworků a bez buildovacího kroku.
+Osobní portfolio + školní projekt TrackWise, React (Vite), dvě samostatné stránky
+v jednom buildu: `/` (portfolio) a `/project/` (TrackWise).
 
 ## Struktura
 
 ```
-index.html          — obsah stránky
-assets/css/style.css — styly (dark, minimalistický design)
-assets/js/main.js    — mobilní menu, aktivní odkaz v navigaci, animace při scrollu
-assets/img/          — favicon a další obrázky
+index.html                 — vstupní bod portfolia (meta, OG náhled, preload fontu)
+project/index.html         — vstupní bod TrackWise
+src/
+  main.jsx                 — spuštění portfolia
+  App.jsx                  — portfolio složené z komponent
+  components/              — sekce portfolia (Header, Hero, About, Built, ...)
+  hooks/useSiteEffects.js  — scroll efekty, odhalování při scrollu, tilt/spotlight, pozadí
+  hooks/useSmoothScroll.js — plynulý scroll (Lenis), jen pro myš/trackpad
+  utils/background.js      — generování vrstevnicového pozadí
+  styles/global.css        — styly portfolia
+  project-main.jsx         — spuštění TrackWise
+  trackwise/               — TrackWise: komponenty, contexty (téma, účet, košík), wizard
+  styles/trackwise.css     — styly TrackWise
+public/                    — statické soubory kopírované beze změny (fotky, video, OG, 404)
+media-src/                 — originální fotky/logo v plné kvalitě (nenasazují se)
 ```
 
 ## Lokální vývoj
 
-Stránka nepotřebuje žádný build. Pro lokální náhled stačí spustit statický server, např.:
+```
+npm install
+npm run dev
+```
+
+Otevře se na `http://localhost:5173/adamsyptak/`.
+
+## Produkční build
 
 ```
-python3 -m http.server 8080
+npm run build
+npm run preview
 ```
 
-a otevřít `http://localhost:8080`.
+Výstup se generuje do `dist/`.
+
+## Fotky a obrázky
+
+Na webu se používají optimalizované varianty v `public/assets/img/photos/`
+(AVIF + WebP ve dvou šířkách, např. `adam-portrait-800.avif`, `adam-portrait-1400.webp`).
+Originály jsou v `media-src/`. Při přidání nové fotky je potřeba vygenerovat
+stejné varianty (stačí poslat fotku Claudovi).
 
 ## Nasazení na GitHub Pages
 
-1. V repozitáři přejít do **Settings → Pages**.
-2. V sekci **Build and deployment** vybrat **Source: Deploy from a branch**.
-3. Zvolit branch `main` a složku `/ (root)`.
-4. Uložit — stránka se objeví na `https://<uzivatel>.github.io/<repo>/`.
+Stránka se builduje (React/Vite), takže už nejde nasadit přímo z branche —
+nasazení zajišťuje workflow `.github/workflows/deploy.yml`, který při každém
+push na `main` stránku zbuilduje a nahraje na GitHub Pages.
 
-## TODO
+**Jednorázové nastavení v repozitáři:**
 
-- V sekci Kontakt (`index.html`, `#kontakt`) doplnit skutečné odkazy na e-mail, LinkedIn a GitHub.
+1. **Settings → Pages**
+2. V sekci **Build and deployment** přepnout **Source** na **GitHub Actions**
+   (místo původního "Deploy from a branch").
+
+Po tomto přepnutí se stránka při každém pushi na `main` automaticky zbuilduje
+a nasadí na `https://sypacc.github.io/adamsyptak/`.

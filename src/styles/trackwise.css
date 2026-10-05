@@ -1,0 +1,2234 @@
+/* -------------------------------------------------- */
+/* Tokens                                              */
+/* -------------------------------------------------- */
+:root {
+  --bg: #0b0b0d;
+  --text: #f2f2f0;
+  --text-muted: #c7c7cc;
+  --text-faint: #85858d;
+  /* Two reds: --accent is the fill behind white text, --accent-text is the
+     red used *as* text on the dark page. One shade can't pass WCAG AA in
+     both roles, so they're split. */
+  --accent: #d42f25;
+  --accent-hover: #bd281f;
+  --accent-text: #ef4d42;
+  --accent-rgb: 224, 52, 42;
+  --line-rgb: 255, 255, 255;
+
+  /* Text sitting over photography (hero video, section-break image)
+     stays fixed regardless of site theme — the backdrop is always dark. */
+  --on-media: #f5f4f1;
+  --on-media-muted: #d7d5d1;
+
+  --font-sans: "Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Barlow Condensed", "Inter Variable", "Arial Narrow", sans-serif;
+
+  --gutter: clamp(1.25rem, 6vw, 5rem);
+  --wrap: 1440px;
+  --header-h: 4.25rem;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root[data-theme="light"] {
+  --bg: #f4f4f4;
+  --text: #151515;
+  --text-muted: #5c5c5c;
+  --text-faint: #6b6b6b;
+  --accent: #c22a20;
+  --accent-hover: #a82219;
+  --accent-text: #c22a20;
+  --accent-rgb: 194, 42, 32;
+  --line-rgb: 17, 17, 17;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 0.5rem);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s var(--ease), color 0.25s var(--ease);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-text);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+/* Theme switch: the new theme is revealed as a circle growing out of the
+   toggle button (see ThemeContext). Only during that switch, so page
+   navigations keep the default crossfade. */
+html.theme-wipe::view-transition-old(root),
+html.theme-wipe::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html.theme-wipe::view-transition-new(root) {
+  z-index: 1;
+}
+
+html.theme-wipe body {
+  transition: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* -------------------------------------------------- */
+/* Site header — logo, scrollspy nav, akce (košík,       */
+/* přihlášení, téma). Fixní, vlastní tmavé pozadí,       */
+/* ať je čitelná nad videem i nad stránkou v obou         */
+/* režimech.                                              */
+/* -------------------------------------------------- */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 80;
+  /* The header stays dark in both themes, so its red is pinned to the
+     dark-theme text red rather than following --accent-text. */
+  --header-red: #ef4d42;
+  background: rgba(11, 11, 13, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background-color 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
+
+.site-header.is-scrolled {
+  background: rgba(11, 11, 13, 0.86);
+  box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.8);
+}
+
+.site-header-inner {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+  min-height: var(--header-h);
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2.5rem);
+}
+
+.site-logo {
+  display: flex;
+  align-items: center;
+  margin-right: auto;
+}
+
+.site-logo img {
+  height: 30px;
+  width: auto;
+  display: block;
+}
+
+.site-nav ul {
+  display: flex;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  list-style: none;
+}
+
+.site-nav a {
+  position: relative;
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #d7d5d1;
+  padding-block: 0.35rem;
+  transition: color 0.2s var(--ease);
+}
+
+.site-nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 2px;
+  background: var(--header-red);
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 0.35s var(--ease);
+}
+
+.site-nav a:hover {
+  color: #fff;
+}
+
+.site-nav a.is-active {
+  color: var(--header-red);
+}
+
+.site-nav a.is-active::after {
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+
+.site-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.chrome-btn {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: transparent;
+  color: #f5f4f1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform 0.15s var(--ease), border-color 0.2s var(--ease);
+}
+
+.chrome-btn:hover {
+  border-color: var(--header-red);
+}
+
+.chrome-btn:active {
+  transform: scale(0.85);
+}
+
+.chrome-btn svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.chrome-btn.is-logged-in {
+  border-color: var(--header-red);
+  color: var(--header-red);
+}
+
+.chrome-badge[hidden] {
+  display: none;
+}
+
+.chrome-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding-inline: 4px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+}
+
+/* Phones: logo + actions share the first row, the section nav gets its own
+   full-width row underneath instead of wrapping unpredictably. */
+@media (max-width: 640px) {
+  html {
+    scroll-padding-top: 7rem;
+  }
+
+  .site-header-inner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "logo actions"
+      "nav nav";
+    row-gap: 0;
+    min-height: 0;
+    padding-block: 0.6rem 0;
+  }
+
+  .site-logo {
+    grid-area: logo;
+  }
+
+  .site-logo img {
+    height: 26px;
+  }
+
+  .site-header-actions {
+    grid-area: actions;
+    gap: 0.45rem;
+  }
+
+  .chrome-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .site-nav {
+    grid-area: nav;
+    margin-top: 0.55rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .site-nav ul {
+    justify-content: space-between;
+    gap: 0;
+  }
+
+  .site-nav a {
+    font-size: 0.72rem;
+    padding-block: 0.7rem;
+  }
+
+  .site-nav a::after {
+    bottom: 0;
+  }
+}
+
+.theme-toggle.is-pressed {
+  animation: toggle-pop 0.4s var(--ease);
+}
+
+@keyframes toggle-pop {
+  0% {
+    transform: scale(0.8) rotate(-15deg);
+  }
+  55% {
+    transform: scale(1.15) rotate(8deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.theme-toggle .icon-sun,
+.theme-toggle .icon-moon {
+  display: none;
+}
+
+.theme-toggle .icon-moon {
+  display: block;
+}
+
+:root[data-theme="light"] .theme-toggle .icon-moon {
+  display: none;
+}
+
+:root[data-theme="light"] .theme-toggle .icon-sun {
+  display: block;
+}
+
+/* -------------------------------------------------- */
+/* Auth modal — přihlášení / založení profilu (demo,    */
+/* zatím bez skutečného backendu)                       */
+/* -------------------------------------------------- */
+/* Centred with grid rather than translate(-50%, -50%) so the enter/exit
+   animation (Modal.jsx) owns `transform` without fighting the centring. */
+.modal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 5, 6, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.auth-modal {
+  position: relative;
+  width: min(420px, 100%);
+  max-height: calc(100dvh - 2.5rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid rgba(var(--line-rgb), 0.16);
+  padding: clamp(1.5rem, 4vw, 2.25rem);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+}
+
+/* Phones: modals become bottom sheets, thumb-reachable. */
+@media (max-width: 640px) {
+  .modal-root {
+    place-items: end stretch;
+    padding: 0;
+  }
+
+  .auth-modal {
+    width: 100%;
+    max-height: 88dvh;
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  }
+
+  .auth-modal::before {
+    content: "";
+    display: block;
+    width: 40px;
+    height: 4px;
+    margin: -0.5rem auto 1rem;
+    border-radius: 999px;
+    background: rgba(var(--line-rgb), 0.2);
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--line-rgb), 0.18);
+  background: transparent;
+  color: var(--text);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.modal-close:hover {
+  border-color: var(--accent-text);
+  color: var(--accent-text);
+}
+
+.auth-modal-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  padding-right: 2rem;
+}
+
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(var(--line-rgb), 0.12);
+  margin: 1.5rem 0;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 0 0 0.85rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+.auth-tab.is-active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+.auth-form {
+  display: none;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.auth-form.is-active {
+  display: flex;
+}
+
+.auth-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.auth-form input {
+  background: var(--bg);
+  border: 1px solid rgba(var(--line-rgb), 0.18);
+  border-radius: 2px;
+  padding: 0.8rem 0.9rem;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  transition: border-color 0.2s var(--ease);
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.auth-form .btn-primary {
+  margin-top: 0.25rem;
+  border-radius: 2px;
+  width: 100%;
+}
+
+.auth-note {
+  margin-top: 1.25rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.auth-welcome {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.auth-logged-in .btn-ghost {
+  margin-top: 1.5rem;
+  width: 100%;
+  border-radius: 2px;
+}
+
+/* -------------------------------------------------- */
+/* Cart modal                                           */
+/* -------------------------------------------------- */
+.cart-section {
+  margin-top: 1.5rem;
+}
+
+.cart-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.cart-lines {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.cart-line {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(var(--line-rgb), 0.1);
+}
+
+.cart-line-info p {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.cart-line-meta {
+  margin-top: 0.15rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 400 !important;
+}
+
+.cart-line-price {
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cart-line-remove {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--line-rgb), 0.18);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  transition: border-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.cart-line-remove:hover {
+  border-color: rgba(150, 60, 58, 0.6);
+  color: rgba(150, 60, 58, 0.9);
+}
+
+.cart-empty {
+  margin-top: 1.5rem;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.cart-total[hidden] {
+  display: none;
+}
+
+.cart-total {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(var(--line-rgb), 0.14);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.cart-total strong {
+  font-size: 1.2rem;
+  color: var(--accent-text);
+}
+
+#cartCheckout[hidden] {
+  display: none;
+}
+
+#cartCheckout {
+  margin-top: 1.25rem;
+  width: 100%;
+  border-radius: 2px;
+}
+
+/* -------------------------------------------------- */
+/* Payment method modal                                 */
+/* -------------------------------------------------- */
+.payment-amount {
+  margin-top: 0.4rem;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--accent-text);
+}
+
+.payment-methods {
+  border: 0;
+  min-width: 0;
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.payment-method {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(var(--line-rgb), 0.16);
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease);
+}
+
+.payment-method:has(input:checked) {
+  border-color: var(--accent);
+}
+
+.payment-method input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+
+.payment-method-label {
+  flex: 1;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.payment-badges {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.pay-badge {
+  border: 1px solid rgba(var(--line-rgb), 0.2);
+  border-radius: 3px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+}
+
+#paymentConfirm {
+  margin-top: 1.5rem;
+  width: 100%;
+  border-radius: 2px;
+}
+
+/* -------------------------------------------------- */
+/* Hero — layout                                       */
+/* -------------------------------------------------- */
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100svh;
+  min-height: 100vh; /* fallback pro prohlížeče bez svh */
+  overflow: hidden;
+}
+
+/* Video zabírá celou sekci na výšku i šířku; vizuální rozdělení na
+   poloviny vzniká přes gradientní překryv, ne přes ostrou hranu. */
+.hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Tmavý gradientní překryv: vlevo plný, doprava plynule do průhledna */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(11, 11, 13, 0.95) 0%,
+    rgba(11, 11, 13, 0.9) 30%,
+    rgba(11, 11, 13, 0.55) 55%,
+    rgba(11, 11, 13, 0.1) 78%,
+    rgba(11, 11, 13, 0) 100%
+  );
+}
+
+/* -------------------------------------------------- */
+/* Hero — text (levá polovina)                         */
+/* -------------------------------------------------- */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  grid-column: 1 / 2;
+  display: flex;
+  align-items: center;
+  min-height: 100%;
+  padding-block: clamp(2rem, 6vh, 4rem);
+  padding-inline-start: var(--gutter);
+  padding-inline-end: clamp(1.25rem, 4vw, 3rem);
+}
+
+.hero-text {
+  max-width: 40rem;
+}
+
+.hero-claim {
+  position: relative;
+  color: var(--on-media);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(3.2rem, 7.6vw, 7.25rem);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  padding-top: 1.4rem;
+}
+
+.hero-claim .accent {
+  color: #ef4d42;
+}
+
+/* Short red "kerb" stripe above the claim, drawn in on load. */
+.hero-claim::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0.1em;
+  width: 84px;
+  height: 6px;
+  background: repeating-linear-gradient(90deg, #ef4d42 0 14px, #f5f4f1 14px 28px);
+  transform: skewX(-20deg) scaleX(0);
+  transform-origin: left center;
+  animation: kerb-in 0.9s var(--ease) 0.25s forwards;
+}
+
+@keyframes kerb-in {
+  to {
+    transform: skewX(-20deg) scaleX(1);
+  }
+}
+
+.hero-benefit {
+  margin-top: 1.5rem;
+  font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+  color: var(--on-media-muted);
+  max-width: 30rem;
+}
+
+/* Load-in stagger for the hero copy; --d is set per element in Hero.jsx. */
+.tw-enter {
+  opacity: 0;
+  transform: translateY(26px);
+  animation: tw-enter 0.95s var(--ease) forwards;
+  animation-delay: var(--d, 0s);
+}
+
+@keyframes tw-enter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-actions {
+  margin-top: 2.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.9rem 1.75rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: background-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  color: var(--on-media-muted);
+  font-size: 0.95rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(242, 242, 240, 0.35);
+  transition: color 0.2s var(--ease);
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus-visible {
+  color: var(--on-media);
+}
+
+.hero-back {
+  display: inline-block;
+  margin-top: 2.5rem;
+  font-size: 0.85rem;
+  color: var(--on-media-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(242, 242, 240, 0.3);
+  opacity: 0.75;
+  transition: opacity 0.2s var(--ease);
+}
+
+.hero-back:hover,
+.hero-back:focus-visible {
+  opacity: 1;
+}
+
+/* -------------------------------------------------- */
+/* Mobil — video jde na pozadí celé sekce, text přes celou šířku */
+/* -------------------------------------------------- */
+@media (max-width: 760px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-content {
+    grid-column: 1 / -1;
+    width: 100%;
+    padding-inline: var(--gutter);
+  }
+
+  .hero-text {
+    max-width: none;
+  }
+
+  .hero-overlay {
+    background: linear-gradient(
+      to bottom,
+      rgba(11, 11, 13, 0.35) 0%,
+      rgba(11, 11, 13, 0.62) 40%,
+      rgba(11, 11, 13, 0.9) 100%
+    );
+  }
+
+  .hero-content {
+    align-items: flex-end;
+    padding-block: 9rem 3.5rem;
+  }
+}
+/* -------------------------------------------------- */
+/* Booking wizard — Lotus-inspired: monochrome,        */
+/* uppercase tracked type, thin rules, minimal chrome  */
+/* -------------------------------------------------- */
+.booking {
+  position: relative;
+  background: var(--bg);
+  padding-block: clamp(4rem, 10vh, 7rem);
+  overflow: hidden;
+}
+
+.booking::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 55vw;
+  height: 55vw;
+  max-width: 900px;
+  max-height: 900px;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  opacity: 0.07;
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+.booking-wrap {
+  position: relative;
+  width: 100%;
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+
+.booking-eyebrow {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.booking-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: clamp(2rem, 4vw, 3.5rem);
+  align-items: start;
+}
+
+.booking-summary-side {
+  position: sticky;
+  top: calc(var(--header-h) + 1.5rem);
+  border: 1px solid rgba(var(--line-rgb), 0.14);
+  background: rgba(var(--line-rgb), 0.02);
+  padding: 1.5rem;
+}
+
+.side-rows {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+.side-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid rgba(var(--line-rgb), 0.08);
+}
+
+.side-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.side-row dt {
+  color: var(--text-muted);
+}
+
+.side-row dd {
+  font-weight: 600;
+  text-align: right;
+}
+
+.side-row.side-total dd {
+  color: var(--accent-text);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 800;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+/* Below 900px the side panel is hidden, so a slim strip keeps the chosen
+   length and running total visible above the wizard. */
+.booking-mobile-summary {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .booking-layout {
+    grid-template-columns: 1fr;
+  }
+  .booking-summary-side {
+    display: none;
+  }
+  .booking-mobile-summary {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(var(--line-rgb), 0.14);
+    background: rgba(var(--line-rgb), 0.03);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .booking-mobile-summary strong {
+    color: var(--accent-text);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 800;
+    font-size: 1.35rem;
+    line-height: 1;
+  }
+}
+
+/* -------------------------------------------------- */
+/* Section break — jen grafický divider mezi hero a     */
+/* wizardem, žádná fotka: pozadí stránky + diagonální   */
+/* pruhy a akcentová záře                                */
+/* -------------------------------------------------- */
+.section-break {
+  position: relative;
+  background: var(--bg);
+  border-block: 1px solid rgba(var(--line-rgb), 0.08);
+  overflow: hidden;
+}
+
+.section-break::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -35deg,
+    rgba(var(--accent-rgb), 0.06) 0px,
+    rgba(var(--accent-rgb), 0.06) 2px,
+    transparent 2px,
+    transparent 46px
+  );
+  pointer-events: none;
+}
+
+.section-break::after {
+  content: "";
+  position: absolute;
+  top: -35%;
+  left: -8%;
+  width: 46vw;
+  height: 46vw;
+  max-width: 760px;
+  max-height: 760px;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  opacity: 0.1;
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+.section-break-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: clamp(3rem, 9vh, 5.5rem) var(--gutter);
+}
+
+.section-break-content h2 {
+  margin-top: 0.6rem;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(3rem, 8.4vw, 7rem);
+  font-weight: 800;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  line-height: 0.9;
+}
+
+.section-break-lede {
+  margin-top: 1rem;
+  max-width: 34rem;
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  color: var(--text-muted);
+}
+
+/* -------------------------------------------------- */
+/* Step indicator                                      */
+/* -------------------------------------------------- */
+.booking-steps {
+  position: relative;
+  display: flex;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  list-style: none;
+  margin: 0 0 clamp(2rem, 5vh, 3rem);
+  padding: 0;
+  border-bottom: 1px solid rgba(var(--line-rgb), 0.12);
+  padding-bottom: 1.25rem;
+}
+
+/* Progress along the bottom rule; --progress (0–1) comes from Booking.jsx. */
+.booking-steps::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left center;
+  transition: transform 0.6s var(--ease);
+}
+
+.booking-step {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--text-muted);
+  opacity: 0.45;
+  transition: opacity 0.25s var(--ease), color 0.25s var(--ease);
+}
+
+.booking-step.is-active,
+.booking-step.is-done {
+  opacity: 1;
+}
+
+.booking-step.is-done:hover .step-num,
+.booking-step.is-active:hover .step-num {
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+/* Reset the native button so the step looks exactly like plain content;
+   it's only clickable (enabled) for steps you've already reached. */
+.booking-step-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.booking-step-btn:disabled {
+  cursor: default;
+}
+
+.booking-step-btn:focus-visible {
+  outline: 2px solid var(--accent-text);
+  outline-offset: 4px;
+  border-radius: 999px;
+}
+
+.step-num {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: grid;
+  place-items: center;
+  transition: border-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.booking-step.is-active .step-num {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.booking-step.is-done .step-num {
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.step-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* -------------------------------------------------- */
+/* Panes                                               */
+/* -------------------------------------------------- */
+.booking-pane {
+  display: none;
+}
+
+/* Panes stay mounted (step 2's form keeps its values), only the active one
+   is shown; it slides in from the side you're travelling towards. */
+.booking-pane.is-active {
+  display: block;
+  animation: pane-in-forward 0.5s var(--ease);
+}
+
+.booking-panel.is-back .booking-pane.is-active {
+  animation-name: pane-in-back;
+}
+
+@keyframes pane-in-forward {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pane-in-back {
+  from {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.pane-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+}
+
+/* -------------------------------------------------- */
+/* Step 1 — duration cards                             */
+/* -------------------------------------------------- */
+/* Separate cards rather than a 1px-gap grid on a coloured background: with
+   5 options any wrap left an empty grey cell. */
+.duration-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 10px;
+}
+
+.duration-card {
+  position: relative;
+  background: rgba(var(--line-rgb), 0.02);
+  border: 1px solid rgba(var(--line-rgb), 0.14);
+  border-radius: 2px;
+  padding: 1.6rem 1.25rem 1.4rem;
+  text-align: left;
+  color: var(--text);
+  cursor: pointer;
+  overflow: hidden;
+  transition: background-color 0.2s var(--ease), border-color 0.2s var(--ease), transform 0.25s var(--ease);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.duration-card:hover {
+  background: rgba(var(--line-rgb), 0.05);
+  border-color: rgba(var(--line-rgb), 0.3);
+  transform: translateY(-2px);
+}
+
+.duration-card.is-selected {
+  background: rgba(var(--accent-rgb), 0.1);
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+/* Corner check mark on the chosen length. */
+.duration-card.is-selected::after {
+  content: "✓";
+  position: absolute;
+  top: 0.65rem;
+  right: 0.75rem;
+  width: 1.4rem;
+  height: 1.4rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  animation: check-pop 0.35s var(--ease);
+}
+
+@keyframes check-pop {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+}
+
+.duration-hours {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 2.6rem;
+  font-weight: 800;
+  line-height: 0.9;
+}
+
+.duration-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.duration-price {
+  margin-top: auto;
+  padding-top: 0.6rem;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--accent-text);
+}
+
+/* Phones: one compact row per option. */
+@media (max-width: 640px) {
+  .duration-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .duration-card {
+    display: grid;
+    grid-template-columns: 4.2rem 1fr auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem 3rem 0.9rem 1rem;
+  }
+
+  .duration-card:hover {
+    transform: none;
+  }
+
+  .duration-hours {
+    font-size: 2rem;
+  }
+
+  .duration-price {
+    margin: 0;
+    padding: 0;
+  }
+
+  .duration-card.is-selected::after {
+    top: 50%;
+    margin-top: -0.7rem;
+  }
+}
+
+/* -------------------------------------------------- */
+/* Step 2 — form                                       */
+/* -------------------------------------------------- */
+.account-prompt {
+  max-width: 640px;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(var(--line-rgb), 0.14);
+  background: rgba(var(--line-rgb), 0.02);
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--accent-text);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.link-btn:hover {
+  color: var(--text);
+}
+
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 640px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.booking-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.form-full {
+  grid-column: 1 / -1;
+}
+
+.booking-form input,
+.booking-form select {
+  background: var(--bg);
+  border: 1px solid rgba(var(--line-rgb), 0.18);
+  border-radius: 2px;
+  padding: 0.85rem 1rem;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  transition: border-color 0.2s var(--ease);
+}
+
+.booking-form input:focus,
+.booking-form select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.18);
+}
+
+.booking-form [aria-invalid="true"] {
+  border-color: var(--accent-text);
+}
+
+.field-error {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--accent-text);
+}
+
+/* iOS zooms into any focused field under 16px; keep phones at 16px. */
+@media (max-width: 640px) {
+  .booking-form input,
+  .booking-form select,
+  .auth-form input {
+    font-size: 1rem;
+  }
+}
+
+.booking-form select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+    linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+  background-position: calc(100% - 1.2rem) center, calc(100% - 0.9rem) center;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+@media (max-width: 640px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* -------------------------------------------------- */
+/* Step 3 — calendar                                   */
+/* -------------------------------------------------- */
+.calendar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.calendar-month {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.calendar-nav {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid rgba(var(--line-rgb), 0.18);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.calendar-nav:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.calendar-nav:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 8px;
+}
+
+.cal-day {
+  aspect-ratio: 1;
+  border: 1px solid rgba(var(--line-rgb), 0.12);
+  border-radius: 2px;
+  background: rgba(var(--line-rgb), 0.02);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease), transform 0.25s var(--ease);
+}
+
+.cal-day:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.cal-day.is-selected {
+  animation: check-pop 0.35s var(--ease);
+}
+
+@media (max-width: 640px) {
+  .calendar-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.cal-day-weekday {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.cal-day-num {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.cal-day:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.cal-day.is-busy .cal-day-num {
+  color: var(--accent-text);
+}
+
+.cal-day.is-selected {
+  background: #2f9e52;
+  border-color: #2f9e52;
+}
+
+.cal-day.is-selected .cal-day-num,
+.cal-day.is-selected .cal-day-weekday {
+  color: #fff;
+}
+
+.cal-day:disabled {
+  cursor: not-allowed;
+}
+
+.cal-day.is-event {
+  border-color: rgba(150, 60, 58, 0.5);
+  opacity: 0.85;
+}
+
+.cal-day.is-event .cal-day-num,
+.cal-day.is-event .cal-day-weekday {
+  color: rgba(150, 60, 58, 0.9);
+}
+
+.cal-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.calendar-empty-note {
+  grid-column: 1 / -1;
+  padding: 1.5rem 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.calendar-legend {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.calendar-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.dot-free {
+  background: rgba(var(--line-rgb), 0.5);
+}
+
+.dot-busy {
+  background: var(--accent);
+}
+
+.dot-event {
+  background: rgba(150, 60, 58, 0.85);
+}
+
+.slot-panel {
+  margin-top: 2rem;
+  border-top: 1px solid rgba(var(--line-rgb), 0.12);
+  padding-top: 1.5rem;
+}
+
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.6rem;
+}
+
+.slot-btn {
+  border: 1px solid rgba(var(--line-rgb), 0.18);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--text);
+  padding: 0.7rem 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease);
+}
+
+.slot-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.slot-btn:disabled {
+  opacity: 0.3;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+/* Celý rozsah vybrané N-hodinové rezervace, ne jen počáteční hodina —
+   overridne i :disabled vzhled (viz booking.js: hodina v rozsahu
+   nemusí sama o sobě vyhovovat jako start, ale je součástí rezervace). */
+.slot-btn.is-in-range {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  opacity: 1;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.slot-btn.is-range-start {
+  box-shadow: inset 0 0 0 2px rgba(23, 19, 10, 0.35);
+}
+
+.slot-taken-note {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+/* -------------------------------------------------- */
+/* Step 4 — summary                                    */
+/* -------------------------------------------------- */
+.summary-card {
+  border: 1px solid rgba(var(--line-rgb), 0.14);
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  display: grid;
+  gap: 1rem;
+  max-width: 640px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.9rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(var(--line-rgb), 0.08);
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.summary-row dt {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.summary-row dd {
+  font-weight: 600;
+  text-align: right;
+}
+
+.summary-row.summary-total dd {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 2.2rem;
+  line-height: 1;
+  color: var(--accent-text);
+  font-weight: 800;
+}
+
+/* -------------------------------------------------- */
+/* Actions / buttons                                   */
+/* -------------------------------------------------- */
+.booking-actions {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.booking-actions[hidden] {
+  display: none;
+}
+
+.btn-primary,
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 1.75rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background-color 0.2s var(--ease), border-color 0.2s var(--ease), opacity 0.2s var(--ease), transform 0.2s var(--ease), box-shadow 0.25s var(--ease);
+}
+
+.btn-primary {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px -14px rgba(var(--accent-rgb), 0.75);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-primary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid rgba(var(--line-rgb), 0.22);
+  color: var(--text);
+}
+
+.btn-ghost:hover {
+  border-color: var(--text);
+}
+
+.booking-success {
+  margin-top: 1.5rem;
+  border: 1px solid #2f9e52;
+  background: rgba(47, 158, 82, 0.08);
+  padding: 1.5rem;
+  max-width: 640px;
+  animation: pane-in-forward 0.5s var(--ease);
+}
+
+.booking-success-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.booking-success-title::before {
+  content: "✓";
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #2f9e52;
+  color: #fff;
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-size: 1rem;
+  animation: check-pop 0.45s var(--ease) 0.15s backwards;
+}
+
+.success-note {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.booking-success .btn-ghost {
+  margin-top: 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .booking-steps {
+    gap: 0.75rem;
+  }
+  .step-label {
+    display: none;
+  }
+  .summary-row {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .summary-row dd {
+    text-align: left;
+  }
+}
+
+/* -------------------------------------------------- */
+/* Merch                                                */
+/* -------------------------------------------------- */
+.merch {
+  background: var(--bg);
+  border-top: 1px solid rgba(var(--line-rgb), 0.08);
+  padding-block: clamp(4rem, 10vh, 7rem);
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
+
+.merch-intro {
+  margin-bottom: clamp(2rem, 5vh, 3rem);
+}
+
+.merch-intro h2 {
+  margin-top: 0.6rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(2.6rem, 6vw, 4.5rem);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+}
+
+.merch-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.merch-card {
+  background: rgba(var(--line-rgb), 0.02);
+  border: 1px solid rgba(var(--line-rgb), 0.12);
+  border-radius: 2px;
+  padding: 1.25rem 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  transition: border-color 0.3s var(--ease), transform 0.35s var(--ease);
+}
+
+.merch-card:hover {
+  border-color: rgba(var(--line-rgb), 0.28);
+  transform: translateY(-4px);
+}
+
+.merch-visual {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  margin-bottom: 1.1rem;
+  overflow: hidden;
+  background: #d9d9d9;
+}
+
+.merch-visual picture,
+.merch-visual img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.merch-visual img {
+  object-fit: cover;
+  transition: transform 0.7s var(--ease);
+}
+
+.merch-card:hover .merch-visual img {
+  transform: scale(1.05);
+}
+
+.merch-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.merch-price {
+  color: var(--accent-text);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+/* Tablets: two-up. Phones: a swipeable row that peeks the next item. */
+@media (max-width: 900px) {
+  .merch-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .merch-grid {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 78%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    margin-inline: calc(var(--gutter) * -1);
+    padding-inline: var(--gutter);
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+
+  .merch-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .merch-card {
+    scroll-snap-align: start;
+  }
+
+  .merch-card:hover {
+    transform: none;
+  }
+}
+
+.merch-add {
+  margin-top: 0.75rem;
+  border-radius: 2px;
+  width: 100%;
+}
+
+.merch-note {
+  margin-top: 1.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* -------------------------------------------------- */
+/* Footer                                              */
+/* -------------------------------------------------- */
+.site-footer {
+  background: var(--bg);
+  border-top: 1px solid rgba(var(--line-rgb), 0.1);
+  padding-block: clamp(3rem, 8vh, 5rem) 2rem;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 420px;
+}
+
+.footer-wrap {
+  width: 100%;
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr 1fr;
+  gap: 2.5rem;
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid rgba(var(--line-rgb), 0.08);
+}
+
+.footer-brand {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.footer-tagline {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  max-width: 28ch;
+}
+
+.footer-col-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.footer-col ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0;
+  font-size: 0.88rem;
+}
+
+.footer-col li {
+  color: var(--text-muted);
+}
+
+.footer-col a {
+  color: var(--text);
+  opacity: 0.85;
+  transition: opacity 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.footer-col a:hover {
+  opacity: 1;
+  color: var(--accent-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footer-bottom {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.footer-bottom a {
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footer-bottom a:hover {
+  color: var(--text);
+}
+
+@media (max-width: 760px) {
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 460px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* -------------------------------------------------- */
+/* Toast — potvrzení přidání do košíku                  */
+/* -------------------------------------------------- */
+.toast-region {
+  position: fixed;
+  left: 50%;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom));
+  z-index: 95;
+  transform: translateX(-50%);
+  width: min(420px, calc(100vw - 2rem));
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.8rem 0.8rem 0.8rem 1rem;
+  background: #151517;
+  color: #f2f2f0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 3px solid #ef4d42;
+  box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.8);
+  pointer-events: auto;
+}
+
+.toast-text {
+  flex: 1;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.toast-text strong {
+  display: block;
+  font-weight: 700;
+}
+
+.toast-text span {
+  color: #b9b9be;
+  font-size: 0.8rem;
+}
+
+.toast-action {
+  flex-shrink: 0;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 2px;
+  background: transparent;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease);
+}
+
+.toast-action:hover {
+  border-color: #ef4d42;
+  background: rgba(239, 77, 66, 0.12);
+}
