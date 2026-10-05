@@ -1979,45 +1979,24 @@ html.theme-wipe body {
   width: 100%;
   aspect-ratio: 1;
   margin-bottom: 1.1rem;
-  display: grid;
-  place-items: center;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 50% 45%, rgba(var(--accent-rgb), 0.12), transparent 60%),
-    rgba(var(--line-rgb), 0.03);
+  background: #d9d9d9;
 }
 
-.merch-garment {
-  position: relative;
-  width: 72%;
-  aspect-ratio: 1;
-  transition: transform 0.6s var(--ease);
-}
-
-.merch-card:hover .merch-garment {
-  transform: rotate(-4deg) scale(1.05);
-}
-
-.merch-garment svg {
+.merch-visual picture,
+.merch-visual img {
+  display: block;
   width: 100%;
   height: 100%;
-  color: rgba(var(--line-rgb), 0.4);
 }
 
-/* Sized to the garment, not the tile: a chest print on the tee/hoodie,
-   a front-panel badge on the cap. */
-.merch-logo {
-  position: absolute;
-  width: 30%;
-  height: auto;
-  top: 44%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+.merch-visual img {
+  object-fit: cover;
+  transition: transform 0.7s var(--ease);
 }
 
-.merch-logo--cap {
-  width: 34%;
-  top: 43%;
+.merch-card:hover .merch-visual img {
+  transform: scale(1.05);
 }
 
 .merch-card h3 {
