@@ -136,7 +136,7 @@ export default function Built() {
               name: "sportera-mapa-fakta",
               widths: [500, 900],
               sizes: "(min-width: 720px) 340px, 100vw",
-              alt: "Grafika Sportera: 1 135 sportovišť po celém Česku, kam se nemusí platit vstup",
+              alt: "Grafika Sportera: 2 526 sportovišť po celém Česku, kam se nemusí platit vstup",
               width: "1080",
               height: "1350",
             }}
