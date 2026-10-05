@@ -1647,6 +1647,20 @@ html.theme-wipe body {
   color: rgba(150, 60, 58, 0.9);
 }
 
+/* Otevřený den, kam se zvolená délka tréninku nevejde */
+.cal-day.is-full {
+  opacity: 0.4;
+  border-style: dashed;
+}
+
+.cal-day-note {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
 .cal-dot {
   width: 5px;
   height: 5px;
@@ -1689,6 +1703,10 @@ html.theme-wipe body {
 
 .dot-busy {
   background: var(--accent);
+}
+
+.dot-full {
+  background: rgba(var(--line-rgb), 0.18);
 }
 
 .dot-event {
@@ -1743,6 +1761,36 @@ html.theme-wipe body {
 
 .slot-btn.is-range-start {
   box-shadow: inset 0 0 0 2px rgba(23, 19, 10, 0.35);
+}
+
+/* Náhled bloku, který by rezervace zabrala při začátku v hodině pod kurzorem */
+.slot-btn.is-preview {
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.14);
+  opacity: 1;
+}
+
+/* Přeškrtnutý je jen čas obsazené hodiny, ne jméno pod ním */
+.slot-btn:disabled {
+  text-decoration: none;
+}
+
+.slot-btn.is-taken .slot-time {
+  text-decoration: line-through;
+}
+
+.slot-time {
+  display: block;
+}
+
+.slot-hint {
+  margin: -0.25rem 0 1rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.slot-hint strong {
+  color: var(--text);
 }
 
 .slot-taken-note {
