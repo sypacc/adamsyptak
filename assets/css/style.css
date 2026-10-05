@@ -1571,3 +1571,82 @@ ul {
   position: relative;
   z-index: 1;
 }
+
+/* -------------------------------------------------- */
+/* Card tags (oblasti odpovědnosti)                    */
+/* -------------------------------------------------- */
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+.card-tags li {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* -------------------------------------------------- */
+/* Motto                                               */
+/* -------------------------------------------------- */
+.motto {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(5rem, 12vw, 9rem) 0;
+  text-align: center;
+  border-top: 1px solid var(--surface-border);
+  background:
+    radial-gradient(60% 80% at 50% 50%, rgba(var(--accent-rgb), 0.1), transparent 70%);
+}
+
+.motto blockquote p {
+  font-size: clamp(2rem, 6.5vw, 4.5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.motto .accent {
+  color: var(--accent);
+}
+
+.motto figcaption {
+  margin-top: 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-faint);
+}
+
+.motto-star {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  font-size: 1.1rem;
+  color: var(--accent);
+  opacity: 0.25;
+  pointer-events: none;
+  animation: twinkle 3.2s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+}
+
+.motto-star--sm {
+  font-size: 0.7rem;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.85); }
+  50% { opacity: 0.85; transform: scale(1.15); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motto-star,
+  .hero-dot {
+    animation: none !important;
+  }
+}
