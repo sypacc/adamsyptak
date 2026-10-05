@@ -86,7 +86,7 @@ function formatDate(dateObj) {
 
 export default function Booking() {
   const { user, openAuthModal } = useAuth();
-  const { setReservation, clearReservation } = useCart();
+  const { setReservation, clearReservation, paidOrder } = useCart();
 
   const [step, setStep] = useState(1);
   const [maxStep, setMaxStep] = useState(1);
@@ -147,9 +147,23 @@ export default function Booking() {
       price: duration.price,
       dateLabel: formatDate(new Date(selectedDate + "T00:00:00")),
       timeLabel: pad(startHour) + ":00–" + pad(startHour + duration.hours) + ":00",
+      // Přesný termín, aby šel trénink zaplatit i z košíku a zapsat jako obsazený.
+      slot: { dateKey: selectedDate, start: startHour, hours: duration.hours },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, duration, selectedDate, startHour]);
+
+  // Trénink zaplacený přes košík: pokud jde o právě vybraný termín,
+  // formulář přejde rovnou do potvrzení.
+  useEffect(() => {
+    const slot = paidOrder && paidOrder.reservation && paidOrder.reservation.slot;
+    if (!slot || isSuccess || !duration) return;
+    if (slot.dateKey === selectedDate && slot.start === startHour && slot.hours === duration.hours) {
+      setIsPaymentOpen(false);
+      setIsSuccess(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paidOrder]);
 
   useEffect(() => {
     if (isSuccess && successRef.current) {
