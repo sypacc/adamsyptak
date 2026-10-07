@@ -9,7 +9,7 @@ const FACTS = [
 
 export default function About() {
   return (
-    <section className="section" id="o-mne" aria-labelledby="o-mne-heading">
+    <section className="section section--light" id="o-mne" aria-labelledby="o-mne-heading">
       <div className="wrap">
         <span className="section-watermark" aria-hidden="true">01</span>
         <div className="about-layout">

@@ -886,14 +886,24 @@ ul {
 /* -------------------------------------------------- */
 /* Marquee (spolupráce a zmínky)                       */
 /* -------------------------------------------------- */
+/* Clip (not hidden, so no scroll container) the askew marquee tape's
+   overhang instead of letting it widen the page. */
+main {
+  overflow-x: clip;
+}
+
+/* A bright sky-blue tape laid slightly askew across the seam under the
+   hero: the first light note on the page, before the paper sections. */
 .marquee {
   position: relative;
+  z-index: 2;
   overflow: hidden;
-  border-block: 1px solid var(--surface-border);
-  background: rgba(255, 255, 255, 0.02);
-  padding: 1.1rem 0;
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
-  mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  width: calc(100% + 4rem);
+  margin: clamp(0.5rem, 2vw, 1.5rem) -2rem;
+  background: linear-gradient(100deg, var(--accent-light), var(--accent) 45%, #b9e2f2);
+  padding: 1.05rem 0;
+  transform: rotate(-1.6deg);
+  box-shadow: 0 18px 40px -18px rgba(var(--accent-rgb), 0.55);
 }
 
 .marquee-track {
@@ -915,8 +925,9 @@ ul {
   display: flex;
   align-items: center;
   font-size: clamp(1rem, 2vw, 1.25rem);
-  font-weight: 600;
-  color: var(--text-muted);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #0b1a22;
   white-space: nowrap;
 }
 
@@ -924,8 +935,8 @@ ul {
   content: "✦";
   margin: 0 clamp(1.5rem, 4vw, 2.75rem);
   font-size: 0.6em;
-  color: var(--accent);
-  opacity: 0.6;
+  color: #0b1a22;
+  opacity: 0.45;
 }
 
 @keyframes marquee {
@@ -1858,4 +1869,121 @@ ul {
 
 .hero-inner > .hero-stats {
   margin-top: clamp(2.5rem, 6vw, 4rem);
+}
+
+/* -------------------------------------------------- */
+/* Light "paper" sections                              */
+/* -------------------------------------------------- */
+/* Every other section is a warm, light sheet laid over the dark page with
+   rounded corners and a strip of the dark showing at its sides, so the page
+   breathes in a dark–light rhythm. The section redefines the palette tokens
+   locally, so cards, timeline, facts and links re-theme themselves. */
+.section.section--light {
+  --bg: #f6f3ec;
+  --bg-alt: #efebe2;
+  --surface: #ffffff;
+  --surface-border: #e4dfd3;
+  --text: #121214;
+  --text-muted: #4f4f58;
+  --text-faint: #6a6a73;
+  --accent: #1b6e94;
+  --accent-light: #8ecae6;
+  --accent-rgb: 27, 110, 148;
+  --accent-soft: rgba(142, 202, 230, 0.22);
+  --border: 1px solid rgba(18, 18, 20, 0.08);
+
+  color-scheme: light;
+  color: var(--text);
+  margin: clamp(0.75rem, 2vw, 1.25rem) clamp(0.5rem, 1.6vw, 1.25rem);
+  border-radius: clamp(1.5rem, 4vw, 2.75rem);
+  overflow: hidden;
+  background-color: var(--bg);
+  /* Sky wash in one corner, a warmer one in the other, over a faint dot
+     grid: light, airy, and still clearly a material. */
+  background-image:
+    radial-gradient(60% 55% at 100% 0%, rgba(142, 202, 230, 0.45), transparent 70%),
+    radial-gradient(50% 50% at 0% 100%, rgba(255, 214, 170, 0.35), transparent 70%),
+    radial-gradient(circle at 1px 1px, rgba(18, 18, 20, 0.09) 1px, transparent 1.5px);
+  background-size: auto, auto, 22px 22px;
+  box-shadow: 0 40px 90px -50px rgba(142, 202, 230, 0.35);
+}
+
+.section.section--light::before {
+  display: none;
+}
+
+.section--light .section-watermark {
+  opacity: 0.06;
+  color: var(--accent);
+}
+
+.section--light ::selection {
+  background: var(--accent-light);
+  color: #0b0b0d;
+}
+
+/* Cards on paper: white, lifted by a soft cool shadow instead of borders
+   glowing out of the dark. */
+.section--light .card,
+.section--light .principle,
+.section--light .facts {
+  box-shadow: 0 1px 2px rgba(18, 18, 20, 0.04), 0 18px 40px -24px rgba(27, 60, 80, 0.25);
+}
+
+.section--light .card:hover,
+.section--light .principle:hover {
+  border-color: rgba(var(--accent-rgb), 0.45);
+  box-shadow: 0 1px 2px rgba(18, 18, 20, 0.04), 0 30px 60px -28px rgba(27, 110, 148, 0.4);
+}
+
+.section--light .card::before,
+.section--light .principle::before,
+.section--light .spotlight::before {
+  background: radial-gradient(
+    var(--spot-size, 320px) circle at var(--mx, 50%) var(--my, 50%),
+    rgba(142, 202, 230, 0.35),
+    transparent 62%
+  );
+}
+
+/* Principle numbers become soft sky-blue chips */
+.section--light .principle-index {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.6rem;
+  height: 2.6rem;
+  padding: 0 0.6rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  font-size: 1rem;
+  opacity: 1;
+}
+
+.section--light .facts-title {
+  color: var(--accent);
+}
+
+.section--light .timeline-item::before {
+  box-shadow: 0 0 0 4px var(--bg), 0 0 0 5px rgba(var(--accent-rgb), 0.25);
+}
+
+/* On entry the sheet opens out from slightly smaller, like a page being
+   laid down. Compositor-only; browsers without scroll timelines skip it. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .section.section--light {
+      animation: sheet-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    transform: scale(0.94);
+  }
+  to {
+    transform: scale(1);
+  }
 }
