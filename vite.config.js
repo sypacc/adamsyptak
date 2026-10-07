@@ -14,6 +14,7 @@ export default defineConfig({
       input: {
         main: resolve(root, "index.html"),
         project: resolve(root, "project/index.html"),
+        sluzba: resolve(root, "sluzba/index.html"),
       },
     },
   },

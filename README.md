@@ -1,7 +1,7 @@
 # Adam Sypták — portfolio
 
 Osobní portfolio + školní projekt TrackWise, React (Vite), dvě samostatné stránky
-v jednom buildu: `/` (portfolio) a `/project/` (TrackWise).
+v jednom buildu: `/` (portfolio), `/project/` (TrackWise) a `/sluzba/` (nový školní projekt — služba).
 
 ## Struktura
 
@@ -19,6 +19,9 @@ src/
   project-main.jsx         — spuštění TrackWise
   trackwise/               — TrackWise: komponenty, contexty (téma, účet, košík), wizard
   styles/trackwise.css     — styly TrackWise
+  sluzba-main.jsx          — spuštění projektu Služba (vstup sluzba/index.html)
+  sluzba/                  — projekt Služba; texty v sluzba/content.js
+  styles/sluzba.css        — styly projektu Služba
 public/                    — statické soubory kopírované beze změny (fotky, video, OG, 404)
 media-src/                 — originální fotky/logo v plné kvalitě (nenasazují se)
 ```
