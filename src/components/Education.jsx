@@ -2,7 +2,7 @@ import SplitHeading from "./SplitHeading.jsx";
 
 export default function Education() {
   return (
-    <section className="section" id="vzdelani" aria-labelledby="vzdelani-heading">
+    <section className="section section--light" id="vzdelani" aria-labelledby="vzdelani-heading">
       <div className="wrap">
         <span className="section-watermark" aria-hidden="true">04</span>
         <div className="split">
