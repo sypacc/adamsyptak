@@ -11,6 +11,7 @@ import Marquee from "./components/Marquee.jsx";
 import Motto from "./components/Motto.jsx";
 import { useSiteEffects } from "./hooks/useSiteEffects.js";
 import { useSmoothScroll } from "./hooks/useSmoothScroll.js";
+import { useDayNight } from "./hooks/useDayNight.js";
 
 export default function App() {
   const headerRef = useRef(null);
@@ -22,6 +23,7 @@ export default function App() {
 
   useSiteEffects({ headerRef, navRef, navIndicatorRef, contoursElRef, contoursSvgRef, glowElRef });
   useSmoothScroll();
+  useDayNight();
 
   return (
     <>
