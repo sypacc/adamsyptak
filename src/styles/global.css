@@ -17,7 +17,9 @@
   --font-sans: "Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono Variable", "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
 
-  --wrap: 1080px;
+  /* Grows with the screen so wide monitors aren't a narrow strip in the
+     middle of a lot of empty dark. */
+  --wrap: clamp(1080px, 80vw, 1480px);
   --gutter: clamp(1.25rem, 5vw, 3rem);
   --radius: 14px;
   --border: 1px solid rgba(255, 255, 255, 0.14);
@@ -669,7 +671,7 @@ ul {
 
 @media (min-width: 900px) {
   .hero-layout {
-    grid-template-columns: 1fr minmax(280px, 380px);
+    grid-template-columns: 1fr minmax(280px, 440px);
     gap: 4rem;
   }
 }
@@ -760,7 +762,7 @@ ul {
 .hero-photo {
   position: relative;
   width: 100%;
-  max-width: 380px;
+  max-width: 440px;
   aspect-ratio: 4 / 5;
   border-radius: calc(var(--radius) + 6px);
   border: var(--border);
@@ -989,9 +991,6 @@ main {
   background: linear-gradient(to right, transparent, var(--surface-border) 50%, transparent);
 }
 
-.section:nth-of-type(even) {
-  background: rgba(255, 255, 255, 0.025);
-}
 
 .section-watermark {
   position: absolute;
@@ -1477,6 +1476,12 @@ main {
   }
 }
 
+@media (min-width: 1240px) {
+  .principles {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
 .principle {
   background: var(--surface);
   border: var(--border);
@@ -1808,7 +1813,6 @@ main {
   overflow: hidden;
   padding: clamp(5rem, 12vw, 9rem) 0;
   text-align: center;
-  border-top: 1px solid var(--surface-border);
   background:
     radial-gradient(60% 80% at 50% 50%, rgba(var(--accent-rgb), 0.1), transparent 70%);
 }
@@ -1874,10 +1878,11 @@ main {
 /* -------------------------------------------------- */
 /* Light "paper" sections                              */
 /* -------------------------------------------------- */
-/* Every other section is a warm, light sheet laid over the dark page with
-   rounded corners and a strip of the dark showing at its sides, so the page
-   breathes in a dark–light rhythm. The section redefines the palette tokens
-   locally, so cards, timeline, facts and links re-theme themselves. */
+/* Every other section turns from night to day: the dark page fades through
+   a deep blue and a sky blue into warm paper, and back out into the dark at
+   the bottom, like dawn and dusk. No hard edge anywhere. The section
+   redefines the palette tokens locally, so cards, timeline, facts and links
+   re-theme themselves. */
 .section.section--light {
   --bg: #f6f3ec;
   --bg-alt: #efebe2;
@@ -1891,25 +1896,39 @@ main {
   --accent-rgb: 27, 110, 148;
   --accent-soft: rgba(142, 202, 230, 0.22);
   --border: 1px solid rgba(18, 18, 20, 0.08);
+  --fade: clamp(140px, 15vw, 280px);
 
   color-scheme: light;
   color: var(--text);
-  margin: clamp(0.75rem, 2vw, 1.25rem) clamp(0.5rem, 1.6vw, 1.25rem);
-  border-radius: clamp(1.5rem, 4vw, 2.75rem);
-  overflow: hidden;
-  background-color: var(--bg);
-  /* Sky wash in one corner, a warmer one in the other, over a faint dot
-     grid: light, airy, and still clearly a material. */
-  background-image:
-    radial-gradient(60% 55% at 100% 0%, rgba(142, 202, 230, 0.45), transparent 70%),
-    radial-gradient(50% 50% at 0% 100%, rgba(255, 214, 170, 0.35), transparent 70%),
-    radial-gradient(circle at 1px 1px, rgba(18, 18, 20, 0.09) 1px, transparent 1.5px);
-  background-size: auto, auto, 22px 22px;
-  box-shadow: 0 40px 90px -50px rgba(142, 202, 230, 0.35);
+  isolation: isolate;
+  padding-block: calc(var(--fade) * 0.8 + clamp(1rem, 3vw, 2.5rem));
+  background: linear-gradient(
+    to bottom,
+    transparent 0,
+    rgba(16, 38, 52, 0.92) calc(var(--fade) * 0.3),
+    #a9d4e8 calc(var(--fade) * 0.72),
+    var(--bg) var(--fade),
+    var(--bg) calc(100% - var(--fade)),
+    #a9d4e8 calc(100% - var(--fade) * 0.72),
+    rgba(16, 38, 52, 0.92) calc(100% - var(--fade) * 0.3),
+    transparent 100%
+  );
 }
 
+/* Paper texture (dot grid) and the soft sky/peach washes live on their own
+   layer, masked so they only appear once the sky has turned to paper. */
 .section.section--light::before {
-  display: none;
+  inset: 0;
+  height: auto;
+  z-index: -1;
+  background-color: transparent;
+  background-image:
+    radial-gradient(45% 40% at 92% 22%, rgba(142, 202, 230, 0.5), transparent 70%),
+    radial-gradient(40% 40% at 6% 80%, rgba(255, 214, 170, 0.4), transparent 70%),
+    radial-gradient(circle at 1px 1px, rgba(18, 18, 20, 0.09) 1px, transparent 1.5px);
+  background-size: auto, auto, 22px 22px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent calc(var(--fade) * 0.7), #000 calc(var(--fade) * 1.4), #000 calc(100% - var(--fade) * 1.4), transparent calc(100% - var(--fade) * 0.7));
+  mask-image: linear-gradient(to bottom, transparent calc(var(--fade) * 0.7), #000 calc(var(--fade) * 1.4), #000 calc(100% - var(--fade) * 1.4), transparent calc(100% - var(--fade) * 0.7));
 }
 
 .section--light .section-watermark {
@@ -1967,23 +1986,8 @@ main {
   box-shadow: 0 0 0 4px var(--bg), 0 0 0 5px rgba(var(--accent-rgb), 0.25);
 }
 
-/* On entry the sheet opens out from slightly smaller, like a page being
-   laid down. Compositor-only; browsers without scroll timelines skip it. */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .section.section--light {
-      animation: sheet-in linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 70%;
-    }
-  }
-}
-
-@keyframes sheet-in {
-  from {
-    transform: scale(0.94);
-  }
-  to {
-    transform: scale(1);
-  }
+/* The dusk fade already separates the dark section that follows; its own
+   hairline divider would draw a hard edge right where the fade ends. */
+.section--light + .section::before {
+  display: none;
 }
