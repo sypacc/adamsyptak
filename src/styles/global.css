@@ -24,8 +24,6 @@
   --radius: 14px;
   --line: rgba(255, 255, 255, 0.14);
   --border: 1px solid var(--line);
-  --header-bg: rgba(11, 11, 13, 0.72);
-  --paper-dots: 0;
 
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
@@ -82,7 +80,7 @@ body::after {
   inset: 0;
   z-index: 300;
   pointer-events: none;
-  opacity: 0.045;
+  opacity: calc(0.045 - var(--day) * 0.025);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -231,7 +229,7 @@ ul {
   height: 640px;
   margin: -320px 0 0 -320px;
   border-radius: 50%;
-  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  background: radial-gradient(circle, #8ecae6 0%, transparent 70%);
   filter: blur(30px);
   opacity: calc(0.05 + var(--glow-strength) * 0.14);
   transition: opacity 0.6s linear;
@@ -1871,48 +1869,45 @@ main {
 /* -------------------------------------------------- */
 /* Day / night                                         */
 /* -------------------------------------------------- */
-/* The page is one continuous surface. When a light section (About,
-   Thinking, Education) reaches the middle of the screen, useDayNight puts
-   .is-day on <html> and the whole palette eases from night to day; leaving
-   it eases back. No section has its own background, so there is never an
-   edge, a band or a tile, just the light changing. The palette tokens are
-   registered so the browser can interpolate them. */
-@property --bg { syntax: "<color>"; inherits: true; initial-value: #0b0b0d; }
-@property --bg-alt { syntax: "<color>"; inherits: true; initial-value: #121214; }
-@property --surface { syntax: "<color>"; inherits: true; initial-value: #16161a; }
-@property --surface-border { syntax: "<color>"; inherits: true; initial-value: #232327; }
-@property --text { syntax: "<color>"; inherits: true; initial-value: #f2f2f0; }
-@property --text-muted { syntax: "<color>"; inherits: true; initial-value: #9a9aa2; }
-@property --text-faint { syntax: "<color>"; inherits: true; initial-value: #80808a; }
-@property --accent { syntax: "<color>"; inherits: true; initial-value: #8ecae6; }
-@property --accent-soft { syntax: "<color>"; inherits: true; initial-value: rgba(142, 202, 230, 0.12); }
-@property --line { syntax: "<color>"; inherits: true; initial-value: rgba(255, 255, 255, 0.14); }
-@property --header-bg { syntax: "<color>"; inherits: true; initial-value: rgba(11, 11, 13, 0.72); }
-@property --paper-dots { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --tday {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
 
+/* The page is one continuous surface whose light follows the scroll.
+   useDayNight sets --day (0 = night, 1 = day) from how far a light section
+   (About, Thinking, Education) has moved into the middle of the screen,
+   smoothed frame by frame, and every palette token is a mix of its night
+   and day value. Text must never fade into a mid-tone background, so it
+   doesn't follow the scroll: --tday flips 0/1 where light and dark text
+   contrast equally with the background and eases over a short transition. No section has its own background: there
+   is never an edge, a band or a tile, only the light changing. */
 :root {
-  --daylight: 0.9s cubic-bezier(0.45, 0, 0.25, 1);
-  transition:
-    --bg var(--daylight), --bg-alt var(--daylight), --surface var(--daylight),
-    --surface-border var(--daylight), --text var(--daylight), --text-muted var(--daylight),
-    --text-faint var(--daylight), --accent var(--daylight), --accent-soft var(--daylight),
-    --line var(--daylight), --header-bg var(--daylight), --paper-dots var(--daylight);
+  --day: 0;
+  --tday: 0;
+  --bg: color-mix(in oklab, #f6f3ec calc(var(--day) * 100%), #0b0b0d);
+  --bg-alt: color-mix(in oklab, #efebe2 calc(var(--day) * 100%), #121214);
+  --surface: color-mix(in oklab, #ffffff calc(var(--day) * 100%), #16161a);
+  --surface-border: color-mix(in oklab, #e4dfd3 calc(var(--day) * 100%), #232327);
+  --line: color-mix(in oklab, rgba(18, 18, 20, 0.09) calc(var(--day) * 100%), rgba(255, 255, 255, 0.14));
+  --header-bg: color-mix(in oklab, rgba(246, 243, 236, 0.78) calc(var(--day) * 100%), rgba(11, 11, 13, 0.72));
+  --accent-soft: color-mix(in oklab, rgba(142, 202, 230, 0.24) calc(var(--day) * 100%), rgba(142, 202, 230, 0.12));
+  --text: color-mix(in oklab, #121214 calc(var(--tday) * 100%), #f2f2f0);
+  --text-muted: color-mix(in oklab, #4f4f58 calc(var(--tday) * 100%), #9a9aa2);
+  --text-faint: color-mix(in oklab, #6a6a73 calc(var(--tday) * 100%), #80808a);
+  --accent: color-mix(in oklab, #1b6e94 calc(var(--tday) * 100%), #8ecae6);
+  transition: --tday 0.5s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    transition: none;
+  }
 }
 
 html.is-day {
-  --bg: #f6f3ec;
-  --bg-alt: #efebe2;
-  --surface: #ffffff;
-  --surface-border: #e4dfd3;
-  --text: #121214;
-  --text-muted: #4f4f58;
-  --text-faint: #6a6a73;
-  --accent: #1b6e94;
-  --accent-soft: rgba(142, 202, 230, 0.24);
   --accent-rgb: 27, 110, 148;
-  --line: rgba(18, 18, 20, 0.09);
-  --header-bg: rgba(246, 243, 236, 0.78);
-  --paper-dots: 1;
   color-scheme: light;
 }
 
@@ -1924,7 +1919,7 @@ body::before {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: var(--paper-dots);
+  opacity: var(--day);
   background-image:
     radial-gradient(45% 45% at 95% 10%, rgba(142, 202, 230, 0.45), transparent 70%),
     radial-gradient(40% 45% at 5% 95%, rgba(255, 214, 170, 0.35), transparent 70%),
@@ -1932,19 +1927,6 @@ body::before {
   background-size: auto, auto, 22px 22px;
 }
 
-/* By day the background glows stay sky blue instead of following the
-   darker daytime accent, and the night grain steps back. */
-html.is-day .glow-blob {
-  background: radial-gradient(circle, #8ecae6 0%, transparent 70%);
-}
-
-html.is-day body::after {
-  opacity: 0.02;
-}
-
-body::after {
-  transition: opacity var(--daylight);
-}
 
 html.is-day ::selection {
   background: #8ecae6;
@@ -1965,7 +1947,7 @@ html.is-day .principle:hover {
   box-shadow: 0 1px 2px rgba(18, 18, 20, 0.04), 0 30px 60px -28px rgba(27, 110, 148, 0.4);
 }
 
-html.is-day .principle-index {
+.principle-index {
   display: inline-grid;
   place-items: center;
   min-width: 2.6rem;
@@ -1983,10 +1965,4 @@ html.is-day .section-watermark {
 
 html.is-day .timeline-item::before {
   box-shadow: 0 0 0 4px var(--bg), 0 0 0 5px rgba(var(--accent-rgb), 0.25);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --daylight: 0.001ms;
-  }
 }
