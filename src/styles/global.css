@@ -22,7 +22,10 @@
   --wrap: clamp(1080px, 80vw, 1480px);
   --gutter: clamp(1.25rem, 5vw, 3rem);
   --radius: 14px;
-  --border: 1px solid rgba(255, 255, 255, 0.14);
+  --line: rgba(255, 255, 255, 0.14);
+  --border: 1px solid var(--line);
+  --header-bg: rgba(11, 11, 13, 0.72);
+  --paper-dots: 0;
 
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
@@ -305,7 +308,7 @@ ul {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: rgba(11, 11, 13, 0.72);
+  background: var(--header-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -738,8 +741,8 @@ ul {
 }
 
 .btn--primary {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: #8ecae6;
+  border-color: #8ecae6;
   color: #0b0b0d;
 }
 
@@ -902,7 +905,7 @@ main {
   overflow: hidden;
   width: calc(100% + 4rem);
   margin: clamp(0.5rem, 2vw, 1.5rem) -2rem;
-  background: linear-gradient(100deg, var(--accent-light), var(--accent) 45%, #b9e2f2);
+  background: linear-gradient(100deg, #d4eef9, #8ecae6 45%, #b9e2f2);
   padding: 1.05rem 0;
   transform: rotate(-1.6deg);
   box-shadow: 0 18px 40px -18px rgba(var(--accent-rgb), 0.55);
@@ -979,16 +982,6 @@ main {
 
 .section > .wrap {
   position: relative;
-}
-
-.section::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(to right, transparent, var(--surface-border) 50%, transparent);
 }
 
 
@@ -1429,7 +1422,7 @@ main {
   background: linear-gradient(to top, rgba(0, 0, 0, 0.82), transparent);
   font-size: 0.82rem;
   font-weight: 500;
-  color: var(--text);
+  color: #f2f2f0;
   transform: translateY(4px);
   opacity: 0.9;
   transition: transform 0.6s var(--ease), opacity 0.6s var(--ease);
@@ -1712,8 +1705,8 @@ main {
 }
 
 .contact-link--primary {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: #8ecae6;
+  border-color: #8ecae6;
   color: #0b0b0d;
 }
 
@@ -1876,14 +1869,37 @@ main {
 }
 
 /* -------------------------------------------------- */
-/* Light "paper" sections                              */
+/* Day / night                                         */
 /* -------------------------------------------------- */
-/* Every other section turns from night to day: the dark page fades through
-   a deep blue and a sky blue into warm paper, and back out into the dark at
-   the bottom, like dawn and dusk. No hard edge anywhere. The section
-   redefines the palette tokens locally, so cards, timeline, facts and links
-   re-theme themselves. */
-.section.section--light {
+/* The page is one continuous surface. When a light section (About,
+   Thinking, Education) reaches the middle of the screen, useDayNight puts
+   .is-day on <html> and the whole palette eases from night to day; leaving
+   it eases back. No section has its own background, so there is never an
+   edge, a band or a tile, just the light changing. The palette tokens are
+   registered so the browser can interpolate them. */
+@property --bg { syntax: "<color>"; inherits: true; initial-value: #0b0b0d; }
+@property --bg-alt { syntax: "<color>"; inherits: true; initial-value: #121214; }
+@property --surface { syntax: "<color>"; inherits: true; initial-value: #16161a; }
+@property --surface-border { syntax: "<color>"; inherits: true; initial-value: #232327; }
+@property --text { syntax: "<color>"; inherits: true; initial-value: #f2f2f0; }
+@property --text-muted { syntax: "<color>"; inherits: true; initial-value: #9a9aa2; }
+@property --text-faint { syntax: "<color>"; inherits: true; initial-value: #80808a; }
+@property --accent { syntax: "<color>"; inherits: true; initial-value: #8ecae6; }
+@property --accent-soft { syntax: "<color>"; inherits: true; initial-value: rgba(142, 202, 230, 0.12); }
+@property --line { syntax: "<color>"; inherits: true; initial-value: rgba(255, 255, 255, 0.14); }
+@property --header-bg { syntax: "<color>"; inherits: true; initial-value: rgba(11, 11, 13, 0.72); }
+@property --paper-dots { syntax: "<number>"; inherits: true; initial-value: 0; }
+
+:root {
+  --daylight: 0.9s cubic-bezier(0.45, 0, 0.25, 1);
+  transition:
+    --bg var(--daylight), --bg-alt var(--daylight), --surface var(--daylight),
+    --surface-border var(--daylight), --text var(--daylight), --text-muted var(--daylight),
+    --text-faint var(--daylight), --accent var(--daylight), --accent-soft var(--daylight),
+    --line var(--daylight), --header-bg var(--daylight), --paper-dots var(--daylight);
+}
+
+html.is-day {
   --bg: #f6f3ec;
   --bg-alt: #efebe2;
   --surface: #ffffff;
@@ -1892,81 +1908,64 @@ main {
   --text-muted: #4f4f58;
   --text-faint: #6a6a73;
   --accent: #1b6e94;
-  --accent-light: #8ecae6;
+  --accent-soft: rgba(142, 202, 230, 0.24);
   --accent-rgb: 27, 110, 148;
-  --accent-soft: rgba(142, 202, 230, 0.22);
-  --border: 1px solid rgba(18, 18, 20, 0.08);
-  --fade: clamp(140px, 15vw, 280px);
-
+  --line: rgba(18, 18, 20, 0.09);
+  --header-bg: rgba(246, 243, 236, 0.78);
+  --paper-dots: 1;
   color-scheme: light;
-  color: var(--text);
-  isolation: isolate;
-  padding-block: calc(var(--fade) * 0.8 + clamp(1rem, 3vw, 2.5rem));
-  background: linear-gradient(
-    to bottom,
-    transparent 0,
-    rgba(16, 38, 52, 0.92) calc(var(--fade) * 0.3),
-    #a9d4e8 calc(var(--fade) * 0.72),
-    var(--bg) var(--fade),
-    var(--bg) calc(100% - var(--fade)),
-    #a9d4e8 calc(100% - var(--fade) * 0.72),
-    rgba(16, 38, 52, 0.92) calc(100% - var(--fade) * 0.3),
-    transparent 100%
-  );
 }
 
-/* Paper texture (dot grid) and the soft sky/peach washes live on their own
-   layer, masked so they only appear once the sky has turned to paper. */
-.section.section--light::before {
+/* Daytime paper texture: a faint dot grid and soft sky/peach washes on a
+   fixed layer that fades in with the light. */
+body::before {
+  content: "";
+  position: fixed;
   inset: 0;
-  height: auto;
-  z-index: -1;
-  background-color: transparent;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--paper-dots);
   background-image:
-    radial-gradient(45% 40% at 92% 22%, rgba(142, 202, 230, 0.5), transparent 70%),
-    radial-gradient(40% 40% at 6% 80%, rgba(255, 214, 170, 0.4), transparent 70%),
+    radial-gradient(45% 45% at 95% 10%, rgba(142, 202, 230, 0.45), transparent 70%),
+    radial-gradient(40% 45% at 5% 95%, rgba(255, 214, 170, 0.35), transparent 70%),
     radial-gradient(circle at 1px 1px, rgba(18, 18, 20, 0.09) 1px, transparent 1.5px);
   background-size: auto, auto, 22px 22px;
-  -webkit-mask-image: linear-gradient(to bottom, transparent calc(var(--fade) * 0.7), #000 calc(var(--fade) * 1.4), #000 calc(100% - var(--fade) * 1.4), transparent calc(100% - var(--fade) * 0.7));
-  mask-image: linear-gradient(to bottom, transparent calc(var(--fade) * 0.7), #000 calc(var(--fade) * 1.4), #000 calc(100% - var(--fade) * 1.4), transparent calc(100% - var(--fade) * 0.7));
 }
 
-.section--light .section-watermark {
-  opacity: 0.06;
-  color: var(--accent);
+/* By day the background glows stay sky blue instead of following the
+   darker daytime accent, and the night grain steps back. */
+html.is-day .glow-blob {
+  background: radial-gradient(circle, #8ecae6 0%, transparent 70%);
 }
 
-.section--light ::selection {
-  background: var(--accent-light);
+html.is-day body::after {
+  opacity: 0.02;
+}
+
+body::after {
+  transition: opacity var(--daylight);
+}
+
+html.is-day ::selection {
+  background: #8ecae6;
   color: #0b0b0d;
 }
 
 /* Cards on paper: white, lifted by a soft cool shadow instead of borders
    glowing out of the dark. */
-.section--light .card,
-.section--light .principle,
-.section--light .facts {
+html.is-day .card,
+html.is-day .principle,
+html.is-day .facts,
+html.is-day .recognition-panel {
   box-shadow: 0 1px 2px rgba(18, 18, 20, 0.04), 0 18px 40px -24px rgba(27, 60, 80, 0.25);
 }
 
-.section--light .card:hover,
-.section--light .principle:hover {
-  border-color: rgba(var(--accent-rgb), 0.45);
+html.is-day .card:hover,
+html.is-day .principle:hover {
   box-shadow: 0 1px 2px rgba(18, 18, 20, 0.04), 0 30px 60px -28px rgba(27, 110, 148, 0.4);
 }
 
-.section--light .card::before,
-.section--light .principle::before,
-.section--light .spotlight::before {
-  background: radial-gradient(
-    var(--spot-size, 320px) circle at var(--mx, 50%) var(--my, 50%),
-    rgba(142, 202, 230, 0.35),
-    transparent 62%
-  );
-}
-
-/* Principle numbers become soft sky-blue chips */
-.section--light .principle-index {
+html.is-day .principle-index {
   display: inline-grid;
   place-items: center;
   min-width: 2.6rem;
@@ -1978,16 +1977,16 @@ main {
   opacity: 1;
 }
 
-.section--light .facts-title {
-  color: var(--accent);
+html.is-day .section-watermark {
+  opacity: 0.06;
 }
 
-.section--light .timeline-item::before {
+html.is-day .timeline-item::before {
   box-shadow: 0 0 0 4px var(--bg), 0 0 0 5px rgba(var(--accent-rgb), 0.25);
 }
 
-/* The dusk fade already separates the dark section that follows; its own
-   hairline divider would draw a hard edge right where the fade ends. */
-.section--light + .section::before {
-  display: none;
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --daylight: 0.001ms;
+  }
 }
