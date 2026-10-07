@@ -2,7 +2,7 @@ import SplitHeading from "./SplitHeading.jsx";
 
 export default function Thinking() {
   return (
-    <section className="section" id="mysleni" aria-labelledby="mysleni-heading">
+    <section className="section section--light" id="mysleni" aria-labelledby="mysleni-heading">
       <div className="wrap">
         <span className="section-watermark" aria-hidden="true">03</span>
         <p className="section-number" data-reveal="true">03</p>

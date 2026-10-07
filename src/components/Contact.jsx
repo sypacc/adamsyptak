@@ -34,7 +34,7 @@ export default function Contact() {
 
         <div className="contact-meta">
           <p>© {new Date().getFullYear()} Adam Sypták</p>
-          <a href="project/" className="contact-meta-link">Školní projekt ↗</a>
+          <a href="sluzba/" className="contact-meta-link">Školní projekt ↗</a>
           <a href="#uvod" className="contact-meta-link to-top">Nahoru ↑</a>
         </div>
       </div>
