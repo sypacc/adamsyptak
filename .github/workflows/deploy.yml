@@ -3,9 +3,13 @@ name: Deploy to GitHub Pages
 # The site is a Vite build, so Pages must be set to Source: "GitHub Actions"
 # (Settings → Pages). Serving a branch directly publishes the unbuilt source
 # and the page renders blank.
+# Only claude/friendly-rubin-5tbair may deploy (rule on the github-pages
+# environment), so pushes to main don't run this: they would only fail at the
+# deploy step or cancel a real deploy that is in flight. Flow: PR into main,
+# then PR main -> claude/friendly-rubin-5tbair (see CLAUDE.md).
 on:
   push:
-    branches: [main, claude/friendly-rubin-5tbair]
+    branches: [claude/friendly-rubin-5tbair]
   workflow_dispatch:
 
 permissions:
@@ -15,7 +19,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
