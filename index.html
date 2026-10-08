@@ -21,6 +21,24 @@
   <meta property="og:image:alt" content="Adam Sypták — Buduji věci od nuly a dotahuju je do stavu, kdy fungují.">
   <meta name="twitter:card" content="summary_large_image">
 
+  <script>
+    // Po nasazení nové verze může prohlížeč z cache podat staré HTML, které
+    // odkazuje na už smazané soubory v /assets/ – stránka by zůstala prázdná.
+    // Pak ji jednou obnovíme (čerstvé HTML). Příznak maže aplikace po spuštění.
+    (function () {
+      var key = 'asset-reload';
+      window.addEventListener('error', function (e) {
+        var el = e.target;
+        if (!el || (el.tagName !== 'SCRIPT' && el.tagName !== 'LINK')) return;
+        if ((el.src || el.href || '').indexOf('/assets/') === -1) return;
+        try {
+          if (sessionStorage.getItem(key)) return;
+          sessionStorage.setItem(key, '1');
+        } catch (err) { return; }
+        location.reload();
+      }, true);
+    })();
+  </script>
   <link rel="icon" type="image/svg+xml" href="%BASE_URL%assets/img/favicon.svg">
   <link rel="apple-touch-icon" href="%BASE_URL%apple-touch-icon.png">
   <link rel="preload" href="/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>

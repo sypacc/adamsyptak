@@ -12,3 +12,11 @@ createRoot(document.getElementById("root")).render(
     <TrackWiseApp />
   </StrictMode>
 );
+
+// The app started, so the assets loaded: allow a future stale-cache reload
+// (see the inline script in the page's index.html).
+try {
+  sessionStorage.removeItem("asset-reload");
+} catch {
+  // storage unavailable (private mode); nothing to clear
+}
