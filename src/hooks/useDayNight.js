@@ -43,6 +43,11 @@ export function useDayNight() {
         const fadeOut = clamp01((r.bottom - vh * OUT_END) / (vh * (OUT_START - OUT_END)));
         day = Math.max(day, Math.min(fadeIn, fadeOut));
       });
+      // At the very end of the page there's no more scrolling to finish a
+      // half-done fade, so settle on whichever state is nearer instead of
+      // leaving the last screen in a grey mid-tone.
+      const atEnd = window.scrollY + vh >= document.documentElement.scrollHeight - 2;
+      if (atEnd) day = Math.round(day);
       return smoothstep(0, 1, day);
     }
 
