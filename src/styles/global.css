@@ -1801,18 +1801,29 @@ main {
 /* -------------------------------------------------- */
 .motto {
   position: relative;
-  overflow: hidden;
   padding: clamp(5rem, 12vw, 9rem) 0;
-  text-align: center;
-  background:
-    radial-gradient(60% 80% at 50% 50%, rgba(var(--accent-rgb), 0.1), transparent 70%);
+}
+
+.motto .wrap {
+  display: grid;
+  gap: 1.75rem;
+}
+
+/* A short accent rule instead of decoration: the line itself carries it. */
+.motto blockquote::before {
+  content: "";
+  display: block;
+  width: 3rem;
+  height: 2px;
+  margin-bottom: 2rem;
+  background: var(--accent);
 }
 
 .motto blockquote p {
-  font-size: clamp(2rem, 6.5vw, 4.5rem);
-  font-weight: 800;
+  font-size: clamp(2rem, 5.5vw, 4rem);
+  font-weight: 700;
   line-height: 1.1;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
   text-wrap: balance;
 }
 
@@ -1821,35 +1832,14 @@ main {
 }
 
 .motto figcaption {
-  margin-top: 1.5rem;
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--text-faint);
 }
 
-.motto-star {
-  position: absolute;
-  left: var(--x);
-  top: var(--y);
-  font-size: 1.1rem;
-  color: var(--accent);
-  opacity: 0.25;
-  pointer-events: none;
-  animation: twinkle 3.2s ease-in-out infinite;
-  animation-delay: var(--d, 0s);
-}
-
-.motto-star--sm {
-  font-size: 0.7rem;
-}
-
-@keyframes twinkle {
-  0%, 100% { opacity: 0.15; transform: scale(0.85); }
-  50% { opacity: 0.85; transform: scale(1.15); }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .motto-star,
   .hero-dot {
     animation: none !important;
   }
@@ -1875,14 +1865,15 @@ main {
   initial-value: 0;
 }
 
-/* The page is one continuous surface whose light follows the scroll.
-   useDayNight sets --day (0 = night, 1 = day) from how far a light section
-   (About, Thinking, Education) has moved into the middle of the screen,
-   smoothed frame by frame, and every palette token is a mix of its night
-   and day value. Text must never fade into a mid-tone background, so it
-   doesn't follow the scroll: --tday flips 0/1 where light and dark text
-   contrast equally with the background and eases over a short transition. No section has its own background: there
-   is never an edge, a band or a tile, only the light changing. */
+/* The page is one continuous surface that changes light only once: the
+   dark intro gives way to daylight as About moves into the screen, and the
+   rest of the page stays light. useDayNight sets --day (0 = night,
+   1 = day), smoothed frame by frame, and every palette token is a mix of
+   its night and day value. Text must never fade into a mid-tone
+   background, so it doesn't follow the scroll: --tday flips 0/1 where
+   light and dark text contrast equally with the background and eases over
+   a short transition. No section has its own background: there is never
+   an edge, a band or a tile, only the light changing. */
 :root {
   --day: 0;
   --tday: 0;
