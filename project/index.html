@@ -20,20 +20,28 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <script>
-    // Po nasazení nové verze může prohlížeč z cache podat staré HTML, které
-    // odkazuje na už smazané soubory v /assets/ – stránka by zůstala prázdná.
-    // Pak ji jednou obnovíme (čerstvé HTML). Příznak maže aplikace po spuštění.
+    // Po nasazení nové verze může prohlížeč nebo cache GitHubu podat staré
+    // HTML, které odkazuje na už smazané soubory v /assets/ – stránka by
+    // zůstala prázdná. Pak ji načteme znovu s parametrem ?_r=…, který žádná
+    // cache nemá, takže přijde čerstvé HTML. Nejvýš 3 pokusy; aplikace po
+    // spuštění počítadlo smaže a parametr z adresy odstraní.
     (function () {
       var key = 'asset-reload';
       window.addEventListener('error', function (e) {
         var el = e.target;
         if (!el || (el.tagName !== 'SCRIPT' && el.tagName !== 'LINK')) return;
         if ((el.src || el.href || '').indexOf('/assets/') === -1) return;
+        var tries = 0;
         try {
-          if (sessionStorage.getItem(key)) return;
-          sessionStorage.setItem(key, '1');
-        } catch (err) { return; }
-        location.reload();
+          tries = Number(sessionStorage.getItem(key)) || 0;
+          if (tries >= 3) return;
+          sessionStorage.setItem(key, String(tries + 1));
+        } catch (err) {
+          if (/[?&]_r=/.test(location.search)) return;
+        }
+        var url = new URL(location.href);
+        url.searchParams.set('_r', Date.now().toString(36));
+        location.replace(url.href);
       }, true);
     })();
   </script>

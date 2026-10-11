@@ -12,9 +12,15 @@ createRoot(document.getElementById("root")).render(
 );
 
 // The app started, so the assets loaded: allow a future stale-cache reload
-// (see the inline script in the page's index.html).
+// and drop its cache-busting ?_r= from the address (see the inline script
+// in the page's index.html).
 try {
   sessionStorage.removeItem("asset-reload");
 } catch {
   // storage unavailable (private mode); nothing to clear
+}
+if (new URLSearchParams(location.search).has("_r")) {
+  const url = new URL(location.href);
+  url.searchParams.delete("_r");
+  history.replaceState(history.state, "", url.pathname + url.search + url.hash);
 }
