@@ -1,16 +1,14 @@
 import { useEffect } from "react";
 
 // Day/night for the portfolio, tied to the scroll rather than to a timed
-// switch. Each light section (.section--light) brings daylight in while its
-// top travels from 90% to 50% of the viewport and takes it out while its
-// bottom travels from 50% to 10%, so the change is spread over a long
-// stretch of scrolling and stops whenever the scrolling stops. The value is
-// eased towards its target every frame for extra smoothness and written to
-// <html> as --day (backgrounds); text flips via --tday (see global.css).
+// switch. The page changes only once: the dark intro gives way to daylight
+// while the top of the light part (.section--light, from About onwards)
+// travels from 90% to 40% of the viewport, and the rest of the page stays
+// light. The value is eased towards its target every frame for extra
+// smoothness and written to <html> as --day (backgrounds); text flips via
+// --tday (see global.css).
 const IN_START = 0.9;
-const IN_END = 0.5;
-const OUT_START = 0.5;
-const OUT_END = 0.1;
+const IN_END = 0.4;
 const EASE = 0.08;
 
 function clamp01(v) {
@@ -25,8 +23,8 @@ function smoothstep(a, b, v) {
 export function useDayNight() {
   useEffect(() => {
     const root = document.documentElement;
-    const lightSections = Array.from(document.querySelectorAll(".section--light"));
-    if (!lightSections.length) return undefined;
+    const lightStart = document.querySelector(".section--light");
+    if (!lightStart) return undefined;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     let current = 0;
@@ -36,19 +34,8 @@ export function useDayNight() {
 
     function measure() {
       const vh = window.innerHeight;
-      let day = 0;
-      lightSections.forEach((section) => {
-        const r = section.getBoundingClientRect();
-        const fadeIn = clamp01((vh * IN_START - r.top) / (vh * (IN_START - IN_END)));
-        const fadeOut = clamp01((r.bottom - vh * OUT_END) / (vh * (OUT_START - OUT_END)));
-        day = Math.max(day, Math.min(fadeIn, fadeOut));
-      });
-      // At the very end of the page there's no more scrolling to finish a
-      // half-done fade, so settle on whichever state is nearer instead of
-      // leaving the last screen in a grey mid-tone.
-      const atEnd = window.scrollY + vh >= document.documentElement.scrollHeight - 2;
-      if (atEnd) day = Math.round(day);
-      return smoothstep(0, 1, day);
+      const top = lightStart.getBoundingClientRect().top;
+      return smoothstep(0, 1, (vh * IN_START - top) / (vh * (IN_START - IN_END)));
     }
 
     function paint(value) {
