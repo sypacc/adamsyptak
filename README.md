@@ -7,16 +7,14 @@ jen přesměruje na TrackWise.
 ## Struktura
 
 ```
-index.html                 — vstupní bod portfolia (meta, OG náhled, preload fontu)
+index.html                 — vstupní bod portfolia (meta, OG náhled)
 project/index.html         — vstupní bod TrackWise
 src/
   main.jsx                 — spuštění portfolia
   App.jsx                  — portfolio složené z komponent
   components/              — sekce portfolia (Header, Hero, About, Built, ...)
-  hooks/useSiteEffects.js  — scroll efekty, odhalování při scrollu, tilt/spotlight, pozadí
-  hooks/useSmoothScroll.js — plynulý scroll (Lenis), jen pro myš/trackpad
-  utils/background.js      — generování vrstevnicového pozadí
-  styles/global.css        — styly portfolia
+  hooks/usePageEffects.js  — aktivní položka navigace + odhalení bloků při scrollu
+  styles/global.css        — styly portfolia (písma Inter + Newsreader z @fontsource)
   project-main.jsx         — spuštění TrackWise
   trackwise/               — TrackWise: komponenty, contexty (téma, účet, košík), wizard
   styles/trackwise.css     — styly TrackWise
