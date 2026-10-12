@@ -1,12 +1,12 @@
 name: Deploy to GitHub Pages
 
-# The site is a Vite build, so Pages must be set to Source: "GitHub Actions"
-# (Settings → Pages). Serving a branch directly publishes the unbuilt source
-# and the page renders blank.
+# Builds the site (Vite) and publishes dist/ to GitHub Pages.
+#
 # Only claude/friendly-rubin-5tbair may deploy (rule on the github-pages
-# environment), so pushes to main don't run this: they would only fail at the
-# deploy step or cancel a real deploy that is in flight. Flow: PR into main,
-# then PR main -> claude/friendly-rubin-5tbair (see CLAUDE.md).
+# environment), so this runs on pushes to that branch and on manual dispatch.
+# Nobody has to touch that branch by hand: sync-deploy.yml mirrors main into
+# it after every merge and dispatches this workflow. Flow: PR into main,
+# merge, done (see CLAUDE.md).
 on:
   push:
     branches: [claude/friendly-rubin-5tbair]
@@ -16,6 +16,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read
 
 concurrency:
   group: pages
@@ -44,5 +45,26 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # While Settings → Pages → Source is "Deploy from a branch", GitHub also
+      # runs its own "pages build and deployment" for the same push and
+      # publishes the unbuilt source (a blank page). Whichever deployment
+      # finishes last wins, so wait until every other run for this commit has
+      # finished and deploy after it. With Source set to "GitHub Actions"
+      # there is no other run and this step returns at once.
+      - name: Let any other deployment of this commit finish first
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for i in $(seq 1 30); do
+            busy=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${GITHUB_SHA}&per_page=50" \
+              --jq "[.workflow_runs[] | select(.id != ${GITHUB_RUN_ID} and .status != \"completed\")] | length")
+            if [ "$busy" = "0" ]; then
+              echo "No other deployment in progress."
+              exit 0
+            fi
+            echo "Waiting for $busy other run(s) of this commit…"
+            sleep 10
+          done
+          echo "Still busy after 5 minutes; deploying anyway."
       - id: deployment
         uses: actions/deploy-pages@v4

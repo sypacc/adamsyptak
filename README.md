@@ -49,15 +49,18 @@ stejné varianty (stačí poslat fotku Claudovi).
 
 ## Nasazení na GitHub Pages
 
-Stránka se builduje (React/Vite), takže už nejde nasadit přímo z branche —
-nasazení zajišťuje workflow `.github/workflows/deploy.yml`, který při každém
-push na `main` stránku zbuilduje a nahraje na GitHub Pages.
+Stránka se builduje (React/Vite), nasazení dělají dva workflow:
+
+1. `.github/workflows/sync-deploy.yml` – po každém pushi do `main` přepíše větev
+   `claude/friendly-rubin-5tbair` (jediná, která smí nasazovat) obsahem `main`
+   a spustí deploy.
+2. `.github/workflows/deploy.yml` – zbuilduje web a nahraje `dist/` na GitHub Pages.
+
+V praxi tedy: PR do `main` → merge → za cca 2 minuty je nová verze online.
 
 **Jednorázové nastavení v repozitáři:**
 
 1. **Settings → Pages**
 2. V sekci **Build and deployment** přepnout **Source** na **GitHub Actions**
-   (místo původního "Deploy from a branch").
-
-Po tomto přepnutí se stránka při každém pushi na `main` automaticky zbuilduje
-a nasadí na `https://sypacc.github.io/adamsyptak/`.
+   (místo "Deploy from a branch"). Při nasazování z větve GitHub publikuje
+   nezbuildovaný zdroják a web je prázdný.

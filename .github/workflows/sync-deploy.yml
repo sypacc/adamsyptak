@@ -1,0 +1,35 @@
+name: Sync main to the deploy branch
+
+# After every merge into main, mirror main into claude/friendly-rubin-5tbair
+# (the only branch allowed to deploy) and start deploy.yml there. A push made
+# with the workflow token does not trigger other workflows by itself, hence
+# the explicit dispatch. This replaces the manual "PR main → deploy branch".
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: sync-deploy
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # The deploy branch is a mirror of main and carries nothing of its own
+      # (its old merge commits came from the manual PRs), so a forced update
+      # is the intended result, not a loss.
+      - name: Mirror main into the deploy branch
+        run: git push --force origin HEAD:refs/heads/claude/friendly-rubin-5tbair
+      - name: Start the deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref claude/friendly-rubin-5tbair

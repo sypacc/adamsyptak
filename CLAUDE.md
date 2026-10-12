@@ -23,8 +23,12 @@ Když není jasné, jestli změna patří do zadání, **zeptej se**, nedělej j
 ## Nasazení
 
 - GitHub Pages smí nasazovat jen z větve **`claude/friendly-rubin-5tbair`** (pravidlo prostředí `github-pages`).
-  Workflow `.github/workflows/deploy.yml` proto běží jen na push do této větve (nebo ručně).
-- Postup: změna → PR do `main` → merge → PR z `main` do `claude/friendly-rubin-5tbair` → merge → deploy.
+  Na tu větev se **nesahá ručně**: workflow `.github/workflows/sync-deploy.yml` ji po každém
+  pushi do `main` přepíše obsahem `main` a spustí `.github/workflows/deploy.yml`, který web zbuilduje a nasadí.
+- Postup: změna → PR do `main` → merge → hotovo (nasazení proběhne samo, cca 2 minuty).
 - Před pushem vždy `npm run build` a ověřit, že se `/` i `/project/` načtou bez chyb.
+- V nastavení repa musí být **Settings → Pages → Source: GitHub Actions**. Při „Deploy from a branch“
+  GitHub navíc publikuje surový zdroják bez buildu a web je pak prázdný; `deploy.yml` to sice
+  obchází tím, že nasazuje až jako poslední, ale správné nastavení je GitHub Actions.
 - Obě `index.html` mají malý skript, který po nasazení nové verze jednou obnoví stránku,
   pokud prohlížeč z cache načetl staré HTML s odkazy na už smazané soubory. Neodstraňovat.
