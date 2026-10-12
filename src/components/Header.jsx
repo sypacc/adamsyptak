@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-var NAV_LINKS = [
+const NAV_LINKS = [
   { href: "#o-mne", label: "O mně" },
   { href: "#postaveno", label: "Co jsem postavil" },
   { href: "#mysleni", label: "Jak přemýšlím" },
@@ -8,63 +8,53 @@ var NAV_LINKS = [
   { href: "#kontakt", label: "Kontakt" },
 ];
 
-export default function Header({ headerRef, navRef, navIndicatorRef }) {
-  const [isNavOpen, setIsNavOpen] = useState(false);
+export default function Header() {
+  const [isOpen, setIsOpen] = useState(false);
+  const headerRef = useRef(null);
 
-  // The mobile menu is a full-screen overlay: lock the page behind it and
-  // let Escape close it like any other dialog.
+  // The small-screen menu is a plain list under the header bar: Escape and a
+  // click anywhere outside close it, like any disclosure.
   useEffect(() => {
-    if (!isNavOpen) return undefined;
-    document.body.style.overflow = "hidden";
+    if (!isOpen) return undefined;
     function onKeyDown(e) {
-      if (e.key === "Escape") setIsNavOpen(false);
+      if (e.key === "Escape") setIsOpen(false);
+    }
+    function onPointerDown(e) {
+      if (headerRef.current && !headerRef.current.contains(e.target)) setIsOpen(false);
     }
     document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("pointerdown", onPointerDown);
     return () => {
-      document.body.style.overflow = "";
       document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("pointerdown", onPointerDown);
     };
-  }, [isNavOpen]);
-
-  function closeNav() {
-    setIsNavOpen(false);
-  }
+  }, [isOpen]);
 
   return (
-    <header className="site-header" id="hlavicka" ref={headerRef}>
+    <header className={"site-header" + (isOpen ? " is-open" : "")} ref={headerRef}>
       <div className="wrap header-inner">
-        <a className="logo" href="#uvod" aria-label="AS — Adam Sypták, úvod">AS</a>
+        <a className="wordmark" href="#uvod">Adam Sypták</a>
 
-        <nav
-          className={"nav" + (isNavOpen ? " is-open" : "")}
-          id="hlavni-nav"
-          aria-label="Hlavní navigace"
-          ref={navRef}
-          data-lenis-prevent={isNavOpen ? "" : undefined}
-        >
-          <ul id="navList">
+        <nav className="nav" id="hlavni-nav" aria-label="Hlavní navigace">
+          <ul>
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
-                <a href={link.href} onClick={closeNav}>{link.label}</a>
+                <a href={link.href} onClick={() => setIsOpen(false)}>{link.label}</a>
               </li>
             ))}
-            <li className="nav-indicator" id="navIndicator" aria-hidden="true" ref={navIndicatorRef}></li>
           </ul>
         </nav>
 
         <button
           type="button"
           className="nav-toggle"
-          id="navToggle"
-          aria-expanded={isNavOpen}
+          aria-expanded={isOpen}
           aria-controls="hlavni-nav"
-          aria-label={isNavOpen ? "Zavřít navigaci" : "Otevřít navigaci"}
-          onClick={() => setIsNavOpen((open) => !open)}
+          onClick={() => setIsOpen((open) => !open)}
         >
-          <span></span><span></span><span></span>
+          {isOpen ? "Zavřít" : "Menu"}
         </button>
       </div>
-      <span className="scroll-progress" aria-hidden="true"></span>
     </header>
   );
 }
